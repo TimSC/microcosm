@@ -237,17 +237,19 @@ class ElementTableOpt extends ElementTable
 		//Write history
 		if($found)
 		{
-			$sql = "UPDATE history SET history='?' WHERE id=".(int)$id.";";
+			$sql = "UPDATE history SET history=? WHERE id=?;";
 		}
 		else
 		{
-			$sql = "INSERT INTO history (id, history) VALUES (".(int)$id.",?);";
+			$sql = "INSERT INTO history (history, id) VALUES (?,?);";
 		}
 
 		$sth = $this->dbh->prepare($sql);
 		if($sth===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
-		$ret = $sth->execute(array(serialize($rowids)));
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+		$sqlVals = array(serialize($rowids),(int)$id);
+		$ret = $sth->execute($sqlVals);
+		if($ret===false) 
+		{$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);	}
 	}
 
 	//***************************
