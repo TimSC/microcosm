@@ -1,7 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version='0.6' generator='JOSM'>
-  <changeset  id='0' open='false'>
-    <tag k='comment' v='test' />
-    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
-  </changeset>
+  <node id='-289' visible='true' changeset='374' lat='51.25022331526812' lon='-0.6042092878597837' />
 </osm>

@@ -7,7 +7,7 @@ fs = os.path.getsize("test.xml")
 baseurl = "http://localhost/m/microcosm.php"
 #baseurl = "http://api06.dev.openstreetmap.org/api"
 #baseurl = "http://www.openstreetmap.org/api"
-userpass = "mapping@sheerman-chase.org.uk:test"
+userpass = "mapping@sheerman-chase.org.uk:test123"
 #userpass = "jeff@sheerman-chase.org.uk:test"
 #userpass = "bob:test"
 
@@ -58,7 +58,7 @@ createchangeset = "<?xml version='1.0' encoding='UTF-8'?>\n<osm version='0.6' ge
 
 
 #cid = 6108794
-cid = 359
+cid = 370
 #creatediff = "<osmChange version=\"0.6\" generator=\"PythonTest\">\n<create>\n"\
 #	+"<node id='-8836' visible='true' changeset='150' lat='51.28572570520306' lon='-0.5961918364308939' />\n</create>\n</osmChange>"
 
@@ -76,12 +76,12 @@ modifydiff = "<osmChange version='0.6' generator='JOSM'><create><node id='-1368'
 #modifydiff = "<?xml version='1.0' encoding='UTF-8'?><osm version='0.6' generator='JOSM'><node id='328' timestamp='2010-10-05T11:37:38Z' uid='6809' user='TimSC' visible='true' version='1' changeset='173' lat='51.285628032513536' lon='-0.5964144741402374' /></osm>"
 
 #print Post(baseurl+"/0.6/changeset/"+str(cid)+"/upload",open("test.xml").read())
-#print Post(baseurl+"/0.6/node/create",open("test.xml").read())
+print Put(baseurl+"/0.6/node/create",open("test.xml").read())
 
 #print Put(baseurl+"/0.6/node/328",open("test.xml").read())
 #print Put(baseurl+"/0.6/changeset/"+str(cid)+"/upload",open("test.xml").read())
-#print Put(baseurl+"/0.6/changeset/267",open("test.xml").read())
-print Put(baseurl+"/0.6/changeset/create",open("test.xml").read())
+#print Put(baseurl+"/0.6/changeset/"+str(cid),open("test.xml").read())
+#print Put(baseurl+"/0.6/changeset/create",open("test.xml").read())
 
 #print Put(baseurl+"/0.6/changeset/"+str(cid)+"/close","")
 #print Put(baseurl+"/0.6/user/perferences",open("test.xml").read())

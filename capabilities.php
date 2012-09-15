@@ -17,7 +17,7 @@ $out = $out. '    <timeout seconds="'.ini_get('max_execution_time').'"/>'."\n";
 $out = $out. '  </api>'."\n";
 $out = $out. '</osm>'."\n";
 
-return $out;
+return array(1,array("Content-Type:text/xml"),$out);
 }
 
 ?>

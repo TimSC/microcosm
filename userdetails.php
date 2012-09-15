@@ -15,7 +15,10 @@ function CheckLogin($user,$password)
 {
 	$lock=GetReadDatabaseLock();
 	$db = UserDbFactory();
-	return $db->CheckLogin($user,$password);
+	$ret = $db->CheckLogin($user,$password);
+	if($ret == -1 and ENABLE_ANON_EDITS)
+		return array(ANON_DISPLAY_NAME, ANON_UID);
+	return $ret;
 }
 
 function AddUser($displayName, $email, $password, $uid = NULL)
@@ -28,8 +31,10 @@ function AddUser($displayName, $email, $password, $uid = NULL)
 	return $db->AddUser($displayName, $email, $password, $uid);
 }
 
-function GetUserDetails($uid)
+function GetUserDetails($userInfo)
 {
+	$uid = $userInfo['userId'];
+
 	$lock=GetReadDatabaseLock();
 	if($uid == null)
 		throw new InvalidArgumentException('Argument is null.');
@@ -63,12 +68,14 @@ function GetUserDetails($uid)
 	$out = $out."  </user>\n";
 	$out = $out."</osm>\n";
 	
-	return $out;
+	return array(1,array("Content-Type:text/xml"),$out);
 
 }
 
-function GetUserPreferences($uid)
+function GetUserPreferences($userInfo)
 {
+	$uid = $userInfo['userId'];
+
 	$lock=GetReadDatabaseLock();
 
 	if($uid == null)
@@ -81,7 +88,7 @@ function GetUserPreferences($uid)
 		$out = $out."<preferences>\n";
 		$out = $out."</preferences>\n";
 		$out = $out."</osm>\n";
-		return $out;
+		return array(1,array("Content-Type:text/xml"),$out);
 	}
 
 	$db = new UserPrefsDbSqlite();
@@ -100,12 +107,14 @@ function GetUserPreferences($uid)
 		$out = $out."</preferences>\n";
 	}
 	$out = $out."</osm>\n";
-	return $out;
+	return array(1,array("Content-Type:text/xml"),$out);
 
 }
 
-function SetUserPreferences($userId,$data)
+function SetUserPreferences($userInfo,$data)
 {
+	$userId = $userInfo['userId'];
+
 	//Parse and validate
 	$prefs = new UserPreferences();
 	$prefs->FromXmlString($data);
@@ -114,13 +123,20 @@ function SetUserPreferences($userId,$data)
 	$lock=GetWriteDatabaseLock();
 	$db = new UserPrefsDbSqlite();
 	$db[(int)$userId] = array('prefs'=>$prefs);
+
+	return array(1,array("Content-Type:text/plain"),"");
 }
 
-function SetUserPreferencesSingle($userId,$key,$value)
+function SetUserPreferencesSingle($userInfo,$vars)
 {
-	$lock=GetWriteDatabaseLock();
-	$fname = "userpreferences/".(int)$userId.".xml";
+	$key = $vars[0][4];
+	$value = $vars[1];
+	$userId = $userInfo['userId'];
 
+	if(strlen($key)>255 or strlen($value)>255)
+		return array(0,Null,"too-large");
+	
+	$lock=GetWriteDatabaseLock();
 	$key = html_entity_decode($key);
 	$value = html_entity_decode($value);
 
@@ -135,12 +151,12 @@ function SetUserPreferencesSingle($userId,$key,$value)
 	}
 
 	if(count($prefs->data)+1>MAX_USER_PERFS)
-		return "too-many-preferences";
+		return array(0,Null,"too-many-preferences");
 
 	//Check key doesn't exist, otherwise fail and return
 	//print_r($prefs);
 	if(isset($prefs->data[$key]))
-		return "key-already-exists";
+		return array(0,Null,"key-already-exists");
 
 	//Set key
 	$prefs->data[$key] = $value;
@@ -148,7 +164,7 @@ function SetUserPreferencesSingle($userId,$key,$value)
 	//Write to db
 	$db[(int)$userId] = array('prefs'=>$prefs);
 
-	return 1;
+	return array(1,array(),"");
 }
 
 //**************************
@@ -197,20 +213,18 @@ class UserDbFile
 				if(strcmp($_SERVER['PHP_AUTH_PW'],$fields[1])!=0)
 				{
 					//echo "password didn't match";
-					return 1;
+					return 0;
 				}
 
 				$displayName = $fields[2];
 				$userId = (int)$fields[3];
+				//print_r(array($displayName, $userId));
 				return array($displayName, $userId);
 			}
 		}
 
-		if(ENABLE_ANON_EDITS)
-			return array(ANON_DISPLAY_NAME, ANON_UID);
-
 		//echo "no such user";	
-		return 1;
+		return -1;
 
 	}
 
@@ -294,7 +308,7 @@ class UserDbFile
 class UserDbSqlite extends GenericSqliteTable
 {
 	var $keys=array('uid'=>'INTEGER', 'userName'=>'STRING', 'displayName'=>'STRING');
-	var $dbname='sqlite/users.db';
+	var $dbname='private/users.db';
 	var $tablename="users";
 
 	function __construct()
@@ -309,8 +323,10 @@ class UserDbSqlite extends GenericSqliteTable
 
 	function CheckLogin($login,$password)
 	{
+		//TODO Anon user
 		$user = $this->Get("userName",$login);
-		if(is_null($user)) return 1; 
+		if(is_null($user)) return -1; 
+		if(strcmp($password,$user['password'])!=0) return 0;
 		//print_r($user);
 		return array($user['displayName'], $user['uid']);
 	}
@@ -354,7 +370,7 @@ class UserDbSqlite extends GenericSqliteTable
 class UserPrefsDbSqlite extends GenericSqliteTable
 {
 	var $keys=array('uid'=>'INTEGER');
-	var $dbname='sqlite/userprefs.db';
+	var $dbname='private/userprefs.db';
 	var $tablename="users";
 
 

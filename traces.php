@@ -4,8 +4,21 @@ require_once('config.php');
 require_once('dbutils.php');
 require_once('fileutils.php');
 
-function GetTracesInBbox($bbox,$page)
+class RawTraceTable extends GenericSqliteTable
 {
+	var $keys=array('tid'=>'INTEGER');
+	var $dbname='private/rawtraces.db';
+	var $tablename="rawtraces";
+}
+
+function GetTracesInBbox($userInfo,$get)
+{
+	$bboxExp = explode(",",$get['bbox']);
+	$bbox = array_map('floatval', $bboxExp);
+	$page = (int)$get['page'];
+
+	//Validate BBOX
+	//TODO, reuse code that validates map query bbox
 
 	//Open DB
 	$lock=GetReadDatabaseLock();
@@ -80,12 +93,24 @@ function GetTracesInBbox($bbox,$page)
 	$out .= "  </trk>\n";
 	}
 	$out .= "</gpx>\n";
-	return $out;
+	return array(1,array("Content-Type:text/xml"),$out);
 
 }
 
-function InsertTraceIntoDb($gpxString, $uid, $public, $visible, $name, $description, $tags)
+function InsertTraceIntoDb($userInfo, $args)
 {
+	list($files,$post) = $args;
+	$name = $files['file']['name'];
+	$tmpName = $files['file']['tmp_name'];
+	$visible = $post['visibility'];
+	if(isset($post['public'])) $public = $post['public'];
+	else $public = null;
+	$description = $post['description'];
+	$tags = $post['tags'];
+	$gpxString = file_get_contents($tmpName);
+	$displayName = $userInfo['displayName'];
+	$uid = $userInfo['userId'];
+
 	//Sort out public and visible settings
 	if(isset($public) and !isset($visibile))
 	{
@@ -136,7 +161,12 @@ function InsertTraceIntoDb($gpxString, $uid, $public, $visible, $name, $descript
 			}
 		}
 	}	
-	if($count == 0) return 0; //We require at least one point
+	if($count == 0) return array(0,Null,"Empty trace"); //We require at least one point
+
+	//Insert raw data string into raw trace table
+	$rawtracedb = new RawTraceTable();
+	$record = array('gpx'=>bzcompress($gpxString));
+	$tid = $rawtracedb->Set('tid',null,$record);
 
 	//Open DB
 	$lock=GetWriteDatabaseLock();
@@ -144,23 +174,38 @@ function InsertTraceIntoDb($gpxString, $uid, $public, $visible, $name, $descript
 	//DropTraceDb($db);
 	InitialiseTraceDbSchema($db);
 
-	//Start transaction
-	$sql = "BEGIN;";
-	$ret = $db->exec($sql);
-	if($ret===false) {$err= $db->errorInfo();throw new Exception($sql.",".$err[2]);}
-	
 	//Insert metadata
-	$sql = "INSERT INTO meta (tid,public,visible,uid,name,description,tags) VALUES (null,";
+	$sql = "INSERT INTO meta (tid,public,visible,uid,name,description,tags,pending) VALUES (".(int)$tid.",";
 	$sql .= (int)$public;
 	$sql .= ",".(int)$visibleNum;
 	$sql .= ",".(int)$uid;
 	$sql .= ",'".sqlite_escape_string($name)."'";
 	$sql .= ",'".sqlite_escape_string($description)."'";
-	$sql .= ",'".sqlite_escape_string($tags)."');";
+	$sql .= ",'".sqlite_escape_string($tags)."',1);";
 	$ret = $db->exec($sql);
 	if($ret===false) {$err= $db->errorInfo();throw new Exception($sql.",".$err[2]);}
-	$tid = $db->lastInsertId();
+	
+	ProcessPendingTrace($db,$tid,$gpx);
 
+	return array(1,array("Content-Type:text/plain"),$tid);
+}
+
+function ProcessPendingTrace($db,$tid,$gpx)
+{
+	//Verify trace is still pending
+	$query = "SELECT pending FROM meta WHERE tid = ".(int)$tid.";";
+	$ret = $db->query($query);
+	if($ret===false) {$err= $db->errorInfo();throw new Exception($query.",".$err[2]);}
+	foreach($ret as $row)
+	{
+		if((int)$row['pending']!=1) throw new Exception("Cannot process trace that is not pending");
+	}
+
+	//Start transaction
+	$sql = "BEGIN;";
+	$ret = $db->exec($sql);
+	if($ret===false) {$err= $db->errorInfo();throw new Exception($sql.",".$err[2]);}
+		
 	//Insert points and timestamps
 	$segid = 0;
 	foreach($gpx->trk as $trk)
@@ -196,13 +241,18 @@ function InsertTraceIntoDb($gpxString, $uid, $public, $visible, $name, $descript
 		$segid += 1;
 	}	
 
+	//Mark trace as processed and no longer pending
+	$sql = "UPDATE meta SET pending=0 WHERE tid=".(int)$tid.";";
+	$ret = $db->exec($sql);
+	if($ret===false) {$err= $db->errorInfo();throw new Exception($sql.",".$err[2]);}
+
 	//End transaction
 	$sql = "END;";
 	$ret = $db->exec($sql);//Begin transaction
 	if($ret===false) {$err= $db->errorInfo();throw new Exception($sql.",".$err[2]);}
 
-	return $tid;
 }
+
 
 function InitialiseTraceDbSchema($db)
 {
@@ -210,7 +260,7 @@ function InitialiseTraceDbSchema($db)
 	SqliteCheckTableExistsOtherwiseCreate($db,"position",$sql);
 	$sql="CREATE TABLE data (id INTEGER PRIMARY KEY,ele REAL, timestamp INTEGER, tid INTEGER, segid INTEGER);";
 	SqliteCheckTableExistsOtherwiseCreate($db,"data",$sql);
-	$sql="CREATE TABLE meta (tid INTEGER PRIMARY KEY, public INTEGER, visible INTEGER, uid INTEGER, name STRING, description STRING, tags STRING);";
+	$sql="CREATE TABLE meta (tid INTEGER PRIMARY KEY, public INTEGER, visible INTEGER, uid INTEGER, name STRING, description STRING, tags STRING, pending INTEGER);";
 	SqliteCheckTableExistsOtherwiseCreate($db,"meta",$sql);
 }
 
@@ -258,7 +308,10 @@ function TraceMetaToHtml($data)
 	//TODO Finish this
 	$out = '  <gpx_file id="'.$data['tid'].'" name="'.$data['name'].'"';// lat="'..'" lon="'..'" '."\n";
 	//$out .= '            user="Hartmut Holzgraefe"';
-	$out .= ' visibility="'.GetTraceVisibilityString($data['visible']).'" pending="false" '."\n";
+	$out .= ' visibility="'.GetTraceVisibilityString($data['visible']).'" pending="';
+	if($data['pending']==1) $out.="true";
+	else $out .="false";
+	$out .= '" '."\n";
 	//$out .= '            timestamp="2010-10-09T09:24:19Z"';
 	$out .= '>'."\n";
 	$out .= '    <description>'.htmlentities($data['description'],ENT_QUOTES,"UTF-8").'</description>'."\n";
@@ -269,8 +322,15 @@ function TraceMetaToHtml($data)
 	return $out;
 }
 
-function GetTraceDetails($tid)
+function GetTraceDetails($userInfo,$urlExp)
 {
+	$tid = (int)$urlExp[3];
+	$userId = $userInfo['userId'];
+	$isPublic = IsTracePubliclyDownloadable($tid);
+	if($isPublic===0)
+		list ($displayName, $userId) = RequireAuth();
+	//TODO Check non public trace owner against ID
+
 	//Open DB
 	$lock=GetReadDatabaseLock();
 	$db = new PDO('sqlite:sqlite/traces.db');
@@ -285,7 +345,7 @@ function GetTraceDetails($tid)
 	{
 		$data = $row;
 	}
-	if(is_null($data)) return null;
+	if(is_null($data)) return array(0,null,"not-found");
 
 	//print_r($data);
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
@@ -293,19 +353,30 @@ function GetTraceDetails($tid)
 	$out .= TraceMetaToHtml($data);
 	$out .= "</osm>\n";
 
-	return $out;
+	return array(1,array("Content-Type:text/xml"),$out);
 }
 
-function GetTraceData($tid)
+function GetTraceData($userInfo,$urlExp)
 {
-	//TODO Implement this
-	header ('HTTP/1.1 501 Not Implemented');
-	echo "This feature has not been implemented.";
-	exit();
+	$tid = (int)$urlExp[3];
+	$isPublic = IsTracePubliclyDownloadable($tid);
+	if($isPublic===0)
+		list ($displayName, $userId) = RequireAuth();
+	//TODO Check non public trace owner against ID
+
+
+	$rawtracedb = new RawTraceTable();
+	if(!isset($rawtracedb[$tid]))
+		return array(0,null,"not-found");
+
+	$trace = $rawtracedb[$tid];
+	return array(1,array('Content-Type:text/xml'),bzdecompress($trace['gpx']));
 }
 
-function GetTraceForUser($uid)
+function GetTraceForUser($userInfo)
 {
+	$uid = $userInfo['userId'];
+
 	//Open DB
 	$lock=GetReadDatabaseLock();
 	$db = new PDO('sqlite:sqlite/traces.db');
@@ -322,7 +393,7 @@ function GetTraceForUser($uid)
 	foreach($ret as $row)
 		$out .= TraceMetaToHtml($row);
 	$out .= "</osm>\n";
-	return $out;
+	return array(1,array("Content-Type:text/xml"),$out);
 }
 
 function DeleteTrace($tid)
@@ -365,6 +436,11 @@ function DeleteTrace($tid)
 	$sql = "END;";
 	$ret = $db->exec($sql);
 	if($ret===false) {$err= $db->errorInfo();throw new Exception($sql.",".$err[2]);}
+
+	//Delete raw trace
+	$rawtracedb = new RawTraceTable();
+	if(isset($rawtracedb[(int)$tid]))
+		unset($rawtracedb[(int)$tid]);
 
 }
 

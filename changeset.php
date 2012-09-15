@@ -16,49 +16,70 @@ function GetNewObjectId($type)
 	return null;
 }
 
-function ChangesetOpen($putData,$displayName,$userId)
+function ChangesetOpen($userInfo,$putData)
 {
+	$displayName = $userInfo['displayName'];
+	$userId = $userInfo['userId'];
+
 	$lock=GetWriteDatabaseLock();
 	$csd = ChangesetDatabase();
 
 	$data = ParseOsmXmlChangeset($putData);
-	if(is_null($data)) return "bad-input";
+	if(is_null($data)) return array(0,Null,"bad-input");
 
 	$cid = ReadAndIncrementFileNum("nextchangesetid.txt");
 	$data->attr['id'] = $cid;
 
 	if($csd->IsOpen($cid)!=-1)
-		return "changeset-already-exists";
+		return array(0,Null,"changeset-already-exists");
 
-	return $csd->Open($cid,$data,$displayName,$userId,time());
+	return array(1,array("Content-Type:text/plain"),$csd->Open($cid,$data,$displayName,$userId,time()));
 }
 
-function ChangesetUpdate($cid,$putData,$displayName,$userId)
+function ChangesetUpdate($userInfo, $args)
 {
+	$displayName = $userInfo['displayName'];
+	$userId = $userInfo['userId'];
+	list($urlExp, $putData) = $args;
+	$cid = (int)$urlExp[3];
+
 	$lock=GetWriteDatabaseLock();
 	$csd = ChangesetDatabase();
 
 	$data = ParseOsmXmlChangeset($putData);
-	if(is_null($data)) return "bad-input";
+	if(is_null($data)) return array(0,Null,"bad-input");
 
 	//Check user is correct
 	$xmlcid = $data->attr['id'];
 	$cUser = $csd->GetUid($cid);
-	if(is_null($cUser)) return "not-found";
-	if($userId != $cUser) return "conflict";
-	if($cid != $xmlcid) return "conflict";
+	if(is_null($cUser)) return array(0,Null,"not-found");
+	if($userId != $cUser) return array(0,Null,"user-mismatch",$userId,$cUser);
+	if($cid != $xmlcid) return array(0,Null,"conflict");
 
 	if($csd->IsOpen($cid)!=1)
-		return "conflict";
+		return array(0,Null,"conflict");
 
-	return $csd->Update($cid,$data,$displayName,$userId);
+	$ret = $csd->Update($cid,$data,$displayName,$userId);
+	return GetChangesetMetadata($cid);
 }
 
-function ChangesetClose($cid)
+function ChangesetClose($userInfo,$argExp)
 {
+	$displayName = $userInfo['displayName'];
+	$userId = $userInfo['userId'];
+	$cid = (int)$argExp[3];
+
 	$lock=GetWriteDatabaseLock();
 	$csd = ChangesetDatabase();
+
+	//Validate user has rights
+	$cUser = $csd->GetUid($cid);
+	if(is_null($cUser)) return array(0,Null,"not-found");
+	if($userId != $cUser) return array(0,Null,"conflict");
+	
+	//Do close	
 	$csd->Close($cid);
+	return array(1,array("Content-Type:text/plain"),"");
 }
 
 //**************************************
@@ -206,7 +227,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 		//Actions can only be create, modify, delete
 		if(!(strcmp($action,"create")==0 or strcmp($action,"modify")==0
 			or strcmp($action,"delete")==0))
-			throw new Exception("Action not supported");
+			throw new Exception("Action ".$action." not supported");
 
 		foreach($els as $i2 => $el)
 		{
@@ -241,7 +262,8 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 
 		//Check if user has permission to add to this changeset
 		$ciduser = $csd->GetUid($cid);
-		if($ciduser != $userId) throw new Exception("Changeset belongs to a different user");
+		if($ciduser != $userId) 
+			throw new Exception("Changeset belongs to a different user ".$ciduser.", not ".$userId);
 
 		//Check we don't exceed number of max elements
 		$cidsize = $csd->GetSize($cid);
@@ -556,8 +578,12 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 	return $changes;
 }
 
-function ProcessSingleObject($method,$data,$displayName,$userId)
+function ProcessSingleObject($userInfo, $args)
 {
+	list($urlExp,$data,$method) = $args;
+	$displayName = $userInfo['displayName'];
+	$userId = $userInfo['userId'];
+
 	//$cid = 204;
 	//$data = "<osm version='0.6' generator='JOSM'>  <node id='-7801' visible='true' changeset='220' lat='51.26493956255727' lon='-0.5636603245748466' /></osm>";
 
@@ -575,12 +601,16 @@ function ProcessSingleObject($method,$data,$displayName,$userId)
 	$newobjid = $changes[0][2];
 	$newversion = $changes[0][4];
 	if(strcmp($method,"create")==0)
-		return $newobjid;
-	return $newversion;
+		return array(1,array("Content-Type:text/plain"),$newobjid);
+	return array(1,array("Content-Type:text/xml"),$newversion);
 }
 
-function ChangesetUpload($cid,$data,$displayName,$userId)
+function ChangesetUpload($userInfo, $args)
 {
+	$displayName = $userInfo['displayName'];
+	$userId = $userInfo['userId'];
+	$cid = (int)$args[0][3];
+	$putDataStr = $args[1];
 //	$cid=204;
 
 //	$data="<osmChange version=\"0.6\" generator=\"PythonTest\">\n<modify>\n<way id='595' action='modify' timestamp='2009-03-01T14:21:58Z' uid='6809' user='TimSC' visible='true' version='1' changeset='204' lat='51.285184946434256' lon='-0.5986675534296598'><tag k='name' v='Belvidere'/><nd ref='555'/></way>\n</modify>\n</osmChange>\n";
@@ -589,7 +619,7 @@ function ChangesetUpload($cid,$data,$displayName,$userId)
 
 	//Convert XML upload to native data
 	$osmchange = new OsmChange();
-	$osmchange->FromXmlString($data);
+	$osmchange->FromXmlString($putDataStr);
 
 	//Process OsmChange
 	$changes = ProcessOsmChange($cid,$osmchange,$displayName,$userId);
@@ -609,13 +639,13 @@ function ChangesetUpload($cid,$data,$displayName,$userId)
 	}
 	$diff = $diff."</diffResult>\n";
 
-	return $diff;
+	return array(1,array("Content-Type:text/xml"),$diff);
 	}
 
-	return $changes;
+	return array(0,Null,$changes);
 }
 
-function GetChangesets($query)
+function GetChangesets($userInfo,$query)
 {
 	$lock=GetReadDatabaseLock();
 	$csd = ChangesetDatabase();
@@ -639,16 +669,19 @@ function GetChangesets($query)
 	}
 	
 	$out = $out.'</osm>'."\n";
-	return $out;
+	return array(1,array("Content-Type:text/xml"),$out);
 }
 
-function GetChangesetMetadata($cid)
+function GetChangesetMetadata($userInfo, $urlExp)
 {
+	$cid = (int)$urlExp[3];
+
 	$lock=GetReadDatabaseLock();
 	$csd = ChangesetDatabase();
 	$data = $csd->GetMetadata($cid);
-	if(is_null($data)) return "not-found";
-	return '<osm version="0.6" generator="'.SERVER_NAME.'">'.$data->ToXmlString().'</osm>';
+	if(is_null($data)) return array(0,Null,"not-found");
+	return array(1,array("Content-Type:text/xml"),
+		'<osm version="0.6" generator="'.SERVER_NAME.'">'.$data->ToXmlString().'</osm>');
 }
 
 function GetChangesetUid($cid)
@@ -658,15 +691,17 @@ function GetChangesetUid($cid)
 	return $csd->GetUid($cid);
 }
 
-function GetChangesetContents($cid) //Download changeset URL
+function GetChangesetContents($userInfo, $urlExp) //Download changeset URL
 {
+	$cid = (int)$urlExp[3];
+
 	$lock=GetReadDatabaseLock();
 	$csd = ChangesetDatabase();
 
 	$changeset = $csd->GetContentObject($cid);
-	if(is_null($changeset)) return "not-found";
+	if(is_null($changeset)) return array(0,Null,"not-found");
 
-	return($changeset->ToXmlString());
+	return array(1,array("Content-Type:text/xml"),$changeset->ToXmlString());
 
 }
 

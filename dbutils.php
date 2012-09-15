@@ -155,8 +155,9 @@ class GenericSqliteTable implements ArrayAccess
 			$sql .= $this->ValueToSql($adVal,$this->keys[$adKey]);
 			$count += 1;
 		}
-		$sql.=", '".sqlite_escape_string(serialize($data))."'";
+		$sql.=", '".sqlite_udf_encode_binary(serialize($data))."'";
 		$sql.=");";
+		//print_r(sqlite_udf_encode_binary(serialize($data)));
 
 		//Execute SQL
 		//echo $sql."\n";
@@ -194,7 +195,8 @@ class GenericSqliteTable implements ArrayAccess
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 		foreach($ret as $row)
 		{
-			$record = unserialize($row['value']);
+			//print_r($row['value']);echo"\n";
+			$record = unserialize(sqlite_udf_decode_binary($row['value']));
 			foreach($this->keys as $exKey => $exType)
 			{
 				if(isset($row[$exKey]))
