@@ -462,6 +462,7 @@ class OsmDatabaseOsmXml
 
 	public function CreateElement($type,$id,$el)
 	{
+		$el->attr['visible'] = "true";
 		$this->modified = 1;
 		$value = simplexml_load_string($el->ToXmlString());
 		$newdata = $this->db->addChild($type);
@@ -470,6 +471,7 @@ class OsmDatabaseOsmXml
 
 	public function ModifyElement($type,$id,$el)
 	{
+		$el->attr['visible'] = "true";
 		$this->modified = 1;
 		$value = simplexml_load_string($el->ToXmlString());
 		$this->RemoveElementById($type, $id);
@@ -479,6 +481,7 @@ class OsmDatabaseOsmXml
 
 	public function DeleteElement($type,$id,$el)
 	{
+		$el->attr['visible'] = "false";
 		$this->modified = 1;
 		$this->RemoveElementById($type, $id);
 	}

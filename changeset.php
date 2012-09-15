@@ -180,7 +180,7 @@ function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChang
 	return 1;
 }
 
-$requiredAttributes = array('id','visible','changeset');
+$requiredAttributes = array('id','changeset');
 
 function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 {
@@ -191,7 +191,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 
 	//Check API version
 	$ver = $osmchange->version;
-	if(strcmp($ver,"0.6")!=0) throw new Exception("OsmChange has wrong version");
+	//if(strcmp($ver,"0.6")!=0) throw new Exception("OsmChange has wrong version"); //Merkaartor doesn't like that!
 
 	//For each action,
 	foreach($osmchange->data as $i => $data)
@@ -259,11 +259,12 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 		}
 
  		//Check visibility is boolean (always true?)
-		$visible = $el->attr['visible'];
+		/*$visible = $el->attr['visible'];
 		if(!(strcmp($visible,"true")==0 or strcmp($visible,"false")==0))
 			throw new Exception("Visible attribute must be true or false");
 		if(strcmp($action,"create")==0 or strcmp($action,"modify")==0)
 			if(strcmp($visible,"false")==0) throw new Exception("Visiblity must be true for create or modify");
+		*/
 		//if(strcmp($action,"delete")==0)
 		//	if(strcmp($visible,"true")==0) throw new Exception("Visiblity must be false for delete");
 
@@ -340,12 +341,14 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 		$action = $eldata[0];
 		$els = &$eldata[1];
 
-		//Set timestamp and visibility of object
+		//Set timestamp of object
 		foreach($els as $i2 => $el)
 		{
 			$el->attr['timestamp'] = date('c'); //Set timestamp at creation
-			if(strcmp($action,"delete")==0) $el->attr['visible'] ="false";
-			else $el->attr['visible'] ="true";
+
+			//Visibility is a database model specific concept and doesn't belong here
+			//if(strcmp($action,"delete")==0) $el->attr['visible'] ="false";
+			//else $el->attr['visible'] ="true";
 		}
 
 		//Set username and UID for any changed elements

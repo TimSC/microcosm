@@ -4,6 +4,7 @@ require_once("querymap.php");
 require_once('changeset.php');
 require_once('capabilities.php');
 require_once('fileutils.php');
+require_once('traces.php');
 include_once('userdetails.php');
 
 //******************************
@@ -80,36 +81,11 @@ function RequireAuth()
 	}
 
 	$login = $_SERVER['PHP_AUTH_USER'];
-	$users = explode("\n",file_get_contents(".users.txt"));
-	$displayName = null;
-	//foreach($users as $user)
-		
-	foreach($users as $user)
-	{
-		$fields = explode(";",$user);
 
-		if (strcmp($login,$fields[0])==0)
-		{
-			if(strcmp($_SERVER['PHP_AUTH_PW'],$fields[1])!=0)
-			{
-				//echo "password didn't match";
-				RequestAuthFromUser();
-			}
-
-			$displayName = $fields[2];
-			$userId = (int)$fields[3];
-			break;
-		}
-	}
-
-	if($displayName == null)
-	{
-		if(ENABLE_ANON_EDITS)
-			return array(ANON_DISPLAY_NAME, ANON_UID);
-
-		//echo "no such user";	
-		RequestAuthFromUser();
-	}
+	$ret = CheckLogin($login, $_SERVER['PHP_AUTH_PW']);
+	if($ret===1) RequestAuthFromUser();
+	if($ret===0) RequestAuthFromUser();
+	if(is_array($ret)) list($displayName, $userId) = $ret;
 
 	return array($displayName, $userId);
 }
@@ -699,6 +675,82 @@ if(count($urlExp)>=3 and (strcmp($urlExp[2],"ways")==0
 	}
 }
 
+//************************
+//Traces API
+//************************
+
+if(count($urlExp)==3 and (strcmp($urlExp[2],"trackpoints")==0))
+{
+	RequireMethod("GET");
+	//print_r($urlExp);
+	$bboxExp = explode(",",$_GET['bbox']);
+	$bboxExp = array_map('floatval', $bboxExp);
+	$page = (int)$_GET['page'];
+	//print_r($bboxExp); echo $page;
+
+	$header = ("Content-Type:text/xml");
+	$content = GetTracesInBbox($bboxExp,$page);
+}
+
+if(count($urlExp)>=4 and (strcmp($urlExp[2],"gpx")==0))
+{
+	if(count($urlExp)==4 and strcmp($urlExp[3],"create")==0)
+	{
+		RequireMethod("POST");
+
+		$name = $_FILES['file']['name'];
+		$tmpName = $_FILES['file']['tmp_name'];
+		$visibility = $_POST['visibility'];
+		if(isset($_POST['public'])) $public = $_POST['public'];
+		else $public = null;
+		$description = $_POST['description'];
+		$tags = $_POST['tags'];
+		$gpxString = file_get_contents($tmpName);
+
+		if(is_null($userId)) die("User ID?"); //TODO Tidy
+
+		//print_r($gpxString);
+		//print_r($_POST);	
+		//print_r($postVarDump);
+		$ret = InsertTraceIntoDb($gpxString, $userId, $public, $visibility, $name, $description, $tags);
+		if($ret < 0) die("Upload trace failed");
+		
+		$header = ("Content-Type:text/plain");
+		$content = $ret;
+	}
+
+	if(count($urlExp)==5 and is_numeric($urlExp[3]))
+	{
+		RequireMethod("GET");
+		$tid = (int)$urlExp[3];
+		if(!IsTracePubliclyDownloadable($tid))
+			list ($displayName, $userId) = RequireAuth();
+
+		if(strcmp($urlExp[4],"details")==0)
+		{
+			$header = ("Content-Type:text/xml");
+			$content = GetTraceDetails($tid);
+		}
+
+		if(strcmp($urlExp[4],"data")==0)
+		{
+			$header = ("Content-Type:text/xml");
+			$content = GetTraceData($tid);
+		}
+
+	}
+
+}
+
+if(count($urlExp)==4 and (strcmp($urlExp[2],"user")==0) and (strcmp($urlExp[3],"gpx_files")==0))
+{
+	RequireMethod("GET");
+	list ($displayName, $userId) = RequireAuth();
+	// /api/0.6/user/gpx_files
+	$header = ("Content-Type:text/xml");
+	$content = GetTraceForUser($userId);
+}
+
 //***************************
 //Send response to client
 //***************************
@@ -715,7 +767,7 @@ if (!is_null($header) and is_array($header))
 if (!is_null($header) and !is_array($header)) header($header);
 echo $content;
 
-if(!DEBUG_MODE)
+if(DEBUG_MODE)
 {
 	//Logging server response
 	$fi = fopen("log.txt","at");

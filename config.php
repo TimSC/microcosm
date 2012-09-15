@@ -9,10 +9,14 @@ set_time_limit(60);
 define("ENABLE_ANON_EDITS",true);
 define("ANON_DISPLAY_NAME","Anonymous");
 define("ANON_UID",100);
+define("ALLOW_USER_REGISTRATION",true);
+define("MIN_PASSWORD_LENGTH",6);
 
 define("MAX_KEY_LEN",255);
 define("MAX_VALUE_LEN",255);
 define("MAX_USER_PERFS",150);
+define("MAX_GPX_FIELD_LENGTH",255);
+define("TRACE_PAGE_SIZE",1000);
 
 define("MAX_WAY_NODES",2000);
 define("MAX_CHANGESET_SIZE",50000);

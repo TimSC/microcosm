@@ -1,6 +1,7 @@
 <?php
 
 include_once('fileutils.php');
+include_once('dbutils.php');
 include_once('model-common.php');
 
 class ElementTable
@@ -26,23 +27,12 @@ class ElementTable
 
 	function CheckTableExists($name)
 	{
-		//Check if table exists
-		$sql = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='".$name."';";
-		$ret = $this->dbh->query($sql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
-		$tableExists = 0;
-		foreach($ret as $row)
-			$tableExists = ($row[0] > 0);
-		return $tableExists;
+		return SqliteCheckTableExists($this->dbh,$name);
 	}
 
 	function CheckTableExistsOtherwiseCreate($name,$createSql)
 	{
-		//If node table doesn't exist, create it
-		if($this->CheckTableExists($name)) return;
-
-		$ret = $this->dbh->exec($createSql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+		return SqliteCheckTableExistsOtherwiseCreate($this->dbh,$name,$createSql);
 	}
 
 	function InitialiseSchema()
@@ -292,12 +282,7 @@ class ElementTable
 	
 	public function DropTableIfExists($name)
 	{
-		$eleExist = $this->CheckTableExists($name);
-		if(!$eleExist) return;
-
-		$sql = 'DROP TABLE '.$name.';';
-		$ret = $this->dbh->exec($sql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+		SqliteDropTableIfExists($this->dbh,$name);
 	}
 
 	public function Count()

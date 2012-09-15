@@ -1,0 +1,16 @@
+<html>
+<form action="microcosm.php/0.6/gpx/create" enctype="multipart/form-data" method="post">
+<table>
+
+  <tr><td align="right">Upload GPX File</td><td><input id="trace_gpx_file" maxlength="255" name="file" size="50" type="file" /></td></tr>
+  <tr><td align="right">Description</td><td><input id="trace_description" maxlength="255" name="description" size="50" type="text" value="" /></td></tr>
+  <tr><td align="right">Tags</td><td><input id="trace_tagstring" maxlength="255" name="tags" size="50" type="text" value="" /> (comma delimited)</td></tr>
+  <tr><td align="right">Visibility</td><td><select id="trace_visibility" name="visibility"><option value="private">Private (only shared as anonymous, unordered points)</option>
+<option value="public">Public (shown in trace list and as anonymous, unordered points)</option>
+
+<option value="trackable">Trackable (only shared as anonymous, ordered points with timestamps)</option>
+<option value="identifiable" selected="selected">Identifiable (shown in trace list and as identifiable, ordered points with timestamps)</option></select> <span class="minorNote">(<a href="http://wiki.openstreetmap.org/wiki/Visibility_of_GPS_traces">what does this mean?</a>)</span></td></tr>
+  <tr><td></td><td><input name="commit" type="submit" value="Upload" /> | <a href="http://wiki.openstreetmap.org/wiki/Upload">Help</a></td></tr>
+</table>
+</form>
+</html>

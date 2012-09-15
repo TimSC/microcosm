@@ -100,4 +100,25 @@ rmdir($dirname);
 return true;
 }
 
+function GetReadDatabaseLock()
+{
+	//To unlock, let the returned object go out of scope
+	$fp = fopen("db.lock", "w");
+	$ret = flock($fp, LOCK_SH);
+	return $fp;
+}
+
+function GetWriteDatabaseLock()
+{
+	//To unlock, let the returned object go out of scope
+	$fp = fopen("db.lock", "w");
+	$ret = flock($fp, LOCK_EX);
+	return $fp;
+}
+
+//http://www.webtoolkit.info/php-validate-email.html
+function isValidEmail($email){
+	return eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $email);
+}
+
 ?>

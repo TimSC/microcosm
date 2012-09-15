@@ -1,22 +1,7 @@
 <?php
 
-include_once('modelfactory.php');
-
-function GetReadDatabaseLock()
-{
-	//To unlock, let the returned object go out of scope
-	$fp = fopen("db.lock", "w");
-	$ret = flock($fp, LOCK_SH);
-	return $fp;
-}
-
-function GetWriteDatabaseLock()
-{
-	//To unlock, let the returned object go out of scope
-	$fp = fopen("db.lock", "w");
-	$ret = flock($fp, LOCK_EX);
-	return $fp;
-}
+require_once('modelfactory.php');
+require_once('fileutils.php');
 
 function MapQuery($bbox)
 {
