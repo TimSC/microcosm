@@ -70,6 +70,7 @@ class ElementTable
 	function InsertObjectIntoElementTable($el)
 	{
 		//Insert new data
+		$invertVals = array();
 		$insertsql = "INSERT INTO elements (i, id";
 		if($this->latlon) $insertsql .= ", lat, lon";
 		$insertsql .= ", changeset";
@@ -81,7 +82,11 @@ class ElementTable
 		if($this->latlon) $insertsql .= (float)$el->attr['lat'].", ";
 		if($this->latlon) $insertsql .= (float)$el->attr['lon'].", ";
 		$insertsql .= (int)$el->attr['changeset'].", ";
-		if(isset($el->attr['user'])) $insertsql .= "?, ";
+		if(isset($el->attr['user']))
+		{
+			$insertsql .= "?, ";
+			array_push($invertVals, (string)$el->attr['user']);
+		}
 		else $insertsql .= "null, ";
 		if(isset($el->attr['uid'])) $insertsql .= ((int)$el->attr['uid']).", ";
 		else $insertsql .= "null, ";
@@ -96,9 +101,11 @@ class ElementTable
 		$insertsql .= ", ?";
 		$insertsql .= ", ?";
 		$insertsql .= ");\n";
+		array_push($invertVals,serialize($el->tags));
+		array_push($invertVals,serialize($el->members));
 
 		$qry = $this->dbh->prepare($insertsql);
-		$ret = $qry->execute(array((string)$el->attr['user'], serialize($el->tags), serialize($el->members)));
+		$ret = $qry->execute($invertVals);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($insertsql.",".$err[2]);}
 		return $this->dbh->lastInsertId();
 	}

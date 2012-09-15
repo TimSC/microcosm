@@ -47,8 +47,11 @@ function SqliteDropTableIfExists(&$dbh,$name)
 
 function TableToHtml($dbh,$table)
 {
-	$sql = "SELECT * FROM [".sqlite_escape_string($table)."];";
-	$ret = $dbh->query($sql);
+	$sql = "SELECT * FROM [?];";
+
+	$sth = $dbh->prepare($sql);
+	if($sth===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+	$ret = $sth->execute(array($table));
 	if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 	foreach($ret as $row)
 		print_r($row);
@@ -153,22 +156,6 @@ class GenericSqliteTable implements ArrayAccess
 		$this->InitialiseSchema();
 	}
 
-	function ValueToSql($value,$type)
-	{
-		if(is_null($value)) return "null";
-		//echo $value." ".$type."\n";
-		if(strcasecmp($type,"STRING")==0) 
-			return "'".sqlite_escape_string($value)."'";
-		if(strcasecmp($type,"INTEGER")==0) 
-			return "'".((int)$value)."'";
-		if(strcasecmp($type,"REAL")==0) 
-			return "'".((float)$value)."'";
-		if(strcasecmp($type,"BLOB")==0) 
-			return "'".sqlite_escape_string($value)."'";
-		
-		throw new Exception('Cannot cast unknown SQL type '.$type);
-	}
-
 	function UpdateRecord($key, $keyVal, $data)
 	{
 
@@ -186,17 +173,22 @@ class GenericSqliteTable implements ArrayAccess
 		}
 
 		//Construct SQL
-		$sql="UPDATE [".$this->tablename."] SET value='".sqlite_escape_string(serialize($data))."'";
+		$sql="UPDATE [".$this->tablename."] SET value='?'";
+		$sqlVals = array(serialize($data));
 		foreach($additionalKeys as $adKey => $adVal)
-			$sql.= ", ".$adKey."=".$this->ValueToSql($adVal,$this->keys[$adKey]);
+		{
+			$sql.= ", ".$adKey."=?";
+			array_push($sqlVals, $adVal);
+		}
 
-		$sql.=" WHERE ".$key."=";
-		$sql.=$this->ValueToSql($keyVal,$this->keys[$key]);
-		$sql.=";";
+		$sql.=" WHERE ".$key."=?;";
+		array_push($sqlVals, $keyVal);
 
 		//Execute SQL
 		//echo $sql."\n";
-		$ret = $this->dbh->exec($sql);
+		$sth = $this->dbh->prepare($sql);
+		if($sth===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+		$ret = $sth->execute($sqlVals);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		return $ret;
 	}
@@ -400,28 +392,35 @@ class TableSpecSqlite
 	function GetColumnDef($col)
 	{
 		list($name,$type,$primaryKey,$unique) = $col;
-		$sql = sqlite_escape_string($name)." ".sqlite_escape_string($type);
+		$sqlVals = array($name, $type);
+		$sql = "? ?";
 		if ($primaryKey) $sql .= " PRIMARY KEY";
 		if ($unique) $sql .= " UNIQUE";
-		return $sql;
+		return array($sql, $sqlVals);
 	}
 
 	function CreateTable(&$dbh,$ifNotExists=1)
 	{
 		if($ifNotExists and $this->TableExists($dbh)) return 0;
 
-		$sql = 'CREATE TABLE '.sqlite_escape_string($this->name).' (';
+		$sql = 'CREATE TABLE ? (';
+		$sqlVals = array($this->name);
 		$count = 0;
 		foreach($this->cols as $col)
 		{
 			if($count > 0) $sql .= ", ";
-			$sql.= $this->GetColumnDef($col);
+			list($sqlCode, $sv) = $this->GetColumnDef($col);
+			$sql .= $sqlCode;
+			$sqlVals = array_merge($sqlVals, $sv);
 			$count ++;
 		}
 
 		$sql .= ');';
 		//echo $sql;
-		$ret = $dbh->exec($sql);
+		//print_r($sqlVals);
+		$sth = $dbh->prepare($sql);
+		if($sth===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+		$ret = $sth->execute($sqlVals);
 		if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 	}
 	
@@ -430,20 +429,24 @@ class TableSpecSqlite
 		if(is_null($tableName)) $tableName = $this->name;
 		if($ifExists and !$this->TableExists($dbh,$tableName)) return 0;
 
-		$sql = 'DROP TABLE '.sqlite_escape_string($tableName).';';
-		$ret = $dbh->exec($sql);
+		$sql = 'DROP TABLE ?;';
+		$sth = $dbh->prepare($sql);
+		if($sth===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+		$ret = $sth->exec(array($tableName));
 		if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 	}
 
 	function TableExists(&$dbh, $tablename=null)
 	{
 		//Check if table exists
-		if(is_null($tablename)) $tablename = sqlite_escape_string($this->name);
-		$sql = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='".$tablename."';";
-		$ret = $dbh->query($sql);
+		if(is_null($tablename)) $tablename = $this->name;
+		$sql = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?;";
+		$sth = $dbh->prepare($sql);
+		if($sth===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+		$ret = $sth->execute(array($tablename));
 		if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		$tableExists = 0;
-		foreach($ret as $row)
+		foreach($sth->fetch() as $row)
 			$tableExists = ($row[0] > 0);
 		return $tableExists;
 	}
@@ -506,11 +509,16 @@ class TableSpecSqlite
 		for($i=$count;$i < count($this->cols);$i++)
 		{
 			$col = $this->cols[$i];
+			$sqlVals = array($this->name);
 			list($name,$type,$primaryKey,$unique) = $col;
 			if($primaryKey or $unique) return -1; //Cannot add a new indexed column
-			$sql = "ALTER TABLE ".sqlite_escape_string($this->name)." ADD COLUMN ".$this->GetColumnDef($col).";";
+			list($sqlCode, $sv) = $this->GetColumnDef($col);
+			$sqlVals = array_merge($sqlVals, $sv);
+			$sql = "ALTER TABLE ? ADD COLUMN ".$sqlCode.";";
 			//echo $sql;
-			$ret = $dbh->exec($sql);
+			$sth = $dbh->prepare($sql);
+			if($sth===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+			$ret = $sth->execute($sqlVals);
 			if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		}
 	

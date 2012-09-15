@@ -144,7 +144,7 @@ class ElementTableOpt extends ElementTable
 		//TODO
 
 		$sth = $this->dbh->prepare($sql);
-		if($sth===Null) throw new Exception("Null prepared statement!"); 
+		if($sth===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		$ret = $sth->execute(array(serialize($parents)));
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 	}
@@ -245,7 +245,7 @@ class ElementTableOpt extends ElementTable
 		}
 
 		$sth = $this->dbh->prepare($sql);
-		if($sth===Null) throw new Exception("Null prepared statement!"); 
+		if($sth===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		$ret = $sth->execute(array(serialize($rowids)));
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 	}
