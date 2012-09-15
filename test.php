@@ -1,6 +1,7 @@
 <?php
-include_once('modelfactory.php');
+require_once('modelfactory.php');
 require_once('traces.php');
+require_once('userdetails.php');
 set_time_limit(0);
 
 if(!isset($_SERVER['TERM'])) die('This script can only be run locally, not via the web server.'."\n");
@@ -25,6 +26,17 @@ echo $db->relationTable->Count()."\n";
 
 //$gpx = file_get_contents("demo.gpx");
 //InsertTraceIntoDb($gpx,5550199,1, "identifiable", "demo.gpx", "A test", "testing");
-DeleteTrace(4);
+//DeleteTrace(4);
+
+$lock=GetReadDatabaseLock();
+//$db = UserDbFactory();
+//$users = $db->RemoveUser(6000);
+//
+//print_r($db->AddUser("Mole3", "a34@b.com", "test123", 6000));
+//print_r($db->Dump());
+//print_r($db->CheckLogin("a@b.com", "test123"));
+//print_r($db->GetKeys());
+$db = ChangesetDatabase();
+$db->Purge();
 
 ?>

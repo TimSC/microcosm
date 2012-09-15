@@ -19,7 +19,7 @@ function GetNewObjectId($type)
 function ChangesetOpen($putData,$displayName,$userId)
 {
 	$lock=GetWriteDatabaseLock();
-	$csd = new ChangesetDatabase();
+	$csd = ChangesetDatabase();
 
 	$data = ParseOsmXmlChangeset($putData);
 	if(is_null($data)) return "bad-input";
@@ -30,13 +30,13 @@ function ChangesetOpen($putData,$displayName,$userId)
 	if($csd->IsOpen($cid)!=-1)
 		return "changeset-already-exists";
 
-	return $csd->Open($cid,$data,$displayName,$userId);
+	return $csd->Open($cid,$data,$displayName,$userId,time());
 }
 
 function ChangesetUpdate($cid,$putData,$displayName,$userId)
 {
 	$lock=GetWriteDatabaseLock();
-	$csd = new ChangesetDatabase();
+	$csd = ChangesetDatabase();
 
 	$data = ParseOsmXmlChangeset($putData);
 	if(is_null($data)) return "bad-input";
@@ -57,7 +57,7 @@ function ChangesetUpdate($cid,$putData,$displayName,$userId)
 function ChangesetClose($cid)
 {
 	$lock=GetWriteDatabaseLock();
-	$csd = new ChangesetDatabase();
+	$csd = ChangesetDatabase();
 	$csd->Close($cid);
 }
 
@@ -187,7 +187,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 	$createdEls = array();
 	$deletedEls = array();
 	$recentlyChanged = array();
-	$csd = new ChangesetDatabase();
+	$csd = ChangesetDatabase();
 
 	//Check API version
 	$ver = $osmchange->version;
@@ -473,7 +473,7 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 
 function ApplyChangeToDatabase(&$osmchange,&$map)
 {
-	$csd = new ChangesetDatabase();
+	$csd = ChangesetDatabase();
 
 	//For each element
 	foreach($osmchange->data as $data)
@@ -618,7 +618,7 @@ function ChangesetUpload($cid,$data,$displayName,$userId)
 function GetChangesets($query)
 {
 	$lock=GetReadDatabaseLock();
-	$csd = new ChangesetDatabase();
+	$csd = ChangesetDatabase();
 
 	$user = null;
 	if(isset($query['user'])) $user = (int)$query['user'];
@@ -645,7 +645,7 @@ function GetChangesets($query)
 function GetChangesetMetadata($cid)
 {
 	$lock=GetReadDatabaseLock();
-	$csd = new ChangesetDatabase();
+	$csd = ChangesetDatabase();
 	$data = $csd->GetMetadata($cid);
 	if(is_null($data)) return "not-found";
 	return '<osm version="0.6" generator="'.SERVER_NAME.'">'.$data->ToXmlString().'</osm>';
@@ -654,14 +654,14 @@ function GetChangesetMetadata($cid)
 function GetChangesetUid($cid)
 {
 	$lock=GetReadDatabaseLock();
-	$csd = new ChangesetDatabase();
+	$csd = ChangesetDatabase();
 	return $csd->GetUid($cid);
 }
 
-function GetChangesetContents($cid)
+function GetChangesetContents($cid) //Download changeset URL
 {
 	$lock=GetReadDatabaseLock();
-	$csd = new ChangesetDatabase();
+	$csd = ChangesetDatabase();
 
 	$changeset = $csd->GetContentObject($cid);
 	if(is_null($changeset)) return "not-found";
@@ -673,7 +673,7 @@ function GetChangesetContents($cid)
 function GetChangesetClosedTime($cid)
 {
 	$lock=GetReadDatabaseLock();
-	$csd = new ChangesetDatabase();
+	$csd = ChangesetDatabase();
 	return $csd->GetClosedTime($cid);
 }
 

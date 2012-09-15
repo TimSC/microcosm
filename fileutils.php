@@ -1,7 +1,7 @@
 <?php
 function CheckPermissions()
 {
-	$filesToCheck=array('nextnodeid.txt','nextchangesetid.txt','nextwayid.txt','db.lock','changesets-closed','changesets-open');
+	$filesToCheck=array('nextnodeid.txt','nextchangesetid.txt','nextwayid.txt','db.lock');
 
 	foreach($filesToCheck as $f)
 	if(!is_writable($f))
@@ -63,6 +63,7 @@ return $out;
 
 function ReadAndIncrementFileNum($filename)
 {
+	chdir(dirname(realpath (__FILE__)));
 	//This needs to be thread safe
 	$fp = fopen($filename, "r+t");
 	while (1) 
@@ -102,6 +103,7 @@ return true;
 
 function GetReadDatabaseLock()
 {
+	chdir(dirname(realpath (__FILE__)));
 	//To unlock, let the returned object go out of scope
 	$fp = fopen("db.lock", "w");
 	$ret = flock($fp, LOCK_SH);
@@ -110,6 +112,7 @@ function GetReadDatabaseLock()
 
 function GetWriteDatabaseLock()
 {
+	chdir(dirname(realpath (__FILE__)));
 	//To unlock, let the returned object go out of scope
 	$fp = fopen("db.lock", "w");
 	$ret = flock($fp, LOCK_EX);

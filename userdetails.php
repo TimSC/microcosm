@@ -1,12 +1,14 @@
 <?php
 
-include_once('config.php');
-include_once('osmtypes.php');
+require_once('config.php');
+require_once('osmtypes.php');
 require_once('fileutils.php');
+require_once('dbutils.php');
 
 function UserDbFactory()
 {
-	return new UserDbFile();
+	//return new UserDbFile();
+	return new UserDbSqlite();
 }
 
 function CheckLogin($user,$password)
@@ -16,13 +18,14 @@ function CheckLogin($user,$password)
 	return $db->CheckLogin($user,$password);
 }
 
-function AddUser($displayName, $email, $password)
+function AddUser($displayName, $email, $password, $uid = NULL)
 {
 	if(!ALLOW_USER_REGISTRATION) return "disabled";
 	$lock=GetWriteDatabaseLock();
 	if(strlen($password)<MIN_PASSWORD_LENGTH) return "password-too-short";
+	if(!isValidEmail($email)) return "email-not-valid";
 	$db = UserDbFactory();
-	return $db->AddUser($displayName, $email, $password);
+	return $db->AddUser($displayName, $email, $password, $uid);
 }
 
 function GetUserDetails($uid)
@@ -33,7 +36,7 @@ function GetUserDetails($uid)
 	$displayName = null;
 	$accountCreated = null;
 	$db = UserDbFactory();
-	$fields = $db->Get($uid);
+	$fields = $db->Get('uid',$uid);
 
 	if(ENABLE_ANON_EDITS and $uid == ANON_UID)
 	{
@@ -81,49 +84,36 @@ function GetUserPreferences($uid)
 		return $out;
 	}
 
-	$fname = "userperferences/".(int)$uid.".xml";
-	if(file_exists($fname))
+	$db = new UserPrefsDbSqlite();
+
+	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+	$out = $out.'<osm version="0.6" generator="'.SERVER_NAME.'">'."\n";
+	if(isset($db[(int)$uid]))
 	{
-		$out = file_get_contents($fname);
-		return $out;
+		$prefs = $db[(int)$uid]['prefs'];
+		$out .= $prefs->ToXmlString();
 	}
 	else
 	{
-		$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
-		$out = $out.'<osm version="0.6" generator="'.SERVER_NAME.'">'."\n";
 		$out = $out."<preferences>\n";
 		//$out = $out.'<preference k="somekey" v="somevalue" />'."\n";
 		$out = $out."</preferences>\n";
-		$out = $out."</osm>\n";
 	}
+	$out = $out."</osm>\n";
 	return $out;
 
 }
 
 function SetUserPreferences($userId,$data)
 {
-/*	//Validate XML
-	$xml = simplexml_load_string($data);
-	if (!$xml)
-	{
-		throw new Exception("Failed to parse XML.");
-	}
-
-	//Check key lengths and value lengths are ok
-	//TODO	
-	
-	//Check for too many keys or malformed data
-	//TODO
-*/
-	//Parse
+	//Parse and validate
 	$prefs = new UserPreferences();
 	$prefs->FromXmlString($data);
 
 	//Write to file
 	$lock=GetWriteDatabaseLock();
-	$fname = "userpreferences/".(int)$userId.".xml";
-	$fi = fopen($fname,"wt");
-	fwrite($fi, '<osm>'.$prefs->ToXmlString().'</osm>');
+	$db = new UserPrefsDbSqlite();
+	$db[(int)$userId] = array('prefs'=>$prefs);
 }
 
 function SetUserPreferencesSingle($userId,$key,$value)
@@ -131,21 +121,17 @@ function SetUserPreferencesSingle($userId,$key,$value)
 	$lock=GetWriteDatabaseLock();
 	$fname = "userpreferences/".(int)$userId.".xml";
 
-	//$xml = simplexml_load_file($data);
-	//if (!$xml)
-	//{
-	//	throw new Exception("Failed to parse XML.");
-	//}
-
 	$key = html_entity_decode($key);
 	$value = html_entity_decode($value);
 
-	$prefs = new UserPreferences();
-	if(file_exists($fname))
+	$db = new UserPrefsDbSqlite();	
+	if(isset($db[(int)$userId]))
 	{
-		$fi = fopen($fname,"rt");
-		$prefs->FromXmlString(fread($fi,filesize($fname)));
-		fclose($fi);
+		$prefs = $db[(int)$userId]['prefs'];
+	}
+	else
+	{
+		$prefs = new UserPreferences();
 	}
 
 	if(count($prefs->data)+1>MAX_USER_PERFS)
@@ -159,10 +145,8 @@ function SetUserPreferencesSingle($userId,$key,$value)
 	//Set key
 	$prefs->data[$key] = $value;
 
-	//Write to file
-	$fi = fopen($fname,"wt");
-	fwrite($fi, '<osm>'.$prefs->ToXmlString().'</osm>');
-	clearstatcache($fname);
+	//Write to db
+	$db[(int)$userId] = array('prefs'=>$prefs);
 
 	return 1;
 }
@@ -173,8 +157,9 @@ function SetUserPreferencesSingle($userId,$key,$value)
 
 class UserDbFile
 {
-	function Get($uid)
+	function GetUser($uid)
 	{
+		chdir(dirname(realpath (__FILE__)));
 		$users = explode("\n",file_get_contents(".users.txt"));
 		$out = array();
 		foreach($users as $user)
@@ -198,6 +183,7 @@ class UserDbFile
 
 	function CheckLogin($login,$password)
 	{
+		chdir(dirname(realpath (__FILE__)));
 		$users = explode("\n",file_get_contents(".users.txt"));
 		$displayName = null;
 		//foreach($users as $user)
@@ -228,16 +214,16 @@ class UserDbFile
 
 	}
 
-	function AddUser($displayName, $email, $password)
+	function AddUser($displayName, $email, $password, $uid = null)
 	{
 		//Check email is not used
 		//Check displayName is not used
 
-		if(!isValidEmail($email)) return "email-not-valid";
 		if(strpos($displayName,";")!==false) return "invalid-character";
 		if(strpos($email,";")!==false) return "invalid-character";
 		if(strpos($password,";")!==false) return "invalid-character";
 
+		chdir(dirname(realpath (__FILE__)));
 		$users = explode("\n",file_get_contents(".users.txt"));
 		$maxUid = null;
 		$f = array();
@@ -255,14 +241,123 @@ class UserDbFile
 			if(strcmp($displayName,$f['displayName'])==0) return "display-name-taken";
 			if(strcmp($displayName,$f['userName'])==0) return "email-taken";
 			if(is_null($maxUid) or $maxUid < $f['uid']) $maxUid = $f['uid'];
+			if(!is_null($uid) and $f['uid'] == $uid) return "uid-taken";
 		}
 		
-		$uid = $maxUid + 1;
+		if(is_null($uid)) $uid = $maxUid + 1;
 		$fi = fopen(".users.txt","at");
 		fwrite($fi,$email.";".$password.";".$displayName.";".$uid.";".date('c')."\n");
 
 		return $uid;
 	}
+
+	function Dump()
+	{
+		chdir(dirname(realpath (__FILE__)));
+		$users = explode("\n",file_get_contents(".users.txt"));
+		$maxUid = null;
+		$out = array();
+		foreach($users as $user)
+		{
+			$fields = explode(";",$user);
+			if(count($fields) < 4) continue;
+			//print_r( $fields);
+		
+			$f['userName'] = $fields[0];
+			$f['password'] = $fields[1];
+			$f['displayName'] = $fields[2];
+			$f['uid'] = (int)$fields[3];
+			$f['accountCreated'] = $fields[4];
+			array_push($out,$f);
+		}
+		return $out;
+	}
+
+	function RemoveUser($uid)
+	{
+		chdir(dirname(realpath (__FILE__)));
+		$users = $this->Dump();
+		$fi = fopen(".users.txt","wt");
+		foreach($users as $user)
+		{
+			if((int)$user['uid'] == $uid) continue;
+			fwrite($fi,$user['userName'].";".$user['password'].";");
+			fwrite($fi,$user['displayName'].";".$user['uid'].";".$user['accountCreated']."\n");		
+		}
+	}
+}
+
+//********************************
+//User database stored in sqlite
+//********************************
+
+class UserDbSqlite extends GenericSqliteTable
+{
+	var $keys=array('uid'=>'INTEGER', 'userName'=>'STRING', 'displayName'=>'STRING');
+	var $dbname='sqlite/users.db';
+	var $tablename="users";
+
+	function __construct()
+	{
+		GenericSqliteTable::__construct();
+	}
+
+	function GetUser($uid)
+	{
+		return $this->Get("uid",$uid);
+	}
+
+	function CheckLogin($login,$password)
+	{
+		$user = $this->Get("userName",$login);
+		if(is_null($user)) return 1; 
+		//print_r($user);
+		return array($user['displayName'], $user['uid']);
+	}
+
+	function AddUser($displayName, $email, $password, $uid = null)
+	{
+		//Check email is not used
+		//Check displayName is not used
+		if($this->IsRecordSet('displayName',$displayName)) return "display-name-taken";
+		if(!is_null($uid) and $this->IsRecordSet('uid',$uid)) return "uid-taken";
+		if($this->IsRecordSet('userName',$email)) return "email-taken";
+
+		$f['userName'] = $email;
+		$f['password'] = $password;
+		$f['displayName'] = $displayName;
+		$f['uid'] = $uid;
+		$f['accountCreated'] = date('c');
+		$this->Set("uid",$uid,$f);
+		
+	}
+
+	function Dump()
+	{
+		$ids = $this->GetKeys();
+		$out = array();
+		foreach($ids as $id)
+			array_push($out, $this[$id]);
+		return $out;
+	}
+
+	function RemoveUser($uid)
+	{
+		unset($this[$uid]);
+	}
+}
+
+//********************************
+//User database stored in sqlite
+//********************************
+
+class UserPrefsDbSqlite extends GenericSqliteTable
+{
+	var $keys=array('uid'=>'INTEGER');
+	var $dbname='sqlite/userprefs.db';
+	var $tablename="users";
+
+
 }
 
 

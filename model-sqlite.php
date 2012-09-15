@@ -12,6 +12,8 @@ class ElementTable
 
 	function __construct($type, $name, $latlon = 0)
 	{
+		chdir(dirname(realpath (__FILE__)));
+
 		//Check database schema and connection
 		$this->dbh = new PDO('sqlite:'.$name);
 		//chmod($name,0777);

@@ -1,8 +1,9 @@
 <?php
-include_once ('model-osmxml.php');
-include_once ('model-filetree.php');
-include_once ('model-sqlite.php');
-include_once ('model-sqlite-opt.php');
+require_once ('model-osmxml.php');
+require_once ('model-filetree.php');
+require_once ('model-sqlite.php');
+require_once ('model-sqlite-opt.php');
+require_once ('model-changesets-sqlite.php');
 
 //The backend database is implemented using a strategy software pattern. This makes
 //them nice and modular. The specific strategy to use is determined in this factory.
@@ -23,6 +24,12 @@ function OsmDatabase()
 	}
 
 	return $db;
+}
+
+function ChangesetDatabase()
+{
+	//return new ChangesetDatabaseOsmXml();
+	return new ChangesetDatabaseSqlite();
 }
 
 ?>

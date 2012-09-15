@@ -7,10 +7,9 @@ require_once("osmtypes.php");
 //Low level changeset functions
 //***************************************
 
-class ChangesetDatabase
+class ChangesetDatabaseOsmXml
 {
-//ChangesetOpenLowLevel
-function Open($cid,$data,$displayName,$userId)
+function Open($cid,$data,$displayName,$userId,$createTime)
 {
 	mkdir("changesets-open/".$cid,0777);
 	chmod("changesets-open/".$cid,0777);
@@ -20,12 +19,11 @@ function Open($cid,$data,$displayName,$userId)
 	fwrite($fi,$out);
 
 	$fi = fopen("changesets-open/".$cid."/details.txt","wt");
-	fwrite($fi,$displayName.";".$userId.";".time());
+	fwrite($fi,$displayName.";".$userId.";".$createTime);
 
 	return $cid;
 }
 
-//ChangesetUpdateLowLevel
 function Update($cid,$data,$displayName,$userId)
 {
 	//Read existing data
@@ -41,7 +39,6 @@ function Update($cid,$data,$displayName,$userId)
 	return 1;
 }
 
-//CheckChangesetIsOpen
 function IsOpen($cid)
 {
 	//Check if the changeset is open
@@ -56,7 +53,6 @@ function IsOpen($cid)
 	return 1;
 }
 
-//GetChangesetContentObject
 function GetContentObject($cid)
 {
 	$filename = "changesets-open/".$cid."/data.txt";
@@ -77,7 +73,6 @@ function GetContentObject($cid)
 	return $changeset;
 }
 
-//GetChangetsetSize
 function GetSize($cid)
 {
 	$changeset = $this->GetContentObject($cid);
@@ -97,7 +92,6 @@ function GetSize($cid)
 	return $count;
 }
 
-//AppendElementToChangeset
 function AppendElement($cid, $action, $el)
 {
 	$filename = "changesets-open/".$cid."/data.txt";
@@ -118,7 +112,6 @@ function AppendElement($cid, $action, $el)
 	//echo filesize($filename).",";
 }
 
-//GetChangesetClosedTimeLowLevel
 function GetClosedTime($cid)
 {
 	//$lock=GetReadDatabaseLock();
@@ -131,7 +124,6 @@ function GetClosedTime($cid)
 	return null;
 }
 
-//GetChangesetUid
 function GetUid($cid)
 {
 	if(file_exists("changesets-open/".$cid."/details.txt"))
@@ -147,7 +139,6 @@ function GetUid($cid)
 	return null;
 }
 
-//GetChangesetMetadataLowLevel
 function GetMetadata($cid)
 {
 	$open = $this->IsOpen($cid);
@@ -177,7 +168,6 @@ function GetMetadata($cid)
 	return $data;
 }
 
-//ChangesetCloseLowLevel
 function Close($cid)
 {
 	if(is_dir("changesets-open/".$cid))
@@ -191,7 +181,6 @@ function Close($cid)
 	}
 }
 
-//ChangesetsQuery
 function Query($user,$open,$timerange)
 {
 	$out = array();

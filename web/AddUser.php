@@ -1,9 +1,14 @@
 <?php
-require_once('userdetails.php');
+require_once('../userdetails.php');
+define("ALLOW_USER_ID_SPECIFY",false);
 
 if(isset($_POST['commit']))
 {
-	$ret = AddUser($_POST['displayName'],$_POST['email'],$_POST['password']);
+	$uid = null;
+	if(isset($_POST['uid']) and is_numeric($_POST['uid']) and ALLOW_USER_ID_SPECIFY) 
+		$uid = $_POST['uid'];
+	//print_r($uid);
+	$ret = AddUser($_POST['displayName'],$_POST['email'],$_POST['password'],$uid);
 	print_r($ret);
 }
 else
@@ -16,6 +21,10 @@ else
 <form method="post">
 Email: <input type="text" name="email" /><br />
 Display name: <input type="text" name="displayName" /><br />
+<?php if(ALLOW_USER_ID_SPECIFY)
+{ ?>
+User ID: <input type="text" name="uid" /><br />
+<?php } ?>
 Password: <input type="password" name="password" /><br />
 <input name="commit" type="submit" value="Submit" />
 </form>

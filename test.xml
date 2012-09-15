@@ -1,6 +1,7 @@
-<osmChange version="0.6" generator="JOSM">
-<delete>
-  <node id='440883317' action='delete' timestamp='2009-07-12T19:36:09Z' uid='6809' user='TimSC' visible='true' version='1' changeset='333' lat='52.1297604' lon='-8.6542325'/>
-</delete>
-</osmChange>
-
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>

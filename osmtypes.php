@@ -208,6 +208,8 @@ class OsmRelation extends OsmElement
 
 class OsmChangeset extends OsmElement
 {
+	//var $data = array();
+
 	public function FromXml($input)
 	{
 		//Clear previous data
