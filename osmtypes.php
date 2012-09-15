@@ -88,7 +88,7 @@ class OsmElement
 		$out = "<".$type;
 		foreach($this->attr as $key => $val)
 		{
-			$out = $out." ".$key."='".$val."'";
+			$out = $out." ".htmlspecialchars($key,ENT_QUOTES,"UTF-8")."='".htmlspecialchars($val,ENT_QUOTES,"UTF-8")."'";
 		}
 		$out = $out.">\n";
 
@@ -107,9 +107,9 @@ class OsmElement
 				$out = $out.'<member type="node" ref="'.$node[0].'" role="'.$node[1].'"/>'."\n";
 		}
 		foreach($this->ways as $way)
-			$out = $out.'<member type="way" ref="'.$way[0].'" role="'.$way[1].'"/>'."\n";
+			$out = $out.'<member type="way" ref="'.$way[0].'" role="'.htmlspecialchars($way[1],ENT_QUOTES,"UTF-8").'"/>'."\n";
 		foreach($this->relations as $rel)
-			$out = $out.'<member type="relation" ref="'.$rel[0].'" role="'.$rel[1].'"/>'."\n";
+			$out = $out.'<member type="relation" ref="'.$rel[0].'" role="'.htmlspecialchars($rel[1],ENT_QUOTES,"UTF-8").'"/>'."\n";
 
 		$out = $out."</".$type.">\n";
 		return $out;

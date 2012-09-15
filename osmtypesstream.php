@@ -107,10 +107,17 @@ class OsmTypesStream extends ExtractToXml
 
 			foreach($attrs as $k => $v)
 			{
+				try
+				{
 				if($osmAttributesTypes[strtolower($k)])
 					$this->currentObj->attr[strtolower($k)] = ValidateValue($v,$osmAttributesTypes[strtolower($k)]);
 				else
 					$this->currentObj->attr[strtolower($k)] = ValidateValue($v,'string');
+				}
+				catch (Exception $e) 
+				{
+					echo 'Caught exception: ',  $e->getMessage(), "\n";
+				}
 			}
 			}
 		}
@@ -123,7 +130,14 @@ class OsmTypesStream extends ExtractToXml
 			if(strcasecmp($name,"tag")==0)
 			{
 				//print_r($attrs);
+				try
+				{
 				$this->currentObj->tags[ValidateValue($attrs['K'],'string')] = ValidateValue($attrs['V'],'string');
+				}
+				catch (Exception $e) 
+				{
+					echo 'Caught exception: ',  $e->getMessage(), "\n";
+				}
 			}
 
 			if(strcasecmp($name,"nd")==0)

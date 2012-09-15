@@ -192,7 +192,11 @@ function GetRequestPath()
 		//TODO is there a better way then using INSTALL_FOLDER_DEPTH?
 		$pathInfo = "/".implode("/",array_slice($pathInfoExp,INSTALL_FOLDER_DEPTH));
 	}
-	if(!isset($pathInfo)) die("Could not determine URL path");
+	if(!isset($pathInfo))
+	{
+		//print_r($_SERVER);
+		die("Could not determine URL path.");
+	}
 	return $pathInfo;
 }
 

@@ -4,6 +4,9 @@ require_once('modelfactory.php');
 $lock=GetReadDatabaseLock();
 $db = OsmDatabase();
 
+//$fi = fopen("log.txt","at");
+//fwrite($fi,$_SERVER['REQUEST_URI']."\n");
+
 $pathInfo = GetRequestPath();
 $urlExp = explode("/",$pathInfo);
 $xapiArg = $urlExp[2];

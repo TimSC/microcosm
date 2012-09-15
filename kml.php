@@ -78,7 +78,7 @@ if(!is_null($bbox))
 try
 {
 	$refs = $db->QueryXapi($xapiType,$bboxAr,$key,$value);
-	$kml = XapiQueryToKml($refs, $bbox, $db);
+	$kml = XapiQueryToKml($refs, $bbox, $db,"en");
 	//header("Content-Type:application/vnd.google-earth.kml+xml");
 	//header("Content-Type:text/plain");
 	header("Content-Type:text/xml");
@@ -93,21 +93,160 @@ catch (Exception $e)
 	if(DEBUG_MODE) print_r($e->getTrace());
 }
 
-function ElementToKml($el)
+function WayListToPointsText($el,$db)
 {
-	if(!isset($el->attr['lat']) or !isset($el->attr['lon'])) return "";
-	$out = "<Placemark>\n";
-	//print_r($el);
-	if(isset($el->tags['name'])) $out .= "<name>".$el->tags['name']."</name>\n";
-	$out .= "<Point>\n";
-	$out .= "<coordinates>".$el->attr['lon'].",".$el->attr['lat']."</coordinates>\n";
-	$out .= "</Point>\n";
-	$out .= "</Placemark>\n";
+	$out = "";
+	$ignoreMissing = 1;
+	$totalLat = 0.0; $totalLon = 0.0; $totalCount = 0;
+	foreach($el->nodes as $nd)
+	{
+		//For each referenced nodes,
+		$id = $nd[0];
+		$n = $db->GetElementById("node",(int)$id);
+		if(!is_object($n) and !$ignoreMissing)
+			throw new Exception("node needed in XAPI way not found, node ".$id);
+		if(is_object($n))
+		{
+			$out = $out.$n->attr['lon'].",".$n->attr['lat']."\n";
+			$totalLon += $n->attr['lon'];
+			$totalLat += $n->attr['lat'];
+			$totalCount ++;
+		}
+	}
 
+	$centre = null;
+	if($totalCount>0) $centre = array($totalLon/$totalCount,$totalLat/$totalCount);
+	return array($out,$centre);	
+}
+
+function WayToKml($el,$db,$outer=1)
+{
+	$out = "";
+	$lastNode = array_slice($el->nodes,-1);
+	$closedWay = ($el->nodes[0][0]==$lastNode[0][0]);
+
+	if($closedWay)
+	{
+		$out .= "<Polygon>\n";
+		if($outer) $out .= "<outerBoundaryIs>";
+		else $out .= "<innerBoundaryIs>";
+		$out .= "<LinearRing><coordinates>\n";
+	}
+	else
+	{
+		$out .= "<LineString>";
+		$out .= "<extrude>1</extrude>";
+       		$out .= "<tessellate>1</tessellate>";
+		//$out .= "<altitudeMode>absolute</altitudeMode>";
+		$out .= "<coordinates>";
+	}
+
+	list($points,$centre) = WayListToPointsText($el,$db);
+	$out .= $points;
+
+	if($closedWay)
+	{
+		$out .= "</coordinates></LinearRing>";
+		if($outer) $out .= "</outerBoundaryIs>\n";
+		else $out .= "</innerBoundaryIs>\n";
+		$out .= "</Polygon>\n";
+	}
+	else
+	{
+		$out .= "</coordinates>";
+		$out .= "</LineString>";
+	}
+	return array($out,$centre);
+}
+
+function TagsToDescription($el)
+{
+	$out = "<description>";
+	foreach($el->tags as $k => $v)
+	{
+		$out .= htmlspecialchars($k."=".$v."<br/>")."\n";
+	}
+
+	$out .= "</description>";
 	return $out;
 }
 
-function XapiQueryToKml($refs,$bbox,&$db)
+function ElementToKml($el,$db,$lang=null)
+{
+	//if(!isset($el->attr['lat']) or !isset($el->attr['lon'])) return "";
+	//print_r($el);
+	$ignoreMissing = 1;
+
+	$name = null;
+	$out = "";
+	if(!is_null($lang) and is_null($name) and isset($el->tags['name:'.$lang])) 
+		$name = $el->tags['name:'.$lang];
+	if(is_null($name) and isset($el->tags['name'])) $name = $el->tags['name'];
+
+	if($el->GetType() == "node")
+	{
+		$out .= "<Placemark>\n";
+		if(!is_null($name)) $out .= "<name>".htmlspecialchars($name)."</name>\n";
+		$out .= TagsToDescription($el);
+		$out .= "<Point>\n";
+		$out .= "<coordinates>".$el->attr['lon'].",".$el->attr['lat']."</coordinates>\n";
+		$out .= "</Point>\n";
+		$out .= "</Placemark>\n";
+		return $out;
+	}
+	if($el->GetType() == "way" or $el->GetType() == "relation")
+	{
+		if($el->GetType() == "relation") 
+		{
+			//Only process multi polygon relations
+			if(!isset($el->tags['type'])) return null;
+			if($el->tags['type']!="multipolygon") return null;
+		}
+
+		$centre = null;
+		$out .= "<Placemark>\n";
+		if(!is_null($name)) $out .= "<name>".htmlspecialchars($name)."</name>\n";
+
+		$out .= TagsToDescription($el);
+		$out .= "<MultiGeometry>\n";
+
+		if($el->GetType() == "way")
+		{
+			list($kml,$centre) = WayToKml($el,$db,1);
+			$out .= $kml;
+		}
+
+		foreach($el->ways as $data)
+		{
+			list($wid,$role) = $data;
+			$w = $db->GetElementById("way",(int)$wid);
+			if(!is_object($w))
+				throw new Exception("way needed in XAPI way not found, node ".$id);			
+			//print_r($w);
+			$outer = null;
+			if($role == "inner") $outer = 0;
+			if($role == "outer") $outer = 1;
+			if(is_null($outer)) continue; //Role must be inner or outer
+			if(count($w->nodes)==0) continue; //ignore empty ways
+			list($kml,$centre) = WayToKml($w,$db,$outer);
+			$out .= $kml;		
+		}
+
+		if(!is_null($centre))
+		{
+			$out .= "<Point>\n";
+			$out .= "<coordinates>".$centre[0].",".$centre[1]."</coordinates>\n";
+			$out .= "</Point>\n";
+		}
+
+		$out .= "</MultiGeometry>\n";
+		$out .= "</Placemark>\n";
+		return $out;
+	}
+	return null;
+}
+
+function XapiQueryToKml($refs,$bbox,&$db,$lang=null)
 {
 	//Extract needed elements from database
 	$els = array();
@@ -131,44 +270,13 @@ function XapiQueryToKml($refs,$bbox,&$db)
 	foreach($els as $el)
 	{
 		$problemFound = 0;
-		/*
-		//Also get the elements associated nodes and ways
-		foreach($el->nodes as $nd)
-		{
-			//For each referenced nodes,
-			$id = $nd[0];
-			$n = $db->GetElementById("node",(int)$id);
-			if(!is_object($n) and !$ignoreMissing)
-				throw new Exception("node needed in XAPI way not found, node ".$id);
-			if(is_object($n)) $out = $out.$n->ToXmlString()."\n";
-			else $problemFound = 1;
-		}
-		foreach($el->ways as $wy)
-		{
-			//For each referenced way,
-			$id = $wy[0];
-			$w = $db->GetElementById("way",(int)$id);
-			if(!is_object($w)) throw new Exception("way needed in XAPI way not found, way ".$id);
 
-			//Get the child nodes for this way also
-			foreach($w->nodes as $nd)
-			{
-				$id = $nd[0];
-				$n = $db->GetElementById("node",(int)$id);
-				if(!is_object($n) and !$ignoreMissing) 
-					throw new Exception("node of way needed in XAPI way not found ".$id);
-					
-				if(is_object($n)) $out = $out.$n->ToXmlString()."\n";
-				else $problemFound = 1;
-			}
-
-			if(is_object($w) and !$problemFound) 
-				$out = $out.$w->ToXmlString()."\n";
-		}
-		*/
 		//Output XAPI matched element
 		if(is_object($el) and !$problemFound)
-			$out .= ElementToKml($el);
+		{
+			$kml = ElementToKml($el,$db,$lang);
+			$out .= $kml;
+		}
 	}
 
 	//$out .= "</Folder>\n";
