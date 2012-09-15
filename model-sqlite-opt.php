@@ -131,20 +131,21 @@ class ElementTableOpt extends ElementTable
 		//Get existing parents of child
 		if($exists)
 		{
-			$sql = "UPDATE ".$type."children SET parents='";
-			$sql .= sqlite_escape_string(serialize($parents))."' WHERE id=".(int)$childId.";";
+			$sql = "UPDATE ".$type."children SET parents=? WHERE id=".(int)$childId.";";
 		}
 		else
 		{
 			$sql = "INSERT INTO ".$type."children (id,parents) VALUES (";
-			$sql .= (int)$childId.",'".sqlite_escape_string(serialize($parents))."');";
+			$sql .= (int)$childId.",?);";
 		}
 
 		//echo $sql."\n";
 		//Delete entry for empty array
 		//TODO
 
-		$ret = $this->dbh->query($sql);
+		$sth = $this->dbh->prepare($sql);
+		if($sth===Null) throw new Exception("Null prepared statement!"); 
+		$ret = $sth->execute(array(serialize($parents)));
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 	}
 
@@ -236,16 +237,16 @@ class ElementTableOpt extends ElementTable
 		//Write history
 		if($found)
 		{
-			$sql = "UPDATE history SET history='".sqlite_escape_string(serialize($rowids));
-			$sql .= "' WHERE id=".(int)$id.";";
+			$sql = "UPDATE history SET history='?' WHERE id=".(int)$id.";";
 		}
 		else
 		{
-			$sql = "INSERT INTO history (id, history) VALUES (".(int)$id.",'";
-			$sql .= sqlite_escape_string(serialize($rowids))."');";
+			$sql = "INSERT INTO history (id, history) VALUES (".(int)$id.",?);";
 		}
 
-		$ret = $this->dbh->query($sql);
+		$sth = $this->dbh->prepare($sql);
+		if($sth===Null) throw new Exception("Null prepared statement!"); 
+		$ret = $sth->execute(array(serialize($rowids)));
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 	}
 

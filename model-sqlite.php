@@ -81,7 +81,7 @@ class ElementTable
 		if($this->latlon) $insertsql .= (float)$el->attr['lat'].", ";
 		if($this->latlon) $insertsql .= (float)$el->attr['lon'].", ";
 		$insertsql .= (int)$el->attr['changeset'].", ";
-		if(isset($el->attr['user'])) $insertsql .= "'".sqlite_escape_string((string)$el->attr['user'])."', ";
+		if(isset($el->attr['user'])) $insertsql .= "?, ";
 		else $insertsql .= "null, ";
 		if(isset($el->attr['uid'])) $insertsql .= ((int)$el->attr['uid']).", ";
 		else $insertsql .= "null, ";
@@ -93,11 +93,12 @@ class ElementTable
 			$insertsql .= ("null, ");
 		$insertsql .= ((int)$el->attr['version']);
 		$insertsql .= ", 1";
-		$insertsql .= ", '".sqlite_escape_string(serialize($el->tags))."'";
-		$insertsql .= ", '".sqlite_escape_string(serialize($el->members))."'";
+		$insertsql .= ", ?";
+		$insertsql .= ", ?";
 		$insertsql .= ");\n";
 
-		$ret = $this->dbh->exec($insertsql);
+		$qry = $this->dbh->prepare($insertsql);
+		$ret = $qry->execute(array((string)$el->attr['user'], serialize($el->tags), serialize($el->members)));
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($insertsql.",".$err[2]);}
 		return $this->dbh->lastInsertId();
 	}
