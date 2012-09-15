@@ -245,9 +245,10 @@ function CloneElement($from,$to)
 //Map Model Stored as OSM file
 //****************************
 
-class OsmDatabase
+class OsmDatabaseByOsmXml
 {
 	public $db = null;
+	public $modified = 0;
 
 	//Load state
 	function __construct()
@@ -258,10 +259,17 @@ class OsmDatabase
 			throw new Exception("Failed to load internal database.");
 	}	
 
+	function __destruct()
+	{
+		//Save if database has changed
+		if($this->modified) $this->Save();
+	}
+
 	//Save state
 	public function Save()
 	{
 		$this->db->saveXML("map.osm");
+		$this->modified = 0;
 	}
 
 	//**********************
@@ -277,16 +285,16 @@ class OsmDatabase
 		return null;
 	}
 
-	function RemoveElementById($typeIn, $idIn)
+	function RemoveElementByIdLowLevel($typeIn, $idIn)
 	{
 		$i = 0;
 		$target = null;
-		foreach ($this->db as $type => $v)
+
+		if(strcmp($typeIn,"node")==0)
 		{
-			$id = $v['id'];
-			//echo $type." ".$id." ".$typeIn." ".$idIn."\n";
-			if(strcmp($type,$typeIn)==0)
+			foreach ($this->db->node as $type => $v)
 			{
+				$id = $v['id'];
 				if((int)$id == (int)$idIn)
 				{
 					$target=$i;
@@ -294,12 +302,54 @@ class OsmDatabase
 				}
 				$i = $i + 1;
 			}
+			if(is_null($target)) return 0;
+			unset($this->db->node[$target]);
 		}
-		if($target==null) return 0;
-		if(strcmp($typeIn,"node")==0) unset($this->db->node[$i]);
-		if(strcmp($typeIn,"way")==0) unset($this->db->way[$i]);
-		if(strcmp($typeIn,"relation")==0) unset($this->db->relation[$i]);				
+
+		if(strcmp($typeIn,"way")==0)
+		{
+			foreach ($this->db->way as $type => $v)
+			{
+				$id = $v['id'];
+				if((int)$id == (int)$idIn)
+				{
+					$target=$i;
+					break;
+				}
+				$i = $i + 1;
+			}
+			if(is_null($target)) return 0;
+			unset($this->db->way[$target]);
+		}
+
+		if(strcmp($typeIn,"relation")==0)
+		{
+			foreach ($this->db->relation as $type => $v)
+			{
+				$id = $v['id'];
+				if((int)$id == (int)$idIn)
+				{
+					$target=$i;
+					break;
+				}
+				$i = $i + 1;
+			}
+			if(is_null($target)) return 0;
+			unset($this->db->relation[$target]);
+		}
+
+
 		return 1;
+	}
+
+	function RemoveElementById($typeIn, $idIn)
+	{
+		//Delete element, and check for duplicates
+		$ret = 0;
+		do
+		{
+			$ret = $this->RemoveElementByIdLowLevel($typeIn, $idIn);
+		} while($ret==1);
 	}
 
 	//**********************
@@ -379,8 +429,10 @@ class OsmDatabase
 					and strcmp($type,$nd['type'])==0) {$match = 1;break;}
 			}
 			if ($match == 1)
+			{
 				array_push($matched,$r['id']);
-		}		
+			}
+		}
 		return $matched;
 	}
 
@@ -397,6 +449,7 @@ class OsmDatabase
 
 	public function CreateElement($type,$id,$el)
 	{
+		$this->modified = 1;
 		$value = simplexml_load_string($el->ToXmlString());
 		$newdata = $this->db->addChild($type);
 		CloneElement($value, $newdata);		
@@ -404,6 +457,7 @@ class OsmDatabase
 
 	public function ModifyElement($type,$id,$el)
 	{
+		$this->modified = 1;
 		$value = simplexml_load_string($el->ToXmlString());
 		$this->RemoveElementById($type, $id);
 		$element = $this->db->addChild($type);
@@ -412,6 +466,7 @@ class OsmDatabase
 
 	public function DeleteElement($type,$id,$el)
 	{
+		$this->modified = 1;
 		$this->RemoveElementById($type, $id);
 	}
 

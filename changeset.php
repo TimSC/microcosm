@@ -3,7 +3,7 @@
 require_once("config.php");
 require_once("querymap.php");
 require_once("osmtypes.php");
-require_once("model-fs.php");
+require_once("modelfactory.php");
 
 function GetNewObjectId($type)
 {
@@ -514,7 +514,7 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 	$lock=GetWriteDatabaseLock();
 
 	//Load database
-	$map = new OsmDatabase();
+	$map = OsmDatabase();
 
 	//Validate change
 	try

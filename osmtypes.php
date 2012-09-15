@@ -320,12 +320,40 @@ function SingleObjectFromXml($input)
 	foreach($xml as $type=>$el)
 	{
 		//echo $type;
+		if(strcmp($type,"bounds")==0) continue;
 		$obj = OsmElementFactory($type);
 		if (is_null($obj)) throw new Exception("Factory returned null for type ".$type);
 		$obj->FromXml($el);
 		return $obj;
 	}		
 	return null;
+}
+
+function ParseOsmXml($input)
+{
+	//Parse input
+	$xml = simplexml_load_string($input);
+	if (!$xml)
+	{
+		$err = "Failed to parse XML upload diff.";
+		foreach(libxml_get_errors() as $error) {
+			$err = $err."\t".$error->message;
+		}
+		throw new InvalidArgumentException($err);
+	}
+
+	$out = array();
+	//Create object
+	foreach($xml as $type=>$el)
+	{
+		//echo $type;
+		if(strcmp($type,"bounds")==0) continue;
+		$obj = OsmElementFactory($type);
+		if (is_null($obj)) throw new Exception("Factory returned null for type ".$type);
+		$obj->FromXml($el);
+		array_push($out,$obj);
+	}
+	return $out;
 }
 
 function ParseOsmXmlChangeset($input)

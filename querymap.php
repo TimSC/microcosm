@@ -27,14 +27,14 @@ function MapQuery($bbox)
 		return "too-large";
 	}
 
-	$map = new OsmDatabase();
+	$map = OsmDatabase();
 	return $map->MapQuery($bbox);
 }
 
 function MapObjectQuery($type,$id,$version=null)
 {
 	$lock=GetReadDatabaseLock();
-	$map = new OsmDatabase();
+	$map = OsmDatabase();
 	$obj = $map->GetElementById($type,$id,$version);
 	if(!is_object($obj))
 	{
@@ -48,7 +48,7 @@ function MapObjectQuery($type,$id,$version=null)
 function MapObjectFullHistory($type,$id)
 {
 	$lock=GetReadDatabaseLock();
-	$map = new OsmDatabase();
+	$map = OsmDatabase();
 	$objs = $map->GetElementFullHistory($type,$id);
 	if(!is_array($objs))
 	{
@@ -67,7 +67,7 @@ function MultiFetch($type,$ids)
 {
 	$lock=GetReadDatabaseLock();
 	$out = '<osm version="0.6" generator="'.SERVER_NAME.'">';
-	$map = new OsmDatabase();
+	$map = OsmDatabase();
 
 	$emptyQuery = 0;
 	if(count($ids)<1 or (count($ids)==1 and strlen($ids[0])==0))
@@ -89,7 +89,7 @@ function GetRelationsForElement($type,$id)
 {
 	$lock=GetReadDatabaseLock();
 	$out = '<osm version="0.6" generator="'.SERVER_NAME.'">';
-	$map = new OsmDatabase();
+	$map = OsmDatabase();
 
 	$rels = $map->GetCitingRelations($type,$id);
 
@@ -110,7 +110,7 @@ function GetFullDetailsOfElement($type,$id)
 {
 	$lock=GetReadDatabaseLock();
 	$out = '<osm version="0.6" generator="'.SERVER_NAME.'">';
-	$map = new OsmDatabase();
+	$map = OsmDatabase();
 	$firstObj = $map->GetElementById($type,$id);
 	if($firstObj==null) return "not-found";
 	$out = $out.$firstObj->ToXmlString()."\n";
