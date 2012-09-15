@@ -216,13 +216,13 @@ function ProcessErrorsSendToClient(&$data,$changesetId)
 	{	
 		$mismatch = explode(",",$data);
 		//Example: Version mismatch: Provided 1, server had: 2 of Node 354516541
-		$header = 'HTTP/1.1 409 Conflict';
-		header('HTTP/1.1 409 Conflict');
+		//header('HTTP/1.1 409 Conflict');
 		
 		//$header= ("Content-Type:text/plain");
 		//echo "Version mismatch.".$ret;
 		$content = "Version mismatch: Provided ".$mismatch[1].", server had: ".$mismatch[2]." of ".ucwords($mismatch[3])." ".$mismatch[4];
-		header('Error: '.$content);
+		$header = array('HTTP/1.1 409 Conflict', 'Error: '.$content);
+		//header('Error: '.$content);
 		#$content ="Version mismatch: Provided 1, server had: 2 of Node 354516541";
 	}
 	
@@ -460,6 +460,109 @@ if(strcmp($urlExp[2],"way")==0 or strcmp($urlExp[2],"node")==0 or strcmp($urlExp
 
 }
 
+//Get full details of an element
+if(count($urlExp)==5 and (strcmp($urlExp[2],"way")==0 or strcmp($urlExp[2],"relation")==0))
+{
+	//Request full details of a specific object
+	if (is_numeric($urlExp[3]) and strcmp($urlExp[4],"full")==0)
+	{
+		$type = $urlExp[2];
+		$id = (int)$urlExp[3];
+		$ret = GetFullDetailsOfElement($type,$id);
+
+		//Send response to client
+		if(!is_null($ret))
+		{
+			$errFound = ProcessErrorsSendToClient($ret,null);
+			if(!is_null($errFound)) 
+				list($header,$content)= $errFound;
+			else
+			{
+				$header = ("Content-Type:text/xml");
+				$content = $ret;
+			}
+		}
+
+	}
+}
+
+//Get relations for element
+if(count($urlExp)==5 and (strcmp($urlExp[2],"way")==0 or strcmp($urlExp[2],"relation")==0 or strcmp($urlExp[2],"node")==0))
+{
+	if (is_numeric($urlExp[3]) and strcmp($urlExp[4],"relations")==0)
+	{
+		$type = $urlExp[2];
+		$id = (int)$urlExp[3];
+		$ret = GetRelationsForElement($type,$id);
+
+		//Send response to client
+		if(!is_null($ret))
+		{
+			$errFound = ProcessErrorsSendToClient($ret,null);
+			if(!is_null($errFound)) 
+				list($header,$content)= $errFound;
+			else
+			{
+				$header = ("Content-Type:text/xml");
+				$content = $ret;
+			}
+		}
+
+	}
+}
+
+//Get ways for node
+if(count($urlExp)==5 and strcmp($urlExp[2],"node")==0)
+{
+	//Request full details of a specific object
+	if (is_numeric($urlExp[3]) and strcmp($urlExp[4],"ways")==0)
+	{
+		$id = (int)$urlExp[3];
+		$ret = GetWaysForNode($id);
+
+		//Send response to client
+		if(!is_null($ret))
+		{
+			$errFound = ProcessErrorsSendToClient($ret,null);
+			if(!is_null($errFound)) 
+				list($header,$content)= $errFound;
+			else
+			{
+				$header = ("Content-Type:text/xml");
+				$content = $ret;
+			}
+		}
+	}
+}
+
+//Fetch multiple objects
+if(strcmp($urlExp[2],"ways")==0 or strcmp($urlExp[2],"nodes")==0 or strcmp($urlExp[2],"relations")==0)
+{
+	$type = $urlExp[2];
+	if (!isset($_GET[$type]))
+	{
+		$header = 'HTTP/1.1 400 Bad Request';
+		$content = "URL arguments are not consistent";
+	}
+	
+	$ids = explode(",",$_GET[$type]);
+	$singularType = substr($type,0,-1);
+	$ret = MultiFetch($singularType, $ids);
+
+	//Send response to client
+	if(!is_null($ret))
+	{
+		$errFound = ProcessErrorsSendToClient($ret,null);
+		if(!is_null($errFound)) 
+			list($header,$content)= $errFound;
+		else
+		{
+			$header = ("Content-Type:text/xml");
+			$content = $ret;
+		}
+	}
+}
+
 //***************************
 //Send response to client
 //***************************
@@ -470,7 +573,10 @@ if(is_null($content))
 	$content = "This feature has not been implemented.";
 }
 
-if (!is_null($header)) header($header);
+if (!is_null($header) and is_array($header))
+	foreach($header as $headerline) header($headerline);
+
+if (!is_null($header) and !is_array($header)) header($header);
 echo $content;
 
 if(!DEBUG_MODE)
