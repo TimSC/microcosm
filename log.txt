@@ -1,6 +1,0 @@
-GET	/0.6/user/details		array (
-)	
-GET	/0.6/user/details		array (
-)	
-GET	/0.6/user/details		array (
-)	

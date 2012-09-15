@@ -269,6 +269,9 @@ class OsmChange
 		//For each action in data
 		foreach($xml as $action => $elements)
 		{
+			if($action!="create" and $action != "modify" and $action != "delete")
+				throw new InvalidArgumentException("Action must be create, modify or delete, not ".$action);
+
 			$elsInAction = array();
 			//For each element in the action
 			foreach($elements as $type => $elxml)

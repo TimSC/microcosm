@@ -60,7 +60,7 @@ function ChangesetUpdate($userInfo, $args)
 		return array(0,Null,"conflict");
 
 	$ret = $csd->Update($cid,$data,$displayName,$userId);
-	return GetChangesetMetadata($cid);
+	return GetChangesetMetadataLowLevel($csd,$cid);
 }
 
 function ChangesetClose($userInfo,$argExp)
@@ -496,11 +496,37 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 	return $changes;
 }
 
+function GetBboxOfReferencedElements($osmchange,&$map)
+{
+	//For each element
+	$bbox= null;
+	foreach($osmchange->data as $data)
+	{
+		list($method, $els) = $data;
+		//if(strcmp($method,"create")==0)
+		foreach($els as $el)
+		{
+			//echo $method." ".$el->GetType()." ".$el->attr['id']."\n";
+			$elBbox = $map->GetBboxOfElement($el->GetType(),(int)$el->attr['id']);
+			//print_r($elBbox);
+			UpdateBbox($bbox, $elBbox);
+		}
+	}
+	return $bbox;
+}
+
+function ExpandChangesetBbox($cid,$bbox)
+{
+	if(!is_array($bbox)) return 0;
+	$csd = ChangesetDatabase();
+	//print_r($bbox);
+	$csd->ExpandBbox($cid,$bbox);
+	return 1;
+}
+
 function ApplyChangeToDatabase(&$osmchange,&$map)
 {
 	$csd = ChangesetDatabase();
-
-	//TODO update bbox
 
 	//For each element
 	foreach($osmchange->data as $data)
@@ -575,10 +601,19 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 	//Assign IDs to created objects
 	$changes = AssignIdsToOsmChange($osmchange,$displayName,$userId);
 
+	//Bbox for elements before change is applied
+	//TODO relations should be handled differently
+	$bbox = GetBboxOfReferencedElements($osmchange,$map);
+	ExpandChangesetBbox($cid,$bbox);
+
 	//Apply changes to database
 	ApplyChangeToDatabase($osmchange,$map);
 
-	unset($map); //Cause the destructor to save changes (if required)
+	//Bbox for elements after change is applied
+	$bbox = GetBboxOfReferencedElements($osmchange,$map);
+	ExpandChangesetBbox($cid,$bbox);
+
+	unset($map); //Cause the destructor of the map databae object to run
 
 	return array(1,$changes);
 }
@@ -654,6 +689,37 @@ function ChangesetUpload($userInfo, $args)
 	return array(0,Null,$changes);
 }
 
+function ChangesetExpandBbox($userInfo, $args)
+{
+	$displayName = $userInfo['displayName'];
+	$userId = $userInfo['userId'];
+	$cid = (int)$args[0][3];
+	$putDataStr = $args[1];
+
+	//Open database	
+	$lock = GetWriteDatabaseLock();
+	$csd = ChangesetDatabase();
+
+	//Validate
+	if($userId != $csd->GetUid($cid))
+		return array(0,null,"forbidden");
+	$xml = ParseOsmXml($putDataStr);	
+
+	//Expand Bbox
+	$bbox = null;
+	foreach($xml as $el)
+	{
+		if($el->GetType() != "node") continue; //Ignore everything but nodes
+		UpdateBbox($bbox,array($el->attr['lon'],$el->attr['lat'],
+				$el->attr['lon'],$el->attr['lat']));
+	}
+
+	if(is_array($bbox)) $csd->ExpandBbox($cid,$bbox);
+
+	//Return changeset
+	return GetChangesetMetadataLowLevel($csd,$cid);
+}
+
 function GetChangesets($userInfo,$query)
 {
 	$lock=GetReadDatabaseLock();
@@ -681,16 +747,21 @@ function GetChangesets($userInfo,$query)
 	return array(1,array("Content-Type:text/xml"),$out);
 }
 
+function GetChangesetMetadataLowLevel(&$csd,$cid)
+{
+	$data = $csd->GetMetadata($cid);
+	if(is_null($data)) return array(0,Null,"not-found");
+	return array(1,array("Content-Type:text/xml"),
+		'<osm version="0.6" generator="'.SERVER_NAME.'">'.$data->ToXmlString().'</osm>');
+}
+
 function GetChangesetMetadata($userInfo, $urlExp)
 {
 	$cid = (int)$urlExp[3];
 
 	$lock=GetReadDatabaseLock();
 	$csd = ChangesetDatabase();
-	$data = $csd->GetMetadata($cid);
-	if(is_null($data)) return array(0,Null,"not-found");
-	return array(1,array("Content-Type:text/xml"),
-		'<osm version="0.6" generator="'.SERVER_NAME.'">'.$data->ToXmlString().'</osm>');
+	return GetChangesetMetadataLowLevel($csd,$cid);
 }
 
 function GetChangesetUid($cid)

@@ -9,6 +9,7 @@ define("LICENSE_HUMAN","TBC");
 define("INSTALL_FOLDER_DEPTH",2);
 set_time_limit(60);
 
+define("API_READ_ONLY",false);
 define("ENABLE_ANON_EDITS",true);
 define("ANON_DISPLAY_NAME","Anonymous");
 define("ANON_UID",100);

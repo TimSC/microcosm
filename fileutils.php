@@ -101,22 +101,44 @@ rmdir($dirname);
 return true;
 }
 
+class Lock
+{
+	var $fp = null;
+	var $lockObj = null;
+	function __construct($write=0)
+	{
+		//echo "Getting Lock...\n"; 
+		if(!$write)
+		{
+		chdir(dirname(realpath (__FILE__)));
+		//To unlock, let the returned object go out of scope
+		$this->fp = fopen("db.lock", "w");
+		$this->lockObj = flock($this->fp, LOCK_SH);
+		}
+		else
+		{
+		chdir(dirname(realpath (__FILE__)));
+		//To unlock, let the returned object go out of scope
+		$this->fp = fopen("db.lock", "w");
+		$this->lockObj = flock($this->fp, LOCK_EX);
+		}
+	}
+
+	function __destruct()
+	{
+		//echo "Releasing Lock...\n"; 
+		flock($this->fp, LOCK_UN);
+	}
+}
+
 function GetReadDatabaseLock()
 {
-	chdir(dirname(realpath (__FILE__)));
-	//To unlock, let the returned object go out of scope
-	$fp = fopen("db.lock", "w");
-	$ret = flock($fp, LOCK_SH);
-	return $fp;
+	return new Lock(0);
 }
 
 function GetWriteDatabaseLock()
 {
-	chdir(dirname(realpath (__FILE__)));
-	//To unlock, let the returned object go out of scope
-	$fp = fopen("db.lock", "w");
-	$ret = flock($fp, LOCK_EX);
-	return $fp;
+	return new Lock(1);
 }
 
 //http://www.webtoolkit.info/php-validate-email.html
@@ -143,6 +165,17 @@ function ValidateBbox($bbox)
 	}
 
 	return 1;
+}
+
+function UpdateBbox(&$original,$new)
+{
+	//Expand bbox to contain new area
+	if(!is_array($new)) return;
+	if(!is_array($original)) {$original = $new; return;}
+	if($new[0] < $original[0]) $original[0] = $new[0];
+	if($new[1] < $original[1]) $original[1] = $new[1];
+	if($new[2] > $original[2]) $original[2] = $new[2];
+	if($new[3] > $original[3]) $original[3] = $new[3];
 }
 
 ?>

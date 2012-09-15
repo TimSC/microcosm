@@ -63,6 +63,14 @@ fwrite($fi,"\n");
 fflush($fi);
 fclose($fi);
 
+//If we are in read only mode, require GET method
+if(API_READ_ONLY and strcmp(GetServerRequestMethod(),"GET")!=0)
+{
+	header ('HTTP/1.1 503 Service Unavailable');
+	echo "API in read only mode.";
+	return;
+}
+
 //***********************
 //User Authentication
 //***********************
@@ -107,6 +115,8 @@ $requestProcessor->AddMethod("/0.6/changeset/NUM", "GET", 'GetChangesetMetadata'
 $requestProcessor->AddMethod("/0.6/changeset/NUM", "PUT", 'ChangesetUpdate', 1, array($urlExp, $putDataStr));
 
 $requestProcessor->AddMethod("/0.6/changeset/NUM/upload", "POST", 'ChangesetUpload', 1, array($urlExp, $putDataStr));
+$requestProcessor->AddMethod("/0.6/changeset/NUM/expand_bbox", "POST", 'ChangesetExpandBbox', 1, 
+	array($urlExp, $putDataStr));
 $requestProcessor->AddMethod("/0.6/changeset/NUM/download", "GET", 'GetChangesetContents', 0, $urlExp);
 $requestProcessor->AddMethod("/0.6/changeset/NUM/close", "PUT", 'ChangesetClose', 1, $urlExp);
 

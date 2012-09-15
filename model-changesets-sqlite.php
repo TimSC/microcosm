@@ -15,13 +15,10 @@ class ChangesetDatabaseSqlite extends GenericSqliteTable
 		$data->attr['uid'] = $userId;
 		$data->attr['created_at'] = date('c',$createTime);
 		$data->attr['open'] = "true";
+		
 		$c['data'] = $data;
 		$c['change'] = new OsmChange();
-		//$c['open'] = 1;
-		//$c['createTime'] = $createTime;
-		//$c['closeTime'] = $createTime;
-		//$c['displayName'] = $displayName;
-		//$c['userId'] = $userId;
+
 		$this[(int)$cid] = $c;
 		//print_r($this[(int)$cid]);
 		return $cid;
@@ -112,6 +109,39 @@ class ChangesetDatabaseSqlite extends GenericSqliteTable
 			array_push($out,(int)$cid);
 		}
 		return $out;
+	}
+
+	function ExpandBbox($cid, $bbox)
+	{
+		//Input order min_lon,min_lat,max_lon,max_lat
+		if(!is_array($bbox)) throw new Exception("Input bbox must be array");
+
+		//Get Changeset from database
+		$changeset = $this[(int)$cid];
+
+		//Check attributes exist
+		if (!isset($changeset['data']->attr['min_lon']))
+			$changeset['data']->attr['min_lon'] = $bbox[0];
+		if (!isset($changeset['data']->attr['min_lat']))
+			$changeset['data']->attr['min_lat'] = $bbox[1];
+		if (!isset($changeset['data']->attr['max_lon']))
+			$changeset['data']->attr['max_lon'] = $bbox[2];
+		if (!isset($changeset['data']->attr['max_lat']))
+			$changeset['data']->attr['max_lat'] = $bbox[3];
+
+		//Update size
+		if($bbox[0] < $changeset['data']->attr['min_lon']) 
+			$changeset['data']->attr['min_lon'] = $bbox[0];
+		if($bbox[1] < $changeset['data']->attr['min_lat']) 
+			$changeset['data']->attr['min_lat'] = $bbox[1];
+		if($bbox[2] > $changeset['data']->attr['max_lon']) 
+			$changeset['data']->attr['max_lon'] = $bbox[2];
+		if($bbox[3] > $changeset['data']->attr['max_lat']) 
+			$changeset['data']->attr['max_lat'] = $bbox[3];
+
+		//Insert data back into persistant database
+		$this[(int)$cid] = $changeset;
+
 	}
 
 }//End of class

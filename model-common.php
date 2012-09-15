@@ -170,6 +170,37 @@ abstract class OsmDatabaseCommon
 		return $out;
 	}
 
+	public function GetBboxOfElement($type,$id,$depth = 0)
+	{
+		//Get the bounding box of an element
+		//Return format: min_lon,min_lat,max_lon,max_lat
+		$bbox= null;
+
+		//Prevent infinite recursion
+		$maxDepth = 10;
+		if($depth>$maxDepth) return null;
+
+		//Get parent element
+		$el = $this->GetElementById($type,$id);
+		if(!is_object($el)) return null;
+
+		//Use own position attribute
+		if(isset($el->attr['lon']) and isset($el->attr['lat']))
+			UpdateBbox($bbox,
+				array($el->attr['lon'],$el->attr['lat'],
+				$el->attr['lon'],$el->attr['lat']));
+
+		//Recursively get member elements
+		foreach($el->nodes as $member)
+			UpdateBbox($bbox,$this->GetBboxOfElement("node",$member[0],$depth+1));
+		foreach($el->ways as $member)
+			UpdateBbox($bbox,$this->GetBboxOfElement("way",$member[0],$depth+1));
+		foreach($el->relations as $member)
+			UpdateBbox($bbox,$this->GetBboxOfElement("relation",$member[0],$depth+1));
+
+		return $bbox;
+	}
+
 	//***********************
 	//Modification functions
 	//***********************
