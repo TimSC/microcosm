@@ -1,0 +1,10 @@
+# BEGIN Microcosm
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /api/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /m/microcosm.php [L]
+</IfModule>
+
+# END Microcosm

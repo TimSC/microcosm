@@ -9,15 +9,29 @@ require_once('fileutils.php');
 //Start up functions and logging
 //******************************
 
+
+//print_r($_SERVER);
+
 CheckPermissions();
-if(!isset($_SERVER['PATH_INFO'])) $_SERVER['PATH_INFO'] = "";
+
+//Convert path to internally usable format
+if(isset($_SERVER['PATH_INFO'])) 
+	$pathInfo = $_SERVER['PATH_INFO'];
+else
+{
+//	$pathInfo = "";
+	$pathInfo = $_SERVER['REQUEST_URI'];
+	$pathInfoExp = explode("/",$pathInfo);
+	$pathInfo = "/".implode("/",array_slice($pathInfoExp,INSTALL_FOLDER_DEPTH));
+}
+//print_r($pathInfo);
 
 //Log the request
 $fi = fopen("log.txt","at");
 flock($fi, LOCK_EX);
 fwrite($fi,GetServerRequestMethod());
 fwrite($fi,"\t");
-fwrite($fi,$_SERVER['PATH_INFO']);
+fwrite($fi,$pathInfo);
 fwrite($fi,"\t");
 fwrite($fi,$_SERVER['QUERY_STRING']);
 
@@ -116,26 +130,43 @@ else
 }
 
 //print_r( $_SERVER);
-//print_r( $_SERVER['PATH_INFO']);
+//print_r( $pathInfo);
 
 //Output variables
 $header = null;
 $content = null;
 
 //************************
-//Misc API Functions
+//API Related Functions
 //************************
 
 //Get API capabilities
-if(strcmp($_SERVER['PATH_INFO'],"/capabilities")==0)
+if(strcmp($pathInfo,"/capabilities")==0)
 {
 	RequireMethod("GET");
 	$header =("Content-Type:text/xml");
 	$content = GetCapabilities();
 }
 
+//All subsequent calls are only for API 0.6 - block access to any other
+if(is_null($content) and strncmp($pathInfo,"/0.6/",5)!=0)
+{
+	header ('HTTP/1.1 404 Not Found');
+	echo "URL not found.";
+	return;
+}
+
+//*****************************
+//User details and perferences
+//*****************************
+
+//Split URL for processing
+$urlExp = explode("/",$pathInfo);
+
+if(count($urlExp) >= 3 and strcmp($urlExp[2],"user")==0)
+{
 //Get user details
-if(strcmp($_SERVER['PATH_INFO'],"/0.6/user/details")==0)
+if(count($urlExp) == 4 && strcmp($urlExp[3],"details")==0)
 {
 	RequireMethod("GET");
 	include_once('userdetails.php');
@@ -147,8 +178,62 @@ if(strcmp($_SERVER['PATH_INFO'],"/0.6/user/details")==0)
 	$content = GetUserDetails($userId);
 }
 
+//User perferences GET
+if(count($urlExp) == 4 && strcmp($urlExp[3],"perferences")==0)
+{
+	include_once('userdetails.php');
+	if($userId == null) list ($displayName, $userId) = RequireAuth();
+
+	if(strcmp(GetServerRequestMethod,"GET")==0)
+	{
+		RequireMethod("GET");
+		$header = ("Content-Type:text/xml");
+		$content = GetUserPreferences($userId);
+	}
+
+	if(strcmp(GetServerRequestMethod,"PUT")==0)
+	{
+		RequireMethod("PUT");
+		$data = $putDataStr;
+		SetUserPreferences($userId,$data);
+		return;
+	}
+}
+
+//User perferences PUT
+if(count($urlExp) == 5 && strcmp($urlExp[3],"perferences")==0)
+{
+	RequireMethod("PUT");
+	$key = $urlExp[4];
+	$value = $putDataStr;
+	if(strlen($key)>255 or strlen($value)>255)
+	{
+		$header = 'HTTP/1.1 413 Request Entity Too Large';
+		$content = "Key or value too large";		
+		return;
+	}
+	
+	$ret = SetUserPreferencesSingle($userId,$key,$value);
+
+	if($ret==-100)
+	{
+		header('HTTP/1.1 501 Not Implemented');
+		echo "This feature has not been implemented.";
+		return;
+	}
+
+	return;
+}
+
+}
+
+//*************************
+//Main map query function
+//*************************
+
 //Query map
-if(strcmp($_SERVER['PATH_INFO'],"/0.6/map")==0)
+//print_r($pathInfo);
+if(strncmp($pathInfo,"/0.6/map",8)==0)
 {
 	//	array (
 	//  'bbox' => '-0.5991502,51.2832874,-0.5941581,51.2861896',
@@ -156,7 +241,6 @@ if(strcmp($_SERVER['PATH_INFO'],"/0.6/map")==0)
 	RequireMethod("GET");
 	$bboxExp = explode(",",$_GET['bbox']);
 	$bboxExp = array_map('floatval', $bboxExp);
-	//print_r($bboxExp);
 
 	$header = ("Content-Type:text/xml");
 	$content=MapQuery($bboxExp);
@@ -188,6 +272,12 @@ function ProcessErrorsSendToClient(&$data,$changesetId)
 		$content = "Invalid XML input";
 	}
 
+	if(strcmp($data,"invalid-xml")==0)
+	{	
+		$header = 'HTTP/1.1 413 Request Entity Too Large';
+		$content = "Request Entity Too Large";
+	}
+
 	if(strcmp($data,"no-such-changeset")==0)
 	{	
 		$header = 'HTTP/1.1 409 Conflict';
@@ -206,6 +296,12 @@ function ProcessErrorsSendToClient(&$data,$changesetId)
 		$content = "Modified object not found in database.";
 	}
 
+	if(strcmp($data,"bad-request")==0)
+	{	
+		$header = 'HTTP/1.1 400 Bad Request';
+		$content = "Bad request.";
+	}
+	
 	if(strcmp($data,"not-implemented")==0)
 	{
 		$header = ('HTTP/1.1 501 Not Implemented');
@@ -235,7 +331,7 @@ function ProcessErrorsSendToClient(&$data,$changesetId)
 //************************
 
 //Get changsets data
-if(strcmp($_SERVER['PATH_INFO'],"/0.6/changesets")==0) ///0.6/changesets?user=6809&open=true
+if(strcmp($pathInfo,"/0.6/changesets")==0) ///0.6/changesets?user=6809&open=true
 {
 	RequireMethod("GET");
 	require_once('changeset.php');
@@ -244,7 +340,7 @@ if(strcmp($_SERVER['PATH_INFO'],"/0.6/changesets")==0) ///0.6/changesets?user=68
 }
 
 //Create Changeset
-if(strcmp($_SERVER['PATH_INFO'],"/0.6/changeset/create")==0)
+if(strcmp($pathInfo,"/0.6/changeset/create")==0)
 {
 	RequireMethod("PUT");
 	$header= ("Content-Type:text/plain");
@@ -273,20 +369,17 @@ function OperateOnChangeset($changesetId,$action,$putDataStr,$displayName,$userI
 		return array("Content-Type:text/xml",$ret);
 	}
 
-	if(strcmp($action,"close")==0)
-	{
-		ChangesetClose($changesetId);
-		#Nothing returned
-		return array(null,"");		
-	}
+	//if(strcmp($action,"close")==0)
+	//{
+	//	ChangesetClose($changesetId);
+	//	#Nothing returned
+	//	return array(null,"");		
+	//}
 	return null;
 }
 
-//Split URL for processing
-$urlExp = explode("/",$_SERVER['PATH_INFO']);
-
 //Changeset API stuff
-if(strncmp($_SERVER['PATH_INFO'],"/0.6/changeset/",15)==0 and count($urlExp)>=4 and is_numeric($urlExp[3]))
+if(strncmp($pathInfo,"/0.6/changeset/",15)==0 and count($urlExp)>=4 and is_numeric($urlExp[3]))
 {
 	$changesetId = (int)$urlExp[3];
 
@@ -308,7 +401,7 @@ if(strncmp($_SERVER['PATH_INFO'],"/0.6/changeset/",15)==0 and count($urlExp)>=4 
 		}
 
 	//Upload diff data to changeset
-	if(is_numeric($urlExp[3]) and count($urlExp)==5)
+	if(is_numeric($urlExp[3]) and count($urlExp)==5 and strcmp($urlExp[4],"upload")==0)
 	{
 		$action=$urlExp[4];
 		$ret = OperateOnChangeset($changesetId,$action,$putDataStr,$displayName,$userId);
@@ -319,11 +412,18 @@ if(strncmp($_SERVER['PATH_INFO'],"/0.6/changeset/",15)==0 and count($urlExp)>=4 
 	//Upload changeset meta data
 	if(is_numeric($urlExp[3]) and count($urlExp)==4 and strcmp(GetServerRequestMethod(),"PUT")==0)
 	{
+		$cid = (int)$urlExp[3];
 		//Do update
-		//TODO
+		$ret = ChangesetUpdate($cid,$putDataStr,$displayName,$userId);
+		//Handle error
+		if($ret != 1)
+		{
+			echo $ret; exit();
+			//TODO tidy
+		}
 
 		//Return updated changeset info		
-		$cs = GetChangesetMetadata((int)$urlExp[3]);
+		$cs = GetChangesetMetadata($cid);
 		if(!is_null($cs))
 		{
 			$header = "Content-Type:text/xml";
@@ -342,6 +442,24 @@ if(strncmp($_SERVER['PATH_INFO'],"/0.6/changeset/",15)==0 and count($urlExp)>=4 
 		}
 	}
 
+	//Download changeset contents
+	if(is_numeric($urlExp[3]) and count($urlExp)==5 and strcmp($urlExp[4],"download")==0)
+	{
+		$cs = GetChangesetContents((int)$urlExp[3]);
+		if(!is_null($cs))
+		{
+			$header = "Content-Type:text/xml";
+			$content = $cs;
+		}
+	}
+
+	//Close changeset
+	if(is_numeric($urlExp[3]) and count($urlExp)==5 and strcmp($urlExp[4],"close")==0)
+	{
+		ChangesetClose($changesetId);
+		#Nothing returned
+		return array(null,"");		
+	}
 }
 
 
@@ -536,7 +654,9 @@ if(count($urlExp)==5 and strcmp($urlExp[2],"node")==0)
 }
 
 //Fetch multiple objects
-if(strcmp($urlExp[2],"ways")==0 or strcmp($urlExp[2],"nodes")==0 or strcmp($urlExp[2],"relations")==0)
+if(count($urlExp)>=3 and (strcmp($urlExp[2],"ways")==0 
+	or strcmp($urlExp[2],"nodes")==0 
+	or strcmp($urlExp[2],"relations")==0))
 {
 	$type = $urlExp[2];
 	if (!isset($_GET[$type]))
@@ -584,8 +704,12 @@ if(!DEBUG_MODE)
 	//Logging server response
 	$fi = fopen("log.txt","at");
 	flock($fi, LOCK_EX);
-	fwrite($fi,$header."\n");
-	fwrite($fi,$content."\n");
+	fwrite($fi,"Header:".$header."\n");
+	fwrite($fi,"Response:".$content."\n");
 }
+
+//Housekeeping?
+
+//TODO Close changesets that time out
 
 ?>

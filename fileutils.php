@@ -32,5 +32,54 @@ function RequireMethod($reqMethod)
 	}
 }
 
+function getDirectory( $path = '.', $level = 0 )
+{
+$out=array();
+// Directories to ignore when listing output.
+$ignore = array( '.', '..' );
+
+// Open the directory to the handle $dh
+$dh = @opendir( $path );
+
+// Loop through the directory
+while( false !== ( $file = readdir( $dh ) ) )
+{
+// Check that this file is not to be ignored
+if( !in_array( $file, $ignore ) )
+{
+// Show directories only
+if(is_dir( "$path/$file" ) )
+{
+	//echo $file."\n";
+	array_push($out,$file);
+}
+}
+}
+// Close the directory handle
+closedir( $dh );
+return $out;
+} 
+
+
+function ReadAndIncrementFileNum($filename)
+{
+	//This needs to be thread safe
+	$fp = fopen($filename, "r+t");
+	while (1) 
+	{ 
+		$wouldblock = null;
+		$ret = flock($fp, LOCK_EX, $wouldblock);// do an exclusive lock
+		if($ret == false) {throw new Exception('Lock failed.');}
+		$out = (int)fread($fp,1024);
+		if($out==0) $out = 1; //Disallow changeset to be zero
+		fseek($fp,0);
+		ftruncate($fp, 0); // truncate file
+		fwrite($fp, $out+1);
+		flock($fp, LOCK_UN); // release the lock
+		fclose($fp);
+		return $out;
+	}
+	return null;
+}
 
 ?>

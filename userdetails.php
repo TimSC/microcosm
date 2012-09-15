@@ -52,8 +52,80 @@ function GetUserDetails($uid)
 
 }
 
+function GetUserPreferences($uid)
+{
+	if($uid == null)
+		throw new InvalidArgumentException('Argument is null.');
 
+	if(ENABLE_ANON_EDITS and $uid == ANON_UID)
+	{
+		$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+		$out = $out.'<osm version="0.6" generator="'.SERVER_NAME.'">'."\n";
+		$out = $out."<preferences>\n";
+		$out = $out."</preferences>\n";
+		$out = $out."</osm>\n";
+		return $out;
+	}
 
+	$fname = "userperferences/".(int)$uid.".xml";
+	if(file_exists($fname))
+	{
+		$lock=GetReadDatabaseLock();
+		$out = file_get_contents($fname);
+		return $out;
+	}
+	else
+	{
+		$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+		$out = $out.'<osm version="0.6" generator="'.SERVER_NAME.'">'."\n";
+		$out = $out."<preferences>\n";
+		//$out = $out.'<preference k="somekey" v="somevalue" />'."\n";
+		$out = $out."</preferences>\n";
+		$out = $out."</osm>\n";
+	}
+	return $out;
 
+}
+
+function SetUserPreferences($userId,$data)
+{
+	//Validate XML
+	$xml = simplexml_load_string($data);
+	if (!$xml)
+	{
+		throw new Exception("Failed to parse XML.");
+	}
+
+	//Check key lengths and value lengths are ok
+	//TODO	
+	
+	//Check for too many keys or malformed data
+	//TODO
+
+	//Write to file
+	$lock=GetWriteDatabaseLock();
+	$fname = "userperferences/".(int)$uid.".xml";
+	$fi = fopen($fname,"wt");
+	fwrite($fi, $data);
+}
+
+function SetUserPreferencesSingle($userId,$key,$value)
+{
+	$lock=GetWriteDatabaseLock();
+	$fname = "userperferences/".(int)$uid.".xml";
+	$xml = simplexml_load_file($data);
+	if (!$xml)
+	{
+		throw new Exception("Failed to parse XML.");
+	}
+
+	//Check key doesn't exist, otherwise fail and return
+	//TODO
+
+	//Set key
+	//TODO
+	
+	return -100;
+}
 
 ?>
