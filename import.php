@@ -41,6 +41,7 @@ $db->Purge();
 //Do extraction
 $startTime = microtime(1);
 $count = 0;
+$maxidnode = Null; $maxidway = Null; $maxidrelation = Null; $maxidchangeset = Null;
 $lastPrintOutput = null;
 if(strcasecmp(substr($filename,strlen($filename)-4),".bz2")==0) {ExtractBz2($filename,$xml);}
 if(strcasecmp(substr($filename,strlen($filename)-4),".osm")==0) {ExtractOsmXml($filename,$xml);}
@@ -63,6 +64,7 @@ function GetTimeString($sec)
 function ElementExtracted($el,$progress)
 {
 	global $totalSize, $startTime, $count, $lastPrintOutput;
+	global $maxidnode, $maxidway, $maxidrelation, $maxidchangeset;
 	if(is_null($el)) return;
 	if(is_null($lastPrintOutput) or $lastPrintOutput < microtime(1) - 1.0)
 	{
@@ -81,13 +83,34 @@ function ElementExtracted($el,$progress)
 		$lastPrintOutput = microtime(1);
 	}
 	global $db;
-	$db->ModifyElement($el->GetType(), $el->attr['id'], $el);
+	$eltype = $el->GetType();
+	$db->ModifyElement($eltype, $el->attr['id'], $el);
 
+	//print_r($el->attr['changeset']);
 	//Get element back to test
 	//$obj = $db->GetElementById($el->GetType(), $el->attr['id'], $el->attr['version']);
 
 	$count = $count + 1;
+	if($eltype == "node" and $el->attr['id'] > $maxidnode) $maxidnode = $el->attr['id'];
+	if($eltype == "way" and $el->attr['id'] > $maxidway) $maxidway = $el->attr['id'];
+	if($eltype == "relation" and $el->attr['id'] > $maxidrelation) $maxidrelation = $el->attr['id'];
+	if(isset($el->attr['changeset']) and $el->attr['changeset'] > $maxidchangeset) 
+		$maxidchangeset = $el->attr['changeset'];
 }
+
+
+//Check the max ids are lower than new ids
+echo "Checking max ids do not exceed new ids...\n";
+echo $maxidnode." ".$maxidway." ".$maxidrelation." ".$maxidchangeset."\n";
+echo ReadFileNum("nextnodeid.txt")." ".ReadFileNum("nextwayid.txt")." ".ReadFileNum("nextrelationid.txt")." ".ReadFileNum("nextchangesetid.txt")."\n";
+if(!is_null($maxidnode) and $maxidnode > ReadFileNum("nextnodeid.txt")) 
+	SetFileNum("nextnodeid.txt",$maxidnode+1);
+if(!is_null($maxidway) and $maxidway > ReadFileNum("nextwayid.txt")) 
+	SetFileNum("nextwayid.txt",$maxidway+1);
+if(!is_null($maxidrelation) and $maxidrelation > ReadFileNum("nextrelationid.txt")) 
+	SetFileNum("nextrelationid.txt",$maxidrelation+1);
+if(!is_null($maxidchangeset) and $maxidchangeset > ReadFileNum("nextchangesetid.txt")) 
+	SetFileNum("nextchangesetid.txt",$maxidchangeset+1);
 
 unset($db); //Destructor acts better with unset, rather than letting it go out of scope
 echo"\n";

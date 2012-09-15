@@ -200,6 +200,23 @@ class ElementTable
 		return $latestVerObj;
 	}
 
+	public function Dump($callback)
+	{
+		//Dump all non-deleted elements to a callback function
+		//Warning: this could take a while
+		$query = "SELECT * FROM elements WHERE current=1;";
+
+		$ret = $this->dbh->query($query);
+		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+
+		foreach($ret as $row){
+			//print_r($row);
+			$obj = $this->DbRowToObj($row);
+
+			call_user_func($callback,$obj);
+		}
+	}
+
 	public function GetElementHistory($id)
 	{
 		//$this->FlushWrite();
@@ -384,6 +401,13 @@ class OsmDatabaseSqlite extends OsmDatabaseCommon
 		return $this->GetInternalTable($type)->GetElementHistory($id);
 	}
 
+	public function Dump($callback)
+	{
+		$this->nodeTable->Dump($callback);
+		$this->wayTable->Dump($callback);
+		$this->relationTable->Dump($callback);
+	}
+	
 	//***********************
 	//Modification functions
 	//***********************

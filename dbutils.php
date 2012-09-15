@@ -54,6 +54,17 @@ function TableToHtml($dbh,$table)
 		print_r($row);
 }
 
+function CheckForRtree()
+{
+	chdir(dirname(realpath (__FILE__)));
+	$dbh = new PDO('sqlite:rtreetest.db');
+	SqliteDropTableIfExists($dbh, "test");
+	$sql="CREATE VIRTUAL TABLE position USING rtree(id,minLat,maxLat,minLon,maxLon);";
+	$ret = $dbh->exec($createSql);
+	if($ret===false) {$err= $dbh->errorInfo();return ($createSql.",".$err[2]);}
+	return 1;
+}
+
 //***********************
 //Generic sqlite table
 //***********************

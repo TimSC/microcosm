@@ -153,6 +153,10 @@ class OsmDatabaseMultiplexer extends OsmDatabaseSqliteOpt
 		return $refs;
 	}
 
+	function Dump($callback)
+	{
+		return OsmDatabaseSqliteOpt::Dump($callback);
+	}
 
 }
 

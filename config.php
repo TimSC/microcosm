@@ -6,11 +6,11 @@ define("SERVER_NAME","Microcosm");
 define("DEBUG_MODE",false);
 define("VERSION_VALIDATION",true);
 define("LICENSE_HUMAN","TBC");
-define("INSTALL_FOLDER_DEPTH",2);
+define("INSTALL_FOLDER_DEPTH",1);
 set_time_limit(60);
 
 define("API_READ_ONLY",false);
-define("ENABLE_ANON_EDITS",true);
+define("ENABLE_ANON_EDITS",false);
 define("ANON_DISPLAY_NAME","Anonymous");
 define("ANON_UID",100);
 define("ALLOW_USER_REGISTRATION",true);

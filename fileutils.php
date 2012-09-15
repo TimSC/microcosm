@@ -62,7 +62,6 @@ closedir( $dh );
 return $out;
 } 
 
-
 function ReadAndIncrementFileNum($filename)
 {
 	chdir(dirname(realpath (__FILE__)));
@@ -83,6 +82,40 @@ function ReadAndIncrementFileNum($filename)
 		return $out;
 	}
 	return null;
+}
+
+function ReadFileNum($filename)
+{
+	chdir(dirname(realpath (__FILE__)));
+	//This needs to be thread safe
+	$fp = fopen($filename, "r+t");
+	while (1) 
+	{ 
+		$wouldblock = null;
+		$ret = flock($fp, LOCK_EX, $wouldblock);// do an exclusive lock
+		if($ret == false) {throw new Exception('Lock failed.');}
+		$out = (int)fread($fp,1024);
+		if($out==0) $out = 1; //Disallow changeset to be zero
+		flock($fp, LOCK_UN); // release the lock
+		fclose($fp);
+		return $out;
+	}
+	return null;
+}
+
+function SetFileNum($filename, $id)
+{
+	chdir(dirname(realpath (__FILE__)));
+	//This needs to be thread safe
+	$fp = fopen($filename, "w+t");
+
+	$wouldblock = null;
+	$ret = flock($fp, LOCK_EX, $wouldblock);// do an exclusive lock
+	if($ret == false) {throw new Exception('Lock failed.');}
+	ftruncate($fp, 0); // truncate file
+	fwrite($fp, $id);
+	flock($fp, LOCK_UN); // release the lock
+	fclose($fp);
 }
 
 //http://www.codewalkers.com/c/a/File-Manipulation-Code/Recursive-Delete-Function/
