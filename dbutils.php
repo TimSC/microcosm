@@ -504,7 +504,7 @@ class TableSpecSqlite
 
 		//Existing columns must match
 		//Return value of -1 means ALTER cannot be used to migrate
-		$sql = "PRAGMA table_info(".sqlite_escape_string($this->name).");";
+		$sql = "PRAGMA table_info(".$dbh->quote($this->name).");";
 		$ret = $dbh->query($sql);
 		if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		$count =0;
@@ -544,7 +544,7 @@ class TableSpecSqlite
 	function CountExistingRows(&$dbh)
 	{
 		//Get number of rows
-		$query = "SELECT COUNT(*) FROM [".sqlite_escape_string($this->name)."];";
+		$query = "SELECT COUNT(*) FROM [".$dbh->quote($this->name)."];";
 		$ret = $dbh->query($query);
 		if($ret===false) {$err= $dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 		$numRows = null;
@@ -572,7 +572,7 @@ class TableSpecSqlite
 		if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
 		//Rename table
-		$sql = "ALTER TABLE [".sqlite_escape_string($this->name)."] RENAME TO migrate_table;";
+		$sql = "ALTER TABLE [".$dbg->quote($this->name)."] RENAME TO migrate_table;";
 		$ret = $dbh->exec($sql);
 		if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
@@ -585,9 +585,10 @@ class TableSpecSqlite
 		if($ret===false) {$err= $dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 		foreach($ret as $row)
 		{
-			$sql = "INSERT INTO [".sqlite_escape_string($this->name)."] (";
+			$sql = "INSERT INTO [".$dbh->quote($this->name)."] (";
 			$valueStr = "(";
 			$count = 0;
+			$sqlVals = array();
 			foreach($this->cols as $col)
 			{
 				list($name,$type,$primaryKey,$unique) = $col;
@@ -595,19 +596,16 @@ class TableSpecSqlite
 				{
 					if($count>0) {$sql.=", "; $valueStr.=", ";}
 					$sql .= $name;
-					if($type=="REAL" or $type=="INTEGER")
-					{
-						if($type=="REAL") $valueStr .= sqlite_escape_string((float)$row[$name]);
-						if($type=="INTEGER") $valueStr .= sqlite_escape_string((int)$row[$name]);
-					}
-					else
-						$valueStr .= "'".sqlite_escape_string($row[$name])."'";
+					$valueStr .= "?";
+					array_push($sqlVals, $row[$name]);
 					$count ++;
 				}
 			}
 			$sql .= ") VALUES ".$valueStr.");";
 			//echo $sql;
-			$ret = $dbh->exec($sql);
+			$sth = $dbh->prepare($sql);
+			if($sth===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+			$ret = $sth->execute($sqlVals);
 			if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		}
 
