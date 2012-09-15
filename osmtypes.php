@@ -94,8 +94,10 @@ class OsmElement
 
 		foreach($this->tags as $key => $value)
 		{
-			$out = $out.'<tag k="'.htmlentities($key,ENT_QUOTES);
-			$out = $out.'" v="'.htmlentities($value,ENT_QUOTES).'"/>'."\n";
+			$out = $out.'<tag k="'.htmlentities($key,ENT_QUOTES,"UTF-8");
+			$out = $out.'" v="'.htmlentities($value,ENT_QUOTES,"UTF-8").'"/>'."\n";
+			//$out = $out.'<tag k="'.$key;
+			//$out = $out.'" v="'.$value.'"/>'."\n";
 		}
 		foreach($this->nodes as $node)
 		{
@@ -424,7 +426,7 @@ class UserPreferences
 		$out = "<preferences>\n";
 		foreach($this->data as $k => $v)
 		{
-			$out = $out.'<preference k="'.htmlentities($k,ENT_QUOTES).'" v="'.htmlentities($v,ENT_QUOTES).'"/>'."\n";
+			$out = $out.'<preference k="'.htmlentities($k,ENT_QUOTES,"UTF-8").'" v="'.htmlentities($v,ENT_QUOTES,"UTF-8").'"/>'."\n";
 		}
 		$out = $out."</preferences>\n";
 		return $out;

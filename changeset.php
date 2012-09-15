@@ -260,8 +260,8 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 
  		//Check visibility is boolean (always true?)
 		$visible = $el->attr['visible'];
-		if(!(strcmp($visible,"true")==0 or strcmp($visibile,"false")==0))
-			throw new Exception("Visibile attribute must be true or false");
+		if(!(strcmp($visible,"true")==0 or strcmp($visible,"false")==0))
+			throw new Exception("Visible attribute must be true or false");
 		if(strcmp($action,"create")==0 or strcmp($action,"modify")==0)
 			if(strcmp($visible,"false")==0) throw new Exception("Visiblity must be true for create or modify");
 		//if(strcmp($action,"delete")==0)

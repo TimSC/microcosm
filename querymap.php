@@ -1,6 +1,6 @@
 <?php
 
-include_once('model-fs.php');
+include_once('modelfactory.php');
 
 function GetReadDatabaseLock()
 {
@@ -45,7 +45,9 @@ function MapObjectQuery($type,$id,$version=null)
 		if($obj==-2) return "gone";
 		return $obj;
 	}
-	return '<osm version="0.6" generator="'.SERVER_NAME.'">'.$obj->ToXmlString().'</osm>';
+
+	return '<?xml version="1.0" encoding="UTF-8"?>'."\n".
+		'<osm version="0.6" generator="'.SERVER_NAME.'">'.$obj->ToXmlString().'</osm>';
 }
 
 function MapObjectFullHistory($type,$id)
@@ -61,7 +63,7 @@ function MapObjectFullHistory($type,$id)
 		return $objs;
 	}
 
-	$out = '<osm version="0.6" generator="'.SERVER_NAME.'">';
+	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<osm version="0.6" generator="'.SERVER_NAME.'">';
 	foreach($objs as $obj) $out = $out.$obj->ToXmlString();
 	$out = $out.'</osm>';
 	return $out;
@@ -70,7 +72,7 @@ function MapObjectFullHistory($type,$id)
 function MultiFetch($type,$ids)
 {
 	$lock=GetReadDatabaseLock();
-	$out = '<osm version="0.6" generator="'.SERVER_NAME.'">';
+	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<osm version="0.6" generator="'.SERVER_NAME.'">';
 	$map = OsmDatabase();
 
 	$emptyQuery = 0;
@@ -92,7 +94,7 @@ function MultiFetch($type,$ids)
 function GetRelationsForElement($type,$id)
 {
 	$lock=GetReadDatabaseLock();
-	$out = '<osm version="0.6" generator="'.SERVER_NAME.'">';
+	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<osm version="0.6" generator="'.SERVER_NAME.'">';
 	$map = OsmDatabase();
 
 	$rels = $map->GetCitingRelations($type,(int)$id);
@@ -114,7 +116,7 @@ function GetRelationsForElement($type,$id)
 function GetWaysForNode($id)
 {
 	$lock=GetReadDatabaseLock();
-	$out = '<osm version="0.6" generator="'.SERVER_NAME.'">';
+	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<osm version="0.6" generator="'.SERVER_NAME.'">';
 	$map = OsmDatabase();
 
 	$ways = $map->GetCitingWaysOfNode((int)$id);
@@ -137,7 +139,7 @@ function GetWaysForNode($id)
 function GetFullDetailsOfElement($type,$id)
 {
 	$lock=GetReadDatabaseLock();
-	$out = '<osm version="0.6" generator="'.SERVER_NAME.'">';
+	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<osm version="0.6" generator="'.SERVER_NAME.'">';
 	$map = OsmDatabase();
 	$firstObj = $map->GetElementById($type,(int)$id);
 	if($firstObj==null) return "not-found";

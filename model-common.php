@@ -92,7 +92,7 @@ abstract class OsmDatabaseCommon
 		$startTimer = microtime(1);
 		$relations = $this->GetParentRelations($elsQuery);
 		$timers['relations']=(microtime(1) - $startTimer);
-		//print_r($timers);
+		//print_r($timers); die();
 
 		foreach($nodes as $obj)
 		{

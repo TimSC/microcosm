@@ -12,6 +12,7 @@ function ExtractBz2($file,&$callback)
 	  $callback->Process(bzread($bz, READ_FILE_PAGE_SIZE));
 	}
 	bzclose($bz);
+	$callback->Process("",1);
 }
 
 function ExtractOsmXml($file,&$callback)
@@ -21,10 +22,12 @@ function ExtractOsmXml($file,&$callback)
 		$callback->Process(fread($handle, READ_FILE_PAGE_SIZE));
 	}
 	fclose($handle);
+	$callback->Process("",1);
 }
 
 class ExtractToXml
 {
+	var $size = 0;
 	var $depth = 0;
 
 	function startElement($parser, $name, $attrs) 
@@ -58,14 +61,25 @@ class ExtractToXml
 	function Process($data, $end=0)
 	{
 		//echo $data;
+		$this->size += strlen($data);	
 		if (!xml_parse($this->xml_parser, $data, $end))
 		{
 			die(sprintf("XML error: %s at line %d\n",
-				xml_error_string(xml_get_error_code($xml_parser)),
-				xml_get_current_line_number($xml_parser)));
+				xml_error_string(xml_get_error_code($this->xml_parser)),
+				xml_get_current_line_number($this->xml_parser)));
 		}
 	}
 }
+
+class ExtractGetSize
+{
+	var $size = 0;
+	function Process($data, $end=0)
+	{
+		$this->size += strlen($data);	
+	}
+}
+
 
 $osmAttributesTypes = array('id'=>'int','action'=>'string',
 	'lat'=>'float','lon'=>'float','changeset'=>'int',
@@ -149,7 +163,7 @@ class OsmTypesStream extends ExtractToXml
 
 			//Send finished object to callback func
 			if(!is_null($this->callback))
-				call_user_func($this->callback, $this->currentObj);
+				call_user_func($this->callback, $this->currentObj, $this->size);
 
 			$this->currentObj = null;
 		}
