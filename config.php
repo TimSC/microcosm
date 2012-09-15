@@ -6,7 +6,7 @@ define("SERVER_NAME","Microcosm");
 define("DEBUG_MODE",false);
 define("VERSION_VALIDATION",true);
 define("LICENSE_HUMAN","TBC");
-define("INSTALL_FOLDER_DEPTH",2);
+define("INSTALL_FOLDER_DEPTH",1);
 set_time_limit(60);
 
 define("BACKEND_DATABASE","sqlite");
