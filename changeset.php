@@ -304,7 +304,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 				return array(0,null,"gone",$type,$id);
 			if($ver != $currentVer and VERSION_VALIDATION)
 			{
-				return "version-mismatch,".(int)$ver.",".$currentVer.",".$type.",".$id;
+				return array(0,null,"version-mismatch",(int)$ver,$currentVer,$type,$id);
 			}
 		}
 
@@ -328,15 +328,15 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 
 		//Check if referenced elements actual exist, Nodes
 		$ret = CheckChildrenExist($el->nodes, "node", $createdEls, $map);
-		if($ret==0) return "object-not-found,".$type." ".$id." B";
+		if($ret==0) return array(0,null,"object-not-found",$type,$id);
 
 		//Check if referenced elements actual exist, Ways
 		$ret = CheckChildrenExist($el->ways, "way", $createdEls, $map);
-		if($ret==0) return "object-not-found,".$type." ".$id." C";
+		if($ret==0) return array(0,null,"object-not-found",$type,$id);
 
 		//Check if referenced elements actual exist, Relations
 		$ret = CheckChildrenExist($el->relations, "relation", $createdEls, $map);
-		if($ret==0) return "object-not-found,".$type." ".$id." D";
+		if($ret==0) return array(0,null,"object-not-found",$type,$id);
 	
 		//Check if deleting stuff will break ways
 		if(strcmp($action,"delete")==0)
@@ -349,7 +349,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 
 		//Enforce max nodes in way and relations, etc
 		if (count($el->nodes)>MAX_WAY_NODES)
-			return "too-large";
+			return array(0,null,"too-large");
 		}
 	}	
 
@@ -537,10 +537,8 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 		{
 			$type = $el->GetType();
 
+			//Create in main db
 			$map->CreateElement($type,$el->attr['id'],$el);
-			//$value = simplexml_load_string($el->ToXmlString());
-			//$newdata = $map->addChild($type);
-			//CloneElement($value, $newdata);
 
 			//Also store in changeset
 			$csd->AppendElement($el->attr['changeset'], $method, $el);
@@ -551,11 +549,8 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 		{
 			$type = $el->GetType();
 
+			//Modify element in main db
 			$map->ModifyElement($type,$el->attr['id'],$el);
-			//$value = simplexml_load_string($el->ToXmlString());
-			//RemoveElementById($map, $type, $value['id']);
-			//$element = $map->addChild($type);
-			//CloneElement($value, $element);
 
 			//Also store in changeset
 			$csd->AppendElement($el->attr['changeset'], $method, $el);
@@ -567,9 +562,8 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 			$type = $el->GetType();
 			$value = simplexml_load_string($el->ToXmlString());
 
+			//Delete object in main db
 			$map->DeleteElement($type,$el->attr['id'],$el);
-			//echo "delete ".$type." ".$value['id']."\n";
-			//RemoveElementById($map, $type, $value['id']);
 
 			//Also store in changeset
 			$csd->AppendElement($el->attr['changeset'], $method, $el);
@@ -613,7 +607,9 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 	$bbox = GetBboxOfReferencedElements($osmchange,$map);
 	ExpandChangesetBbox($cid,$bbox);
 
-	unset($map); //Cause the destructor of the map databae object to run
+	//Cause the destructor of the map and bbox databases object to run
+	unset($bboxdb);
+	unset($map); 
 
 	return array(1,$changes);
 }

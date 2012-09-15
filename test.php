@@ -16,9 +16,9 @@ $db = OsmDatabase();
 
 //$db->DeleteElement("node",973,$node);
 
-echo $db->nodeTable->Count()."\n";
-echo $db->wayTable->Count()."\n";
-echo $db->relationTable->Count()."\n";
+//echo $db->nodeTable->Count()."\n";
+//echo $db->wayTable->Count()."\n";
+//echo $db->relationTable->Count()."\n";
 
 //CheckElementDatabaseSqliteOpt($db);
 //RepairHistoryOfTable($db->wayTable,$db);
@@ -28,7 +28,7 @@ echo $db->relationTable->Count()."\n";
 //InsertTraceIntoDb($gpx,5550199,1, "identifiable", "demo.gpx", "A test", "testing");
 //DeleteTrace(4);
 
-$lock=GetReadDatabaseLock();
+//$lock=GetReadDatabaseLock();
 //$db = UserDbFactory();
 //$users = $db->RemoveUser(6000);
 //
@@ -36,7 +36,16 @@ $lock=GetReadDatabaseLock();
 //print_r($db->Dump());
 //print_r($db->CheckLogin("a@b.com", "test123"));
 //print_r($db->GetKeys());
-$db = ChangesetDatabase();
-$db->Purge();
+//$db = ChangesetDatabase();
+//$db->Purge();
+TableToHtml($db->nodeTable->dbh,"position");
 
+//$ret = $db->QueryXapi(array(34.4761505,28.4682636,34.5385323,28.5733490),"highway","primary");
+//$ret = $db->QueryXapi(null,"historic");
+//print_r($ret);
+//$ret = $db->bboxDb->GetTableSizes();
+//$fi=fopen("debug.csv","wt");
+//print_r($ret);
+//foreach($ret as $k=>$c)
+//	fwrite($fi,$k."\t".$c."\n");
 ?>

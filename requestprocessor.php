@@ -233,10 +233,9 @@ function TranslateErrorToHtml(&$response)
 
 	if(strcmp($response[2],"version-mismatch")==0)
 	{	
-		$mismatch = explode(",",$data);
 		//Example: Version mismatch: Provided 1, server had: 2 of Node 354516541
 		header ('HTTP/1.1 409 Conflict');
-		$err = "Version mismatch: Provided ".$mismatch[1].", server had: ".$mismatch[2]." of ".ucwords($mismatch[3])." ".$mismatch[4];
+		$err = "Version mismatch: Provided ".$response[3].", server had: ".$response[4]." of ".ucwords($response[5])." ".$response[6];
 		header ('Error: '.$err);
 		echo $err;
 		return;

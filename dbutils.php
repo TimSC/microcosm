@@ -1,5 +1,19 @@
 <?php
 
+function SqliteGetTables(&$dbh)
+{
+	$sql = "SELECT * FROM sqlite_master WHERE type='table';";
+	$ret = $dbh->query($sql);
+	if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+	$out = array();
+	foreach($ret as $row)
+	{
+		//print_r($row);
+		array_push($out,$row['name']);
+	}
+	return $out;
+}
+
 function SqliteCheckTableExists(&$dbh,$name)
 {
 	//Check if table exists
@@ -18,7 +32,7 @@ function SqliteCheckTableExistsOtherwiseCreate(&$dbh,$name,$createSql)
 	if(SqliteCheckTableExists($dbh,$name)) return;
 
 	$ret = $dbh->exec($createSql);
-	if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+	if($ret===false) {$err= $dbh->errorInfo();throw new Exception($createSql.",".$err[2]);}
 }
 
 function SqliteDropTableIfExists(&$dbh,$name)
@@ -26,11 +40,19 @@ function SqliteDropTableIfExists(&$dbh,$name)
 	$eleExist = SqliteCheckTableExists($dbh,$name);
 	if(!$eleExist) return;
 
-	$sql = 'DROP TABLE '.$name.';';
+	$sql = 'DROP TABLE ['.$name.'];';
 	$ret = $dbh->exec($sql);
 	if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 }
 
+function TableToHtml($dbh,$table)
+{
+	$sql = "SELECT * FROM [".sqlite_escape_string($table)."];";
+	$ret = $dbh->query($sql);
+	if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+	foreach($ret as $row)
+		print_r($row);
+}
 
 //***********************
 //Generic sqlite table
@@ -42,12 +64,19 @@ class GenericSqliteTable implements ArrayAccess
 	var $dbname='generictable.db';
 	var $tablename="table";
 	var $dbh = null;
+	var $transactionOpen = 0;
+	var $useTransactions = 1;
 
 	function __construct()
 	{
 		chdir(dirname(realpath (__FILE__)));
 		$this->dbh = new PDO('sqlite:'.$this->dbname);
 		$this->InitialiseSchema();
+	}
+
+	function __destruct()
+	{
+		$this->EndTransaction();
 	}
 
 	function InitialiseSchema()
@@ -85,6 +114,28 @@ class GenericSqliteTable implements ArrayAccess
 		}
 	}
 
+	function BeginTransactionIfNotAlready()
+	{
+		if(!$this->transactionOpen)
+		{
+			$sql = "BEGIN;";
+			$ret = $this->dbh->exec($sql);//Begin transaction
+			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+			$this->transactionOpen = 1;
+		}
+	}
+
+	function EndTransaction()
+	{
+		if($this->transactionOpen)
+		{
+			$sql = "END;";
+			$ret = $this->dbh->exec($sql);//End transaction	
+			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+			$this->transactionOpen = 0;
+		}
+	}
+
 	function Purge()
 	{
 		SqliteDropTableIfExists($this->dbh, $this->tablename);
@@ -109,6 +160,7 @@ class GenericSqliteTable implements ArrayAccess
 
 	function UpdateRecord($key, $keyVal, $data)
 	{
+
 		//Get keys to specify separately in SQL
 		$additionalKeys = array();
 		foreach($this->keys as $keyExpected=>$type)
@@ -123,7 +175,7 @@ class GenericSqliteTable implements ArrayAccess
 		}
 
 		//Construct SQL
-		$sql="UPDATE ".$this->tablename." SET value='".sqlite_escape_string(serialize($data))."'";
+		$sql="UPDATE [".$this->tablename."] SET value='".sqlite_escape_string(serialize($data))."'";
 		foreach($additionalKeys as $adKey => $adVal)
 			$sql.= ", ".$adKey."=".$this->ValueToSql($adVal,$this->keys[$adKey]);
 
@@ -140,6 +192,7 @@ class GenericSqliteTable implements ArrayAccess
 
 	function CreateRecord($key, $keyVal = null, $data)
 	{
+
 		//Get keys to specify separately in SQL
 		$additionalKeys = array();
 		foreach($this->keys as $keyExpected=>$type)
@@ -155,7 +208,7 @@ class GenericSqliteTable implements ArrayAccess
 		$additionalKeys[$key] = $keyVal;
 
 		//Construct SQL
-		$sql="INSERT INTO ".$this->tablename." (";
+		$sql="INSERT INTO [".$this->tablename."] (";
 		$count = 0;
 		foreach($additionalKeys as $adKey => $adVal)
 		{
@@ -188,6 +241,9 @@ class GenericSqliteTable implements ArrayAccess
 
 	public function Set($key, $keyVal, $data)
 	{
+		if($this->useTransactions)
+			$this->BeginTransactionIfNotAlready();
+
 		//echo "Attempting update db\n";
 		$ret = $this->UpdateRecord($key, $keyVal, $data);
 		if($ret===0)
@@ -206,7 +262,7 @@ class GenericSqliteTable implements ArrayAccess
 	
 	public function Get($key, $keyVal)
 	{
-		$query = "SELECT * FROM ".$this->tablename." WHERE ".$key."=".$this->ValueToSql($keyVal,$this->keys[$key]).";";
+		$query = "SELECT * FROM [".$this->tablename."] WHERE ".$key."=".$this->ValueToSql($keyVal,$this->keys[$key]).";";
 		//echo $query."\n";
 
 		$ret = $this->dbh->query($query);
@@ -230,7 +286,7 @@ class GenericSqliteTable implements ArrayAccess
 
 	public function IsRecordSet($key, $keyVal)
 	{
-		$query = "SELECT COUNT(value) FROM ".$this->tablename." WHERE ".$key."=".$this->ValueToSql($keyVal,$this->keys[$key]).";";
+		$query = "SELECT COUNT(value) FROM [".$this->tablename."] WHERE ".$key."=".$this->ValueToSql($keyVal,$this->keys[$key]).";";
 		//echo $query."\n";
 		$ret = $this->dbh->query($query);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
@@ -240,7 +296,10 @@ class GenericSqliteTable implements ArrayAccess
 
 	public function Clear($key, $keyVal)
 	{
-		$sql = "DELETE FROM ".$this->tablename." WHERE ".$key."=".$this->ValueToSql($keyVal,$this->keys[$key]).";";
+		if($this->useTransactions)
+			$this->BeginTransactionIfNotAlready();
+
+		$sql = "DELETE FROM [".$this->tablename."] WHERE ".$key."=".$this->ValueToSql($keyVal,$this->keys[$key]).";";
 
 		//Execute SQL
 		//echo $sql."\n";
@@ -443,7 +502,7 @@ class TableSpecSqlite
 	function CountExistingRows(&$dbh)
 	{
 		//Get number of rows
-		$query = "SELECT COUNT(*) FROM ".sqlite_escape_string($this->name).";";
+		$query = "SELECT COUNT(*) FROM [".sqlite_escape_string($this->name)."];";
 		$ret = $dbh->query($query);
 		if($ret===false) {$err= $dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 		$numRows = null;
@@ -471,7 +530,7 @@ class TableSpecSqlite
 		if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
 		//Rename table
-		$sql = "ALTER TABLE ".sqlite_escape_string($this->name)." RENAME TO migrate_table;";
+		$sql = "ALTER TABLE [".sqlite_escape_string($this->name)."] RENAME TO migrate_table;";
 		$ret = $dbh->exec($sql);
 		if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
@@ -484,7 +543,7 @@ class TableSpecSqlite
 		if($ret===false) {$err= $dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 		foreach($ret as $row)
 		{
-			$sql = "INSERT INTO ".sqlite_escape_string($this->name)." (";
+			$sql = "INSERT INTO [".sqlite_escape_string($this->name)."] (";
 			$valueStr = "(";
 			$count = 0;
 			foreach($this->cols as $col)

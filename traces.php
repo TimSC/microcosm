@@ -228,23 +228,22 @@ function ProcessPendingTrace($db,$tid,$gpx)
 			$time = (int)strtotime($trkpt->time[0]);
 			//echo $lat.",".$lon." ".$ele." ".$time."\n";
 
-			//Insert point position
-			$sql = "INSERT INTO position (id,minLat,maxLat,minLon,maxLon) VALUES (null,";
-			$sql .= $lat.",".$lat.",".$lon.",".$lon.");";
-			$ret = $db->exec($sql);
-			if($ret===false) {$err= $db->errorInfo();throw new Exception($sql.",".$err[2]);}
-			$id = $db->lastInsertId();
-
 			//Insert point data
 			$sql = "INSERT INTO data (id,ele,timestamp,tid,segid) VALUES (";
-			$sql .= (int)$id;
+			$sql .= "null"; //id
 			if(!is_null($ele)) $sql .= ",".(float)$ele; else $sql .= ",null";
 			$sql .= ",".(int)$time;
 			$sql .= ",".(int)$tid;
 			$sql .= ",".(int)$segid.");";
 			$ret = $db->exec($sql);
 			if($ret===false) {$err= $db->errorInfo();throw new Exception($sql.",".$err[2]);}
+			$id = $db->lastInsertId();
 
+			//Insert point position
+			$sql = "INSERT INTO position (id,minLat,maxLat,minLon,maxLon) VALUES (".$id.",";
+			$sql .= $lat.",".$lat.",".$lon.",".$lon.");";
+			$ret = $db->exec($sql);
+			if($ret===false) {$err= $db->errorInfo();throw new Exception($sql.",".$err[2]);}
 		}
 		$segid += 1;
 	}	

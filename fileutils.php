@@ -1,4 +1,6 @@
 <?php
+require_once("config.php");
+
 function CheckPermissions()
 {
 	$filesToCheck=array('nextnodeid.txt','nextchangesetid.txt','nextwayid.txt','db.lock');
@@ -176,6 +178,22 @@ function UpdateBbox(&$original,$new)
 	if($new[1] < $original[1]) $original[1] = $new[1];
 	if($new[2] > $original[2]) $original[2] = $new[2];
 	if($new[3] > $original[3]) $original[3] = $new[3];
+}
+
+function GetRequestPath()
+{
+	//Convert path to internally usable format
+	if(isset($_SERVER['PATH_INFO'])) 
+		$pathInfo = $_SERVER['PATH_INFO'];
+	if(!isset($pathInfo) and isset($_SERVER['REDIRECT_URL'])) 
+	{
+		$pathInfo = $_SERVER['REDIRECT_URL'];
+		$pathInfoExp = explode("/",$pathInfo);
+		//TODO is there a better way then using INSTALL_FOLDER_DEPTH?
+		$pathInfo = "/".implode("/",array_slice($pathInfoExp,INSTALL_FOLDER_DEPTH));
+	}
+	if(!isset($pathInfo)) die("Could not determine URL path");
+	return $pathInfo;
 }
 
 ?>

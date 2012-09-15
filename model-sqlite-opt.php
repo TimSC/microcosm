@@ -52,9 +52,11 @@ class ElementTableOpt extends ElementTable
 		$lon = $el->attr['lon'];
 
 		//Try to update existing position		
-		$sql="UPDATE position SET minLat=".(int)$lat.",maxLat=".(int)$lat;
-		$sql.=",minLon=".(int)$lon.",maxLon=".(int)$lon." WHERE id=".(int)$id.";";
+		$sql="UPDATE position SET minLat=".(float)$lat.",maxLat=".(float)$lat;
+		$sql.=",minLon=".(float)$lon.",maxLon=".(float)$lon." WHERE id=".(int)$id.";";
+		//print_r($sql);
 		$ret = $this->dbh->exec($sql);
+		//echo "ret=".$ret;
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		
 		if($ret===0) //If it doesn't exist, insert new data
@@ -503,6 +505,7 @@ class ElementTableOpt extends ElementTable
 		$ids = array();
 		foreach($ret as $row)
 			array_push($ids,$row['id']);
+		//print_r($ids);
 
 		//For each id, get the data object
 		$out = array();

@@ -14,17 +14,10 @@ require_once('requestprocessor.php');
 //print_r($_SERVER);
 CheckPermissions();
 
-//Convert path to internally usable format
-if(isset($_SERVER['PATH_INFO'])) 
-	$pathInfo = $_SERVER['PATH_INFO'];
-if(!isset($pathInfo) and isset($_SERVER['REDIRECT_URL'])) 
-{
-	$pathInfo = $_SERVER['REDIRECT_URL'];
-	$pathInfoExp = explode("/",$pathInfo);
-	//TODO is there a better way then using INSTALL_FOLDER_DEPTH?
-	$pathInfo = "/".implode("/",array_slice($pathInfoExp,INSTALL_FOLDER_DEPTH));
-}
-if(!isset($pathInfo)) die("Could not determine URL path");
+//Split URL for processing
+$pathInfo = GetRequestPath();
+$urlExp = explode("/",$pathInfo);
+
 //print_r($pathInfo);
 
 //Log the request
@@ -94,9 +87,6 @@ else
 //*****************************
 //URL Request Processor
 //*****************************
-
-//Split URL for processing
-$urlExp = explode("/",$pathInfo);
 
 //Define allowed API calls
 $requestProcessor = new RequestProcessor();

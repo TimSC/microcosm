@@ -94,8 +94,8 @@ class OsmElement
 
 		foreach($this->tags as $key => $value)
 		{
-			$out = $out.'<tag k="'.htmlentities($key,ENT_QUOTES,"UTF-8");
-			$out = $out.'" v="'.htmlentities($value,ENT_QUOTES,"UTF-8").'"/>'."\n";
+			$out = $out.'<tag k="'.htmlspecialchars($key,ENT_QUOTES,"UTF-8");
+			$out = $out.'" v="'.htmlspecialchars($value,ENT_QUOTES,"UTF-8").'"/>'."\n";
 			//$out = $out.'<tag k="'.$key;
 			//$out = $out.'" v="'.$value.'"/>'."\n";
 		}

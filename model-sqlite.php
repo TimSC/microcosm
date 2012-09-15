@@ -1,8 +1,8 @@
 <?php
 
-include_once('fileutils.php');
-include_once('dbutils.php');
-include_once('model-common.php');
+require_once('fileutils.php');
+require_once('dbutils.php');
+require_once('model-common.php');
 
 class ElementTable
 {
