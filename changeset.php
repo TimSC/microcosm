@@ -340,10 +340,12 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 		$action = $eldata[0];
 		$els = &$eldata[1];
 
-		//Set timestamp of object
+		//Set timestamp and visibility of object
 		foreach($els as $i2 => $el)
 		{
 			$el->attr['timestamp'] = date('c'); //Set timestamp at creation
+			if(strcmp($action,"delete")==0) $el->attr['visible'] ="false";
+			else $el->attr['visible'] ="true";
 		}
 
 		//Set username and UID for any changed elements

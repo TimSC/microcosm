@@ -1,6 +1,7 @@
 <?php
 
 include_once('fileutils.php');
+include_once('model-common.php');
 
 //Utility functions
 
@@ -52,7 +53,7 @@ return $out;
 //Map Model Stored in Multiple Files
 //**********************************
 
-class OsmDatabaseByFileTree
+class OsmDatabaseByFileTree extends OsmDatabaseCommon
 {
 	function __construct()
 	{
@@ -109,6 +110,18 @@ class OsmDatabaseByFileTree
 		return 0;
 	}
 
+	function CheckPermissions()
+	{
+		$filesToCheck=array('filetree');
+
+		foreach($filesToCheck as $f)
+		if(!is_writable($f))
+		{
+			return $f;
+		}
+		return 1;
+	}
+
 	//**********************
 	//General main query
 	//**********************
@@ -143,39 +156,6 @@ class OsmDatabaseByFileTree
 		}
 		return $out;
 	}
-
-	public function GetNodesToCompleteWays(&$nodes, &$ways)
-	{
-		//List node Ids
-		$nids = array();
-		foreach($nodes as $node)
-		{
-			array_push($nids,$node->attr['id']);
-		}
-		//print_r(count($nids));
-
-		$additionalNodes = array();
-		foreach($ways as $way)
-		{
-			//print_r($way);
-			foreach($way->nodes as $data)
-			{
-				$id = $data[0];
-				if(in_array($id,$nids)) continue;
-				array_push($additionalNodes, $id);
-			}
-		}
-
-		//print_r($additionalNodes);
-		foreach($additionalNodes as $id)
-		{
-			$obj = $this->GetElementObject("node",$id);
-			if(is_null($obj)) return 0;
-			array_push($nodes,$obj);
-		}
-
-		return 1;
-	}
 	
 	public function CheckElementHasAnyChild(&$parent,&$children)
 	{
@@ -195,58 +175,17 @@ class OsmDatabaseByFileTree
 		return 0;
 	}
 
-	public function GetParentRelations(&$nodes,&$ways)
+	public function GetParentRelations(&$elements)
 	{
 		$ids = GetFileElements("relation");
 		$out = array();
 		foreach($ids as $id)
 		{	
 			$obj = $this->GetElementObject("relation",$id);
-			$nodeMatch = $this->CheckElementHasAnyChild($obj,$nodes);
-			$wayMatch = $this->CheckElementHasAnyChild($obj,$ways);
-			if(!$nodeMatch and !$wayMatch) continue;
+			$match = $this->CheckElementHasAnyChild($obj,$elements);
+			if(!$match) continue;
 			array_push($out,$obj);
 		}
-		return $out;
-	}
-
-	public function MapQuery($bbox)
-	{
-		//Get nodes
-		
-		$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
-		$out = '<osm version="0.6" generator="'.SERVER_NAME.'">'."\n";
-
-		//Specify bounds
-		$out=$out.'<bounds minlat="'.$bbox[1].'" minlon="'.$bbox[0];
-		$out=$out.'" maxlat="'.$bbox[3].'" maxlon="'.$bbox[2].'"/>'."\n";
-
-		$nodes = $this->GetNodesInBbox($bbox);
-
-		$ways = $this->GetParentWaysOfNodes($nodes); 
-		//print_r($ways);
-
-		$this->GetNodesToCompleteWays($nodes, $ways);
-
-		$relations = $this->GetParentRelations($nodes,$ways);
-
-		foreach($nodes as $obj)
-		{	
-			$out=$out.$obj->ToXmlString();
-		}
-
-		foreach($ways as $obj)
-		{	
-			$out=$out.$obj->ToXmlString();
-		}
-
-		foreach($relations as $obj)
-		{	
-			$out=$out.$obj->ToXmlString();
-		}
-
-		$out = $out."</osm>";
-		//return array();
 		return $out;
 	}
 
@@ -254,15 +193,6 @@ class OsmDatabaseByFileTree
 	//Get specific info from database
 	//**********************************
 
-	public function GetCurentVerOfElement($type,$id)
-	{
-		$currentObj = $this->GetElementObject($type,$id);
-		if(is_null($currentObj)) return null;
-		if(!isset($currentObj->attr['version'])) 
-			throw new Exception("Internal database has missing version attribute.");
-		return (int)$currentObj->attr['version'];
-	}
-	
 	public function GetElementById($type,$id,$version=null)
 	{
 		//Try to current current version
@@ -297,19 +227,14 @@ class OsmDatabaseByFileTree
 		if(!file_exists($historyName))
 		{
 			//Just return current state
-			return array($this->GetElementById($type,$id));
+			$obj = $this->GetElementById($type,$id);
+			if(is_null($obj)) return null;
+			return array($obj);
 		}
 
 		$historyData = file_get_contents($historyName);
 		$history = ParseOsmXml($historyData);	
 		return $history;
-	}
-
-	public function CheckElementExists($type,$id)
-	{
-		//Check the element exists (in a non deleted state)
-		//Check the element exists (in a non deleted state)
-		return !is_null($this->GetElementObject($type,$id));
 	}
 
 	public function GetCitingWaysOfNode($id)
@@ -324,7 +249,7 @@ class OsmDatabaseByFileTree
 			array_push($ids,$way->attr['id']);
 		return $ids;
 	}
-
+/*
 	public function GetCitingRelations($type,$id)
 	{
 		$ids = GetFileElements("relation");
@@ -342,11 +267,11 @@ class OsmDatabaseByFileTree
 
 	public function GetElementAsXmlString($type,$id)
 	{
-		$obj = $this->GetElementById("node",$id);
+		$obj = $this->GetElementById($type,$id);
 		if($obj==null) return null;
 		return $obj->ToXmlString();
 	}
-
+*/
 	//***************************
 	//Low level history functions
 	//***************************
@@ -434,7 +359,6 @@ class OsmDatabaseByFileTree
 		fwrite($fi, $el->ToXmlString());
 		fclose($fi);
 		clearstatcache($filename);
-		chmod($filename,0777);
 
 		//Add this state to history
 		if($prevVerExisted)	

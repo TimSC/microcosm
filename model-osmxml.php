@@ -245,7 +245,7 @@ function CloneElement($from,$to)
 //Map Model Stored as OSM file
 //****************************
 
-class OsmDatabaseByOsmXml
+class OsmDatabaseOsmXml
 {
 	public $db = null;
 	public $modified = 0;
@@ -360,6 +360,18 @@ class OsmDatabaseByOsmXml
 	{
 		$out = file_get_contents("map.osm",FILE_USE_INCLUDE_PATH);
 		return $out;
+	}
+
+	function CheckPermissions()
+	{
+		$filesToCheck=array('map.osm');
+
+		foreach($filesToCheck as $f)
+		if(!is_writable($f))
+		{
+			return $f;
+		}
+		return 1;
 	}
 
 	//**********************************

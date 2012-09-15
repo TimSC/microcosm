@@ -1,7 +1,7 @@
 <?php
 define("SERVER_NAME","Microcosm");
 define("DEBUG_MODE",false);
-define("VERSION_VALIDATION",true);
+define("VERSION_VALIDATION",false);
 define("LICENSE_HUMAN","TBC");
 define("INSTALL_FOLDER_DEPTH",2);
 set_time_limit(60);

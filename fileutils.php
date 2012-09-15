@@ -8,7 +8,7 @@ function CheckPermissions()
 	{
 		header('HTTP/1.1 500 Internal Server Error');
 		echo $f.' is not writable';
-		exit;
+		exit();
 	}
 
 }

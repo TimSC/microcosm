@@ -5,9 +5,8 @@ if(!isset($_SERVER['TERM'])) die('This script can only be run locally, not via t
 
 $db = OsmDatabase();
 
-
+print_r($db->GetElementById("relation",113));
 //print_r( $db->GetNodesInBbox(array(-0.5,50.0,-0.6,52.0)));
-$db->Debug();
 
 
 ?>

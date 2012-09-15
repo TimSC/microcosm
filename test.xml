@@ -1,5 +1,5 @@
 <osmChange version="0.6" generator="JOSM">
-<create>
-  <node id='-260' visible='true' changeset='294' lat='51.23811249053444' lon='-0.5709897375819284' />
-</create>
+<modify>
+  <node id='411' action='modify' timestamp='2010-10-22T15:30:35Z' uid='7000' user='Jeff' visible='true' version='2' changeset='307' lat='51.25314006074058' lon='-0.594965915627323' />
+</modify>
 </osmChange>

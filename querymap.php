@@ -53,9 +53,10 @@ function MapObjectFullHistory($type,$id)
 	$lock=GetReadDatabaseLock();
 	$map = OsmDatabase();
 	$objs = $map->GetElementFullHistory($type,$id);
+
 	if(!is_array($objs))
 	{
-		if($objs==0) return "not-found";
+		if($objs==0 or is_null($objs)) return "not-found";
 		if($objs==-1) return "not-implemented";
 		return $objs;
 	}

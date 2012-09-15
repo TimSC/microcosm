@@ -19,16 +19,20 @@ $xml->callback = 'ElementExtracted';
 $db = OsmDatabase();
 $lock=GetWriteDatabaseLock();
 
+//Nuke the databae
 $db->Purge();
 
-//$fi = fopen("import.osm","rt");
-//$import = ParseOsmXml(fread($fi, filesize("import.osm")));
-
-
-
 //Do extraction
-ExtractBz2($filename,$xml);
+$done = 0;
+if(strcasecmp(substr($filename,strlen($filename)-4),".bz2")==0) {ExtractBz2($filename,$xml);$done = 1;}
+if(strcasecmp(substr($filename,strlen($filename)-4),".osm")==0) {ExtractOsmXml($filename,$xml);$done = 1;}
 
+if(!$done)
+{
+	//echo substr($filename,strlen($filename)-4);
+	echo "Could not import file of unknown extension.\n";
+	exit(0);
+}
 
 
 function ElementExtracted($el)
@@ -38,17 +42,6 @@ function ElementExtracted($el)
 	global $db;
 	$db->ModifyElement($el->GetType(), $el->attr['id'], $el);
 }
-
-
-//echo count($import);
-//print_r($import);
-/*$count = 0;
-foreach($import as $ele)
-{
-	echo $count." ".get_class($ele)."<br/>";
-	$db->ModifyElement($ele->GetType(), $ele->attr['id'], $ele);
-	$count ++;
-}*/
 
 unset($db); //Destructor acts better with unset, rather than letting it go out of scope
 echo"\n";

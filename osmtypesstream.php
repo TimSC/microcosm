@@ -2,14 +2,25 @@
 
 include_once ('osmtypes.php');
 
+define("READ_FILE_PAGE_SIZE",8192);
+
 function ExtractBz2($file,&$callback)
 {
 	$bz = bzopen($file, "r") or die("Couldn't open $file");
 
 	while (!feof($bz)) {
-	  $callback->Process(bzread($bz, 4096));
+	  $callback->Process(bzread($bz, READ_FILE_PAGE_SIZE));
 	}
 	bzclose($bz);
+}
+
+function ExtractOsmXml($file,&$callback)
+{
+	$handle = fopen($file, "rt");
+	while (!feof($handle)) {
+		$callback->Process(fread($handle, READ_FILE_PAGE_SIZE));
+	}
+	fclose($handle);
 }
 
 class ExtractToXml
