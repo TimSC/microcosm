@@ -28,7 +28,13 @@ function AddUser($displayName, $email, $password, $uid = NULL)
 	if(strlen($password)<MIN_PASSWORD_LENGTH) return "password-too-short";
 	if(!isValidEmail($email)) return "email-not-valid";
 	$db = UserDbFactory();
-	return $db->AddUser($displayName, $email, $password, $uid);
+
+	//First user is automatically an admin
+	$admin = 0;
+	if ($db->Count()==0)
+		$admin = 1;
+
+	return $db->AddUser($displayName, $email, $password, $uid, $admin);
 }
 
 function GetUserDetails($userInfo)
@@ -316,13 +322,9 @@ class UserDbSqlite extends GenericSqliteTable
 		GenericSqliteTable::__construct();
 	}
 
-	function GetUser($uid)
-	{
-		return $this->Get("uid",$uid);
-	}
-
 	function CheckLogin($login,$password)
 	{
+		//echo $login." ".$password."\n";
 		$user = $this->Get("userName",$login);
 		if(is_null($user)) return -1; 
 		if(strcmp($password,$user['password'])!=0) return 0;
@@ -330,7 +332,15 @@ class UserDbSqlite extends GenericSqliteTable
 		return array($user['displayName'], $user['uid']);
 	}
 
-	function AddUser($displayName, $email, $password, $uid = null)
+	function GetUser($uid)
+	{
+		$user = $this->Get("uid",$uid);
+		if(is_null($user)) return -1; 	
+		
+		return $user;
+	}
+
+	function AddUser($displayName, $email, $password, $uid = null, $admin = false)
 	{
 		//Check email is not used
 		//Check displayName is not used
@@ -343,8 +353,9 @@ class UserDbSqlite extends GenericSqliteTable
 		$f['displayName'] = $displayName;
 		$f['uid'] = $uid;
 		$f['accountCreated'] = date('c');
+		$f['admin'] = $admin;
 		$this->Set("uid",$uid,$f);
-		
+		return true;
 	}
 
 	function Dump()

@@ -278,6 +278,7 @@ class GenericSqliteTable implements ArrayAccess
 
 		$ret = $this->dbh->query($query);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+
 		foreach($ret as $row)
 		{
 			//print_r($row['value']);echo"\n";
@@ -299,6 +300,15 @@ class GenericSqliteTable implements ArrayAccess
 	{
 		$query = "SELECT COUNT(value) FROM [".$this->tablename."] WHERE ".$key."=".$this->ValueToSql($keyVal,$this->keys[$key]).";";
 		//echo $query."\n";
+		$ret = $this->dbh->query($query);
+		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		foreach($ret as $row) return($row[0]);
+		return 0;
+	}
+
+	public function Count()
+	{
+		$query = "SELECT COUNT(value) FROM [".$this->tablename."];";
 		$ret = $this->dbh->query($query);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 		foreach($ret as $row) return($row[0]);

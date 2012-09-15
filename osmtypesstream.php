@@ -9,7 +9,7 @@ function ExtractBz2($file,&$callback)
 	$bz = bzopen($file, "r") or die("Couldn't open $file");
 
 	while (!feof($bz)) {
-	  $callback->Process(bzread($bz, READ_FILE_PAGE_SIZE));
+		$callback->Process(bzread($bz, READ_FILE_PAGE_SIZE));
 	}
 	bzclose($bz);
 	$callback->Process("",1);
@@ -25,18 +25,31 @@ function ExtractOsmXml($file,&$callback)
 	$callback->Process("",1);
 }
 
+function ExtractGz($file,&$callback)
+{
+	$bz = gzopen($file, "r") or die("Couldn't open $file");
+
+	while (!feof($bz)) {
+		$callback->Process(gzread($bz, READ_FILE_PAGE_SIZE));
+	}
+	gzclose($bz);
+	$callback->Process("",1);
+}
+
 class ExtractToXml
 {
 	var $size = 0;
 	var $depth = 0;
+	var $verbose = 1;
 
 	function startElement($parser, $name, $attrs) 
 	{
-		for ($i = 0; $i < $this->depth; $i++) 
+		if($this->verbose)
 		{
-		echo "  ";
-		}
+		for ($i = 0; $i < $this->depth; $i++) 
+			echo "  ";
 		echo "$name\n";
+		}
 		$this->depth++;
 	}
 
@@ -60,7 +73,7 @@ class ExtractToXml
 
 	function Process($data, $end=0)
 	{
-		//echo $data;
+		//print_r($data);
 		$this->size += strlen($data);	
 		if (!xml_parse($this->xml_parser, $data, $end))
 		{
@@ -171,7 +184,7 @@ class OsmTypesStream extends ExtractToXml
 			print_r($this->currentObj->ToXmlString());
 
 			//Send finished object to callback func
-			if(!is_null($this->callback))
+			if(!is_null($this->callback) and !is_null($this->currentObj))
 				call_user_func($this->callback, $this->currentObj, $this->size);
 
 			$this->currentObj = null;

@@ -31,6 +31,11 @@ def TestSingleObjectEditing(userpass, verbose=0):
 	if HeaderResponseCode(response[1]) != "HTTP/1.1 200 OK": return (0,"Error creating node")
 	nodeId = int(response[0])
 
+	#Read back node
+	response = Get(baseurl+"/0.6/node/"+str(nodeId))
+	if verbose: print response
+	if HeaderResponseCode(response[1]) != "HTTP/1.1 200 OK": return (0,"Error reading back node")
+
 	#Create another node
 	createNode = "<?xml version='1.0' encoding='UTF-8'?>\n"+\
 	"<osm version='0.6' generator='JOSM'>\n"+\
@@ -58,11 +63,6 @@ def TestSingleObjectEditing(userpass, verbose=0):
 	response = Put(baseurl+"/0.6/changeset/"+str(cid)+"/close","",userpass)
 	if verbose: print response
 	if HeaderResponseCode(response[1]) != "HTTP/1.1 200 OK": return (0,"Error closing changeset")
-
-	#Read back node
-	response = Get(baseurl+"/0.6/node/"+str(nodeId))
-	if verbose: print response
-	if HeaderResponseCode(response[1]) != "HTTP/1.1 200 OK": return (0,"Error reading back node")
 
 	#Open another changeset
 	response = Put(baseurl+"/0.6/changeset/create",createChangeset,userpass)

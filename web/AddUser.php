@@ -9,7 +9,10 @@ if(isset($_POST['commit']))
 		$uid = $_POST['uid'];
 	//print_r($uid);
 	$ret = AddUser($_POST['displayName'],$_POST['email'],$_POST['password'],$uid);
-	print_r($ret);
+	if ($ret === true)
+		echo "Done";
+	else
+		print_r($ret);
 }
 else
 {
@@ -28,6 +31,10 @@ User ID: <input type="text" name="uid" /><br />
 Password: <input type="password" name="password" /><br />
 <input name="commit" type="submit" value="Submit" />
 </form>
+<?php 
+//$db = UserDbFactory();
+//echo "Count users:".($db->Count())."<br/>\n";
+?>
 </body>
 </html>
 <?php

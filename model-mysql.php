@@ -39,24 +39,23 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 
 	function InitialiseSchema()
 	{
-
-		$sql = "CREATE TABLE IF NOT EXISTS meta (intid INTEGER PRIMARY KEY AUTO_INCREMENT, type INTEGER, id INTEGER, ver INTEGER, changeset INTEGER, user TEXT, uid INTEGER, timestamp INTEGER, visible INTEGER, INDEX(id,ver));";
+		$sql = "CREATE TABLE IF NOT EXISTS meta (intid BIGINT PRIMARY KEY AUTO_INCREMENT, type INTEGER, id BIGINT, ver BIGINT, changeset BIGINT, user TEXT, uid BIGINT, timestamp INTEGER, visible INTEGER, INDEX(id,ver)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		$ret = $this->dbh->exec($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
-		$sql = "CREATE TABLE IF NOT EXISTS geom (intid INTEGER PRIMARY KEY, g GEOMETRY NOT NULL, SPATIAL INDEX(g), type INTEGER, id INTEGER, ver INTEGER, INDEX(id,ver));";
+		$sql = "CREATE TABLE IF NOT EXISTS geom (intid BIGINT PRIMARY KEY, g GEOMETRY NOT NULL, SPATIAL INDEX(g), type INTEGER, id BIGINT, ver BIGINT, INDEX(id,ver)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		$ret = $this->dbh->exec($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
-		$sql = "CREATE TABLE IF NOT EXISTS tags (intid INTEGER PRIMARY KEY, type INTEGER, id INTEGER, ver INTEGER, tags BLOB, INDEX(id,ver));";
+		$sql = "CREATE TABLE IF NOT EXISTS tags (intid BIGINT PRIMARY KEY, type INTEGER, id BIGINT, ver BIGINT, tags BLOB, INDEX(id,ver)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		$ret = $this->dbh->exec($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
-		$sql = "CREATE TABLE IF NOT EXISTS members (linkid INTEGER PRIMARY KEY AUTO_INCREMENT, ptype INTEGER, pid INTEGER, pver INTEGER, ctype INTEGER, cid INTEGER, role TEXT, ord INTEGER, INDEX(pid,pver,cid));";
+		$sql = "CREATE TABLE IF NOT EXISTS members (linkid BIGINT PRIMARY KEY AUTO_INCREMENT, ptype INTEGER, pid BIGINT, pver BIGINT, ctype INTEGER, cid BIGINT, role TEXT, ord INTEGER, INDEX(pid,pver), INDEX(cid)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		$ret = $this->dbh->exec($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
-		$sql = "CREATE TABLE IF NOT EXISTS current (rowid INTEGER PRIMARY KEY AUTO_INCREMENT, type INTEGER, id INTEGER, currentver INTEGER, visible INTEGER, intid INTEGER, INDEX(id,type));";
+		$sql = "CREATE TABLE IF NOT EXISTS current (rowid BIGINT PRIMARY KEY AUTO_INCREMENT, type INTEGER, id BIGINT, currentver BIGINT, visible INTEGER, intid BIGINT, INDEX(id,type)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		$ret = $this->dbh->exec($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 	}
@@ -155,7 +154,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 		foreach ($ret as $row) {
 			//print_r($row);
-			$out->tags = unserialize($row['tags']);
+			$out->tags = json_decode($row['tags']);
 		}
 
 		//Get members
@@ -200,7 +199,8 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		}
 
 		//Retrieve latest version from current table
-		$sql = "SELECT * FROM current WHERE type = ".$this->dbh->quote($this->TypeToCode($type))." AND id = ".$this->dbh->quote($id).";";
+
+		$sql = "SELECT * FROM current WHERE id = ".$this->dbh->quote($id)." AND type = ".$this->dbh->quote($this->TypeToCode($type)).";";
 		//echo $sql."\n";
 		$ret = $this->dbh->query($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
@@ -272,7 +272,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 			$sql = "SELECT * FROM members WHERE ptype = ".$this->dbh->quote($this->TypeToCode($type)).
 				" AND ctype = ".$this->dbh->quote($this->TypeToCode($el->GetType())).
 				" AND cid = ".$this->dbh->quote($id).";";
-			//echo $sql."\n";
+			//echo $sql."\n"; die();
 			$ret = $this->dbh->query($sql);
 			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 			foreach ($ret as $row) {
@@ -326,13 +326,13 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 
 	public function GetNodesInBbox($bbox)
 	{
-		
-		//print_r($bbox);
+		$startTime = microtime(TRUE);
+
 		$sql = "SELECT geom.intid, meta.type, meta.id, meta.ver FROM geom INNER JOIN meta ON geom.intid = meta.intid".
 			" WHERE Contains(GeomFromText('Polygon((".
 			$bbox[1]." ".$bbox[0].",".$bbox[3]." ".$bbox[0].",".$bbox[3]." ".
 			$bbox[2].",".$bbox[1]." ".$bbox[0].",".$bbox[1]." ".$bbox[0]."))'),geom.g) AND meta.visible = 1;";
-		//echo $sql."\n";
+		//echo $sql."\n"; exit(0);
 		$ret = $this->dbh->query($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		$hits = array();
@@ -342,9 +342,12 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 			array_push($hits,array($intid,$this->CodeToType($row['type']),$row['id'],$row['ver']));
 		}
 
+		//print "Fetched nodes in bbox in ".(microtime(TRUE) - $startTime)."\n";
+
 		//Check if this is the latest version
 		$currentHits = array();
 		foreach ($hits as $hit) {
+			$startTime = microtime(TRUE);
 			list($intid,$type,$id,$version) = $hit;
 
 			list($maxIntId,$maxVer,$maxVisible) = $this->GetHighestVersionNum($type,$id);
@@ -352,15 +355,21 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 			{
 				array_push($currentHits, $hit);
 			}
+
+			//print "Fetched current ver in ".(microtime(TRUE) - $startTime)."\n";
 		}
 
 		//Get objects
 		$out = array();
 		foreach ($currentHits as $hit) {
+			$startTime = microtime(TRUE);
+
 			list($intid,$type,$id,$version) = $hit;
 			$obj = $this->IntIdToObj($intid);
 			if(!is_numeric($obj))
 				array_push($out,$obj);
+
+			//print "Fetched final obj in ".(microtime(TRUE) - $startTime)."\n";
 		}
 
 		return $out;
@@ -476,12 +485,17 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		//Insert into internal id table
 		$ver = $this->dbh->quote($el->attr['version']);
 		$changeset = $this->dbh->quote($el->attr['changeset']);
-		$user = $this->dbh->quote($el->attr['user']);
-		$uid = $this->dbh->quote($el->attr['uid']);
+		$user = "NULL";
+		if (isset($el->attr['user']))
+			$user = $this->dbh->quote($el->attr['user']);
+		$uid = "NULL";
+		if (isset($el->attr['uid']))
+			$uid = $this->dbh->quote($el->attr['uid']);
 		$timestamp = $this->dbh->quote((int)strtotime($el->attr['timestamp']));
 		$visible = "NULL";
-		if ($el->attr['visible'] == "true") $visible = 1;
-		if ($el->attr['visible'] == "false") $visible = 0;
+		if (isset($el->attr['visible']) and $el->attr['visible'] == "true") $visible = 1;
+		if (isset($el->attr['visible']) and $el->attr['visible'] == "false") $visible = 0;
+		if (!isset($el->attr['visible'])) $visible = 1;
 
 		$sql ="INSERT INTO meta (type, id, ver, changeset, user, uid, timestamp, visible) VALUES (".$this->dbh->quote($this->TypeToCode($type)).",".
 			$this->dbh->quote($id).",".$ver.",".$changeset.",".$user.",".$uid.",".$timestamp.",".$visible.")";
@@ -505,7 +519,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		//Store, tags if any
 		if(count($el->tags)>0)
 		{
-			$tagser = $this->dbh->quote(serialize($el->tags));
+			$tagser = $this->dbh->quote(json_encode($el->tags));
 
 			$sql = "INSERT INTO tags (intid, type, id, ver, tags) VALUES (".$intid.",".
 				$this->dbh->quote($this->TypeToCode($type)).",".

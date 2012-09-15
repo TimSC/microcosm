@@ -196,7 +196,7 @@ function TranslateErrorToHtml(&$response)
 	if(strcmp($response[2],"object-not-found")==0)
 	{	
 		header ('HTTP/1.1 409 Conflict');
-		echo "Modified object not found in database.";
+		echo "Required object not found in database (something to do with ".$response[3].",".$response[4].").";
 		return;
 	}
 

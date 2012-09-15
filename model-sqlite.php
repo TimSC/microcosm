@@ -200,7 +200,7 @@ class ElementTable
 	{
 		//Dump all non-deleted elements to a callback function
 		//Warning: this could take a while
-		$query = "SELECT * FROM elements WHERE current=1;";
+		$query = "SELECT * FROM elements WHERE current=1 AND visible=1;";
 
 		$ret = $this->dbh->query($query);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
@@ -208,6 +208,22 @@ class ElementTable
 		foreach($ret as $row){
 			//print_r($row);
 			$obj = $this->DbRowToObj($row);
+
+			//Verify latest version is used
+			$query = "SELECT version FROM elements WHERE id=".$obj->attr['id'].";";
+			$verret = $this->dbh->query($query);
+			if($verret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+			$latest = null;
+			foreach($verret as $verrow)
+			{
+				if($latest===null or $verrow['version'] > $latest)
+					$latest = $verrow['version'];				
+			}
+			if($latest != $obj->attr['version'])
+			{
+				print "Warning: version found is not the latest obj v".$latest." vs. v".$obj->attr['version']."\n";
+				continue;
+			}
 
 			call_user_func($callback,$obj);
 		}
