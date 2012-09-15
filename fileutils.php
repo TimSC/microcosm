@@ -124,4 +124,25 @@ function isValidEmail($email){
 	return eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $email);
 }
 
+function ValidateBbox($bbox)
+{
+	if($bbox[0] > $bbox[2])
+		return "invalid-bbox";
+	if($bbox[1] > $bbox[3])
+		return "invalid-bbox";
+
+	if($bbox[0] < -180.0 or $bbox[0] > 180.0) return "invalid-bbox";
+	if($bbox[2] < -180.0 or $bbox[2] > 180.0) return "invalid-bbox";
+	if($bbox[1] < -90.0 or $bbox[1] > 90.0) return "invalid-bbox";
+	if($bbox[3] < -90.0 or $bbox[3] > 90.0) return "invalid-bbox";
+
+	$area = abs((float)$bbox[2] - (float)$bbox[0]) * ((float)$bbox[3] - (float)$bbox[1]);
+	if($area > MAX_QUERY_AREA)
+	{
+		return "bbox-too-large";
+	}
+
+	return 1;
+}
+
 ?>

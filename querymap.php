@@ -3,27 +3,6 @@
 require_once('modelfactory.php');
 require_once('fileutils.php');
 
-function ValidateBbox($bbox)
-{
-	if($bbox[0] > $bbox[2])
-		return "invalid-bbox";
-	if($bbox[1] > $bbox[3])
-		return "invalid-bbox";
-
-	if($bbox[0] < -180.0 or $bbox[0] > 180.0) return "invalid-bbox";
-	if($bbox[2] < -180.0 or $bbox[2] > 180.0) return "invalid-bbox";
-	if($bbox[1] < -90.0 or $bbox[1] > 90.0) return "invalid-bbox";
-	if($bbox[3] < -90.0 or $bbox[3] > 90.0) return "invalid-bbox";
-
-	$area = abs((float)$bbox[2] - (float)$bbox[0]) * ((float)$bbox[3] - (float)$bbox[1]);
-	if($area > MAX_QUERY_AREA)
-	{
-		return "bbox-too-large";
-	}
-
-	return 1;
-}
-
 function MapQuery($userInfo,$bboxStr)
 {
 	//echo gettype($bboxStr);
@@ -53,10 +32,10 @@ function MapObjectQuery($userInfo,$expUrl)
 	{
 		if($obj==0) return array(0,Null,"not-found");
 		if($obj==-1) return array(0,Null,"not-implemented");
-		if($obj==-2) return array(0,Null,"gone");
+		if($obj==-2) return array(0,Null,"gone",$type,$id);
 		return $obj;
 	}
-
+	
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n".
 		'<osm version="0.6" generator="'.SERVER_NAME.'">'.$obj->ToXmlString().'</osm>';
 	return array(1,array("Content-Type:text/xml"),$out);

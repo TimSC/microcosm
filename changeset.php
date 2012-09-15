@@ -272,6 +272,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 			throw new Exception("Max changeset size exceeded");
 
 		//Check if method is consistent
+
 		//TODO work out what action really does?? JOSM specific?
 		if(isset($el->attr['action']))
 		{
@@ -280,7 +281,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 		//	throw new Exception("Action specified in object not consistent ".$action." vs. ".$objaction);
 		}
 
- 		//Check visibility is boolean (always true?)
+		//Visibile attribute seems to be a "rails port" specific tag
 		/*$visible = $el->attr['visible'];
 		if(!(strcmp($visible,"true")==0 or strcmp($visible,"false")==0))
 			throw new Exception("Visible attribute must be true or false");
@@ -297,8 +298,10 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 		if($id >= 0)
 		{
 			$currentVer = $map->GetCurentVerOfElement($type,$id);
-			if($currentVer==null)
-				return "object-not-found,".$type." ".$id." A";
+			if($currentVer===-1)
+				return array(0,null,"not-found",$type,$id);
+			if($currentVer===-2)
+				return array(0,null,"gone",$type,$id);
 			if($ver != $currentVer and VERSION_VALIDATION)
 			{
 				return "version-mismatch,".(int)$ver.",".$currentVer.",".$type.",".$id;
@@ -323,15 +326,15 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 			$deletedEls[$type.$id] = 1;
 
 
-		//Check if references elements actual exist, Nodes
+		//Check if referenced elements actual exist, Nodes
 		$ret = CheckChildrenExist($el->nodes, "node", $createdEls, $map);
 		if($ret==0) return "object-not-found,".$type." ".$id." B";
 
-		//Check if references elements actual exist, Ways
+		//Check if referenced elements actual exist, Ways
 		$ret = CheckChildrenExist($el->ways, "way", $createdEls, $map);
 		if($ret==0) return "object-not-found,".$type." ".$id." C";
 
-		//Check if references elements actual exist, Relations
+		//Check if referenced elements actual exist, Relations
 		$ret = CheckChildrenExist($el->relations, "relation", $createdEls, $map);
 		if($ret==0) return "object-not-found,".$type." ".$id." D";
 	
@@ -497,6 +500,8 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 {
 	$csd = ChangesetDatabase();
 
+	//TODO update bbox
+
 	//For each element
 	foreach($osmchange->data as $data)
 	{
@@ -564,7 +569,7 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 	}
 	catch (Exception $e)
 	{
-		return "bad-request,".$e;
+		return array(0,null,"bad-request",$e);
 	}
 
 	//Assign IDs to created objects
@@ -575,7 +580,7 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 
 	unset($map); //Cause the destructor to save changes (if required)
 
-	return $changes;
+	return array(1,$changes);
 }
 
 function ProcessSingleObject($userInfo, $args)
@@ -595,7 +600,9 @@ function ProcessSingleObject($userInfo, $args)
 	$cid = null;
 	
 	//Process OsmChange
-	$changes = ProcessOsmChange($cid,$osmchange,$displayName,$userId);
+	$ret = ProcessOsmChange($cid,$osmchange,$displayName,$userId);
+	if($ret[0]===0) return $ret;
+	$changes = $ret[1];
 
 	//Return version or new ID as appropriate
 	$newobjid = $changes[0][2];
@@ -622,7 +629,9 @@ function ChangesetUpload($userInfo, $args)
 	$osmchange->FromXmlString($putDataStr);
 
 	//Process OsmChange
-	$changes = ProcessOsmChange($cid,$osmchange,$displayName,$userId);
+	$ret = ProcessOsmChange($cid,$osmchange,$displayName,$userId);
+	if($ret[0]===0) return $ret;
+	$changes = $ret[1];
 	//echo gettype($changes);
 
 	if(is_array($changes))

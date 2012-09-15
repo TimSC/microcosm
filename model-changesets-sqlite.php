@@ -102,6 +102,7 @@ class ChangesetDatabaseSqlite extends GenericSqliteTable
 		$ids = $this->GetKeys();
 		$out = array();
 		//TODO This steps through the entire database, which is very slow for big databases
+		//TODO implement time range and other queries
 		foreach($ids as $cid)
 		{
 			$c = $this[$cid];

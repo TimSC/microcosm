@@ -366,7 +366,17 @@ class OsmDatabaseSqlite extends OsmDatabaseCommon
 
 	public function GetElementById($type,$id,$version=null)
 	{
-		return $this->GetInternalTable($type)->GetElement($id,$version);
+		//Get requested version
+		$ret = $this->GetInternalTable($type)->GetElement($id,$version);
+		if(is_null($ret))
+		{
+			//See if version 1 exists
+			if(!is_null($this->GetInternalTable($type)->GetElement($id,1)))
+				return -2; //Deleted
+			//return -1 //Not implmented (not needed here)
+			return 0; //Not found
+		}
+		return $ret;
 	}
 	
 	public function GetElementFullHistory($type,$id)

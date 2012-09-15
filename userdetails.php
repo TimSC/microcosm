@@ -16,7 +16,7 @@ function CheckLogin($user,$password)
 	$lock=GetReadDatabaseLock();
 	$db = UserDbFactory();
 	$ret = $db->CheckLogin($user,$password);
-	if($ret == -1 and ENABLE_ANON_EDITS)
+	if($ret === -1 and ENABLE_ANON_EDITS)
 		return array(ANON_DISPLAY_NAME, ANON_UID);
 	return $ret;
 }
@@ -323,7 +323,6 @@ class UserDbSqlite extends GenericSqliteTable
 
 	function CheckLogin($login,$password)
 	{
-		//TODO Anon user
 		$user = $this->Get("userName",$login);
 		if(is_null($user)) return -1; 
 		if(strcmp($password,$user['password'])!=0) return 0;

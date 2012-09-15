@@ -1,2 +1,6 @@
-GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+GET	/0.6/user/details		array (
+)	
+GET	/0.6/user/details		array (
+)	
+GET	/0.6/user/details		array (
 )	

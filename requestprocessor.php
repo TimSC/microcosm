@@ -139,7 +139,8 @@ function TranslateErrorToHtml(&$response)
 
 	if("bbox-too-large" == $response[2])
 	{
-		$err="The maximum bbox size is ".MAX_QUERY_AREA.", and your request was too large. Either request a smaller area, or use planet.osm";
+		$err="The maximum bbox size is ".MAX_QUERY_AREA;
+		$err.=", and your request was too large. Either request a smaller area, or use planet.osm";
 		header('HTTP/1.1 400 Bad Request');
 		header('Error: '.$err);
 		//header("Error: Stuff")
@@ -149,7 +150,8 @@ function TranslateErrorToHtml(&$response)
 
 	if("invalid-bbox" == $response[2])
 	{
-		$err="The latitudes must be between -90 and 90, longitudes between -180 and 180 and the minima must be less than the maxima.";
+		$err="The latitudes must be between -90 and 90, longitudes between ";
+		$err.="-180 and 180 and the minima must be less than the maxima.";
 		header('Error: '.$err);
 		header('HTTP/1.1 400 Bad Request');
 		echo $err;
@@ -208,7 +210,7 @@ function TranslateErrorToHtml(&$response)
 	if(strcmp($response[2],"gone")==0)
 	{	
 		header ('HTTP/1.1 410 Gone');
-		echo "Requested element has been deleted.";
+		#echo "The ".$response[3]." with the id ".$response[4]." has already been deleted";
 		return;
 	}
 	

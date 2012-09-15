@@ -643,7 +643,7 @@ function CheckElementTableOptAgainstChildren(&$table, &$db)
 			if(is_null($parentsOfChild)) echo "Child links not defined\n";
 			if(!in_array($id,$parentsOfChild)) echo "Child link broken\n";
 			$childObj = $db->GetElementById("node",$idchild);
-			if(is_null($childObj)) 
+			if(!is_object($childObj)) 
 				echo "Child object of ".$obj->GetType()." ".$id." doesn't exist ".$idchild."\n";
 			}
 			else
@@ -661,7 +661,7 @@ function CheckElementTableOptAgainstChildren(&$table, &$db)
 			if(is_null($parentsOfChild)) echo "Child links not defined\n";
 			if(!in_array($id,$parentsOfChild)) echo "Child link broken\n";
 			$childObj = $db->GetElementById("way",$idchild);
-			if(is_null($childObj))
+			if(!is_object($childObj))
 				echo "Child object of ".$obj->GetType()." ".$id." doesn't exist ".$idchild."\n";
 			}
 			else
@@ -679,7 +679,7 @@ function CheckElementTableOptAgainstChildren(&$table, &$db)
 			if(is_null($parentsOfChild)) echo "Child links not defined\n";
 			if(!in_array($id,$parentsOfChild)) echo "Child link broken\n";
 			$childObj = $db->GetElementById("relation",$idchild);
-			if(is_null($childObj))
+			if(!is_object($childObj))
 				echo "Child object of ".$obj->GetType()." ".$id." doesn't exist ".$idchild."\n";
 			}
 			else

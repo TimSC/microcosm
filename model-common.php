@@ -127,7 +127,7 @@ abstract class OsmDatabaseCommon
 	public function GetCurentVerOfElement($type,$id)
 	{
 		$obj = $this->GetElementById($type,$id);
-		if(is_null($obj)) return null;
+		if(!is_object($obj)) return $obj; //Not found or gone
 		if(!isset($obj->attr['version'])) 
 			throw new Exception("Internal database has missing version attribute.");
 		return $obj->attr['version'];
@@ -138,14 +138,14 @@ abstract class OsmDatabaseCommon
 	public function GetElementAsXmlString($type,$id)
 	{
 		$obj = $this->GetElementById($type,$id);
-		if($obj==null) return null;
+		if(!is_object($obj)) return $obj;
 		return $obj->ToXmlString();
 	}
 
 	public function CheckElementExists($type,$id)
 	{
 		$obj = $this->GetElementById($type,$id);
-		return !is_null($obj);
+		return is_object($obj);
 	}
 
 	public function GetCitingWaysOfNode($id)

@@ -2,7 +2,6 @@
 require_once("config.php");
 require_once("querymap.php");
 require_once('changeset.php');
-require_once('capabilities.php');
 require_once('fileutils.php');
 require_once('traces.php');
 require_once('userdetails.php');
@@ -22,6 +21,7 @@ if(!isset($pathInfo) and isset($_SERVER['REDIRECT_URL']))
 {
 	$pathInfo = $_SERVER['REDIRECT_URL'];
 	$pathInfoExp = explode("/",$pathInfo);
+	//TODO is there a better way then using INSTALL_FOLDER_DEPTH?
 	$pathInfo = "/".implode("/",array_slice($pathInfoExp,INSTALL_FOLDER_DEPTH));
 }
 if(!isset($pathInfo)) die("Could not determine URL path");
