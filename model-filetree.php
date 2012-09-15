@@ -48,9 +48,9 @@ closedir( $dh );
 return $out;
 } 
 
-//****************************
-//Map Model Stored as OSM file
-//****************************
+//**********************************
+//Map Model Stored in Multiple Files
+//**********************************
 
 class OsmDatabaseByFileTree
 {
@@ -434,6 +434,7 @@ class OsmDatabaseByFileTree
 		fwrite($fi, $el->ToXmlString());
 		fclose($fi);
 		clearstatcache($filename);
+		chmod($filename,0777);
 
 		//Add this state to history
 		if($prevVerExisted)	

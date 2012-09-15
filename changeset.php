@@ -113,7 +113,7 @@ function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChang
 			if(CheckElementInList($deletedEls,"way",$wayId)) continue;
 
 			//Found a way that would be broken if this node is deleted
-			return "deleting-would-break-way1,".$wayId;
+			return "deleting-would-break,".$id.",way,".$wayId;
 		}
 
 		//Check if it is used by a recently changed element
@@ -129,7 +129,7 @@ function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChang
 			}
 
 			//Conflict found
-			if($match!=0) return "deleting-would-break-way,".$match;
+			if($match!=0) return "deleting-would-break,".$id.",way,".$match;
 		}
 	}
 
@@ -146,7 +146,7 @@ function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChang
 		if(CheckElementInList($deletedEls,"relation",$relId)) continue;
 
 		//Found a relation that would be broken if this node is deleted
-		return "deleting-would-break-relation,".$relId;
+		return "deleting-would-break,".$id.",way,".$relId;
 	}
 
 	//Check if it is used by a recently changed element
@@ -173,7 +173,7 @@ function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChang
 		}
 
 		//Conflict found
-		if($match!=0) return "deleting-would-break-relation,".$match;
+		if($match!=0) return "deleting-would-break,".$id.",relation,".$match;
 	}
 
 
@@ -335,13 +335,16 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 	$idmapping = array();
 	$changes = array();
 
-	foreach($osmchange->data as $i => $eldata)
+	foreach($osmchange->data as $i => &$eldata)
 	{
 		$action = $eldata[0];
-		$els = $eldata[1];
+		$els = &$eldata[1];
 
 		//Set timestamp of object
-		$el->attr['timestamp'] = date('c'); //Set timestamp at creation
+		foreach($els as $i2 => $el)
+		{
+			$el->attr['timestamp'] = date('c'); //Set timestamp at creation
+		}
 
 		//Set username and UID for any changed elements
 		foreach($els as $i2 => $el)
@@ -457,6 +460,7 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 			}
 
 		}
+
 	}
 
 	return $changes;

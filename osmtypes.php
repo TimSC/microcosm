@@ -231,10 +231,10 @@ class OsmChangeset extends OsmElement
 
 function OsmElementFactory($type)
 {
-	if(strcmp($type,"node")==0) return new OsmNode();
-	if(strcmp($type,"way")==0) return new OsmWay();
-	if(strcmp($type,"relation")==0) return new OsmRelation();
-	if(strcmp($type,"changeset")==0) return new OsmChangeset();
+	if(strcasecmp($type,"node")==0) return new OsmNode();
+	if(strcasecmp($type,"way")==0) return new OsmWay();
+	if(strcasecmp($type,"relation")==0) return new OsmRelation();
+	if(strcasecmp($type,"changeset")==0) return new OsmChangeset();
 	return null;
 }
 

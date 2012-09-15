@@ -26,6 +26,8 @@ function MapQuery($bbox)
 	{
 		return "too-large";
 	}
+	//Validate bbox
+	$bbox = array_map('floatval', $bbox);
 
 	$map = OsmDatabase();
 	return $map->MapQuery($bbox);

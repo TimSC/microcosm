@@ -6,9 +6,9 @@ f = open("test.xml")
 fs = os.path.getsize("test.xml")
 baseurl = "http://localhost/m/microcosm.php"
 #baseurl = "http://api06.dev.openstreetmap.org/api"
-#baseurl = "http://api.openstreetmap.org/api"
-#userpass = "mapping@sheerman-chase.org.uk:test"
-userpass = "jeff@sheerman-chase.org.uk:test"
+#baseurl = "http://www.openstreetmap.org/api"
+userpass = "mapping@sheerman-chase.org.uk:test"
+#userpass = "jeff@sheerman-chase.org.uk:test"
 #userpass = "bob:test"
 
 def Put(url, stringIn):
@@ -57,8 +57,8 @@ createchangeset = "<?xml version='1.0' encoding='UTF-8'?>\n<osm version='0.6' ge
 
 
 
-#cid = 5962811
-cid = 282
+#cid = 6108794
+cid = 294
 #creatediff = "<osmChange version=\"0.6\" generator=\"PythonTest\">\n<create>\n"\
 #	+"<node id='-8836' visible='true' changeset='150' lat='51.28572570520306' lon='-0.5961918364308939' />\n</create>\n</osmChange>"
 

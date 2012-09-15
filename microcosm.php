@@ -317,6 +317,14 @@ function ProcessErrorsSendToClient(&$data,$changesetId)
 		$content = "This feature has not been implemented.";
 	}
 
+	if(strncmp($data,"deleting-would-break,",21)==0)
+	{
+		//Example: Error: Precondition failed: Node 31567970 is still used by way 4733859.
+		$errorinfo = explode(",",$data);
+		$content = "Precondition failed: Node ".$errorinfo[1]." is still used by ".$errorinfo[2]." ".$errorinfo[3].".";
+		$header = array('HTTP/1.1 412 Precondition failed', 'Error: '.$content);
+	}
+
 	if(strncmp($data,"version-mismatch,",17)==0)
 	{	
 		$mismatch = explode(",",$data);
