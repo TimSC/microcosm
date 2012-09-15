@@ -190,7 +190,7 @@ class GenericSqliteTable implements ArrayAccess
 		if($sth===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		$ret = $sth->execute($sqlVals);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
-		return $ret;
+		return $sth->rowCount();
 	}
 
 	function CreateRecord($key, $keyVal = null, $data)
@@ -213,6 +213,7 @@ class GenericSqliteTable implements ArrayAccess
 		//Construct SQL
 		$sql="INSERT INTO [".$this->dbh->quote($this->tablename)."] (";
 		$count = 0;
+		$sqlVals = array();
 		foreach($additionalKeys as $adKey => $adVal)
 		{
 			if($count != 0) $sql.=", ";
@@ -226,16 +227,22 @@ class GenericSqliteTable implements ArrayAccess
 		foreach($additionalKeys as $adKey => $adVal)
 		{
 			if($count != 0) $sql.= ", ";
-			$sql .= $this->ValueToSql($adVal,$this->keys[$adKey]);
+			$sql .= "?";
+			array_push($sqlVals, $adVal);
 			$count += 1;
 		}
-		$sql.=", '".sqlite_udf_encode_binary(serialize($data))."'";
+		$sql.=", ?";
+		//array_push($sqlVals, serialize($data));
 		$sql.=");";
-		//print_r(sqlite_udf_encode_binary(serialize($data)));
 
 		//Execute SQL
 		//echo $sql."\n";
-		$ret = $this->dbh->exec($sql);
+		$sth = $this->dbh->prepare($sql);
+		if($sth===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+		for($i=0;$i<count($sqlVals);$i++)
+			$sth->bindParam($i+1, $sqlVals[$i]);
+		$sth->bindParam(count($sqlVals)+1, serialize($data), PDO::PARAM_LOB);
+		$ret = $sth->execute();
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
 		if(is_null($keyVal)) return $this->dbh->lastInsertId();
@@ -249,7 +256,7 @@ class GenericSqliteTable implements ArrayAccess
 
 		//echo "Attempting update db\n";
 		$ret = $this->UpdateRecord($key, $keyVal, $data);
-		if($ret===false)
+		if($ret===0)
 		{
 			//echo "ret".$ret."\n";
 			//echo "Attempting create record in db\n";
@@ -259,7 +266,7 @@ class GenericSqliteTable implements ArrayAccess
 			return $createId;
 		}
 
-		if($ret!==true) throw new Exception ("Failed to update record in database");
+		if($ret!==1) throw new Exception ("Failed to update record in database");
 		return $keyVal;
 	}
 	
@@ -272,11 +279,12 @@ class GenericSqliteTable implements ArrayAccess
 		if($sth===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 		$ret = $sth->execute(array($keyVal));
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		//$numCols = $stmt->columnCount();
 
 		foreach($sth->fetchAll() as $row)
 		{
 			//print_r($row['value']);echo"\n";
-			$record = unserialize(sqlite_udf_decode_binary($row['value']));
+			$record = unserialize($row['value']);
 			foreach($this->keys as $exKey => $exType)
 			{
 				if(isset($row[$exKey]))
@@ -397,7 +405,7 @@ class TableSpecSqlite
 	{
 		list($name,$type,$primaryKey,$unique) = $col;
 		$sqlVals = array();
-		$sql = $dbh->quote($name)." ".$dbh->quote($type);
+		$sql = $name." ".$type;
 		if ($primaryKey) $sql .= " PRIMARY KEY";
 		if ($unique) $sql .= " UNIQUE";
 		return array($sql, $sqlVals);
