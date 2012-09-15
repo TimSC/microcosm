@@ -74,6 +74,7 @@ function CheckChildrenExist(&$children, $childType, &$createdEls,$map)
 		$id = $child[0];
 		if($id>0)
 		{
+			//Check the element exists (in a non deleted state)
 			$exists = $map->CheckElementExists($childType,$id);
 			if($exists!=true) return 0;
 		}
@@ -249,7 +250,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 			throw new Exception("Max changeset size exceeded");
 
 		//Check if method is consistent
-		//TODO work out what action really does??
+		//TODO work out what action really does?? JOSM specific?
 		if(isset($el->attr['action']))
 		{
 		$objaction = $el->attr['action'];
@@ -261,6 +262,10 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 		$visible = $el->attr['visible'];
 		if(!(strcmp($visible,"true")==0 or strcmp($visibile,"false")==0))
 			throw new Exception("Visibile attribute must be true or false");
+		if(strcmp($action,"create")==0 or strcmp($action,"modify")==0)
+			if(strcmp($visible,"false")==0) throw new Exception("Visiblity must be true for create or modify");
+		//if(strcmp($action,"delete")==0)
+		//	if(strcmp($visible,"true")==0) throw new Exception("Visiblity must be false for delete");
 
 		//Object id zero not allowed?
 		if($id == 0) throw new Exception("Object ID zero not allowed");
@@ -356,6 +361,7 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 				//Initialise version
 				$el->attr['version'] = 1;
 				$newver = $el->attr['version'];
+				$el->attr['visibility'] = "true";
 
 				//Initilise element ID
 				$oldid = (int)$el->attr['id'];
@@ -382,6 +388,7 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 				$oldver = $el->attr['version'];
 				$el->attr['version'] = $el->attr['version'] + 1;
 				$newver = $el->attr['version'];
+				$el->attr['visibility'] = "true";
 
 				//Store changes to return to editor
 				array_push($changes,array($type,$oldid,$newid,$newver,$newver));
@@ -400,6 +407,7 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 				$oldver = $el->attr['version'];
 				$el->attr['version'] = $el->attr['version'] + 1;
 				$newver = $el->attr['version'];
+				$el->attr['visibility'] = "false";
 
 				//Store changes to return to editor
 				array_push($changes,array($type,$oldid,null,null,$newver));
@@ -534,7 +542,7 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 	//Apply changes to database
 	ApplyChangeToDatabase($osmchange,$map);
 
-	$map->Save();
+	unset($map); //Cause the destructor to save changes (if required)
 
 	return $changes;
 }

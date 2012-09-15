@@ -304,6 +304,12 @@ function ProcessErrorsSendToClient(&$data,$changesetId)
 		$header = 'HTTP/1.1 400 Bad Request';
 		$content = "Bad request.";
 	}
+
+	if(strcmp($data,"gone")==0)
+	{	
+		$header = 'HTTP/1.1 410 Gone';
+		$content = "Requested element has been deleted.";
+	}
 	
 	if(strcmp($data,"not-implemented")==0)
 	{

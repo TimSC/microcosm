@@ -6,6 +6,8 @@ set_time_limit(60);
 
 $db = OsmDatabase();
 
+$db->Purge();
+
 $fi = fopen("import.osm","rt");
 $import = ParseOsmXml(fread($fi, filesize("import.osm")));
 

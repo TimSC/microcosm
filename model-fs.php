@@ -396,6 +396,7 @@ class OsmDatabaseByOsmXml
 
 	public function CheckElementExists($type,$id)
 	{
+		//Check the element exists (in a non deleted state)
 		return !is_null($this->GetElementXmlById($type,$id));
 	}
 
@@ -470,6 +471,10 @@ class OsmDatabaseByOsmXml
 		$this->RemoveElementById($type, $id);
 	}
 
+	public function Purge()
+	{
+		//TODO
+	}
 }
 
 

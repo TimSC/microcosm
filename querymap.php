@@ -35,11 +35,12 @@ function MapObjectQuery($type,$id,$version=null)
 {
 	$lock=GetReadDatabaseLock();
 	$map = OsmDatabase();
-	$obj = $map->GetElementById($type,$id,$version);
+	$obj = $map->GetElementById($type,(int)$id,$version);
 	if(!is_object($obj))
 	{
 		if($obj==0) return "not-found";
 		if($obj==-1) return "not-implemented";
+		if($obj==-2) return "gone";
 		return $obj;
 	}
 	return '<osm version="0.6" generator="'.SERVER_NAME.'">'.$obj->ToXmlString().'</osm>';
@@ -76,7 +77,7 @@ function MultiFetch($type,$ids)
 	if(!$emptyQuery)
 	foreach($ids as $id)
 	{
-		$object = $map->GetElementById($type, $id);
+		$object = $map->GetElementById($type, (int)$id);
 		if($object==null) return "not-found";
 		$out = $out.$object->ToXmlString()."\n";
 	}
@@ -91,12 +92,13 @@ function GetRelationsForElement($type,$id)
 	$out = '<osm version="0.6" generator="'.SERVER_NAME.'">';
 	$map = OsmDatabase();
 
-	$rels = $map->GetCitingRelations($type,$id);
+	$rels = $map->GetCitingRelations($type,(int)$id);
 
 	//For each relation found to match	
 	foreach($rels as $id)
 	{
-		$object = $map->GetElementById("relation", $id);
+		if(!is_integer($id)) throw new Exception("Values in relation array should be ID integers");
+		$object = $map->GetElementById("relation", (int)$id);
 		if($object==null) return "not-found";		
 		$out = $out.$object->ToXmlString()."\n";
 	}
@@ -106,12 +108,35 @@ function GetRelationsForElement($type,$id)
 
 }
 
+function GetWaysForNode($id)
+{
+	$lock=GetReadDatabaseLock();
+	$out = '<osm version="0.6" generator="'.SERVER_NAME.'">';
+	$map = OsmDatabase();
+
+	$ways = $map->GetCitingWaysOfNode((int)$id);
+
+	//For each relation found to match	
+	foreach($ways as $id)
+	{
+		if(!is_integer($id)) throw new Exception("Values in way array should be ID integers");
+		$object = $map->GetElementById("way", (int)$id);
+		if($object==null) return "not-found";		
+		$out = $out.$object->ToXmlString()."\n";
+	}
+
+	$out = $out."</osm>";
+	return $out;
+
+}
+
+
 function GetFullDetailsOfElement($type,$id)
 {
 	$lock=GetReadDatabaseLock();
 	$out = '<osm version="0.6" generator="'.SERVER_NAME.'">';
 	$map = OsmDatabase();
-	$firstObj = $map->GetElementById($type,$id);
+	$firstObj = $map->GetElementById($type,(int)$id);
 	if($firstObj==null) return "not-found";
 	$out = $out.$firstObj->ToXmlString()."\n";
 
@@ -119,7 +144,7 @@ function GetFullDetailsOfElement($type,$id)
 	foreach($firstObj->relations as $data)
 	{
 		$id = $data[0];
-		$obj = $map->GetElementById("relation",$id);
+		$obj = $map->GetElementById("relation",(int)$id);
 		if($obj==null) return "not-found";
 		$out = $out.$obj->ToXmlString()."\n";		
 	}
@@ -128,7 +153,7 @@ function GetFullDetailsOfElement($type,$id)
 	foreach($firstObj->ways as $data)
 	{
 		$id = $data[0];
-		$obj = $map->GetElementById("way",$id);
+		$obj = $map->GetElementById("way",(int)$id);
 		if($obj==null) return "not-found";
 		$out = $out.$obj->ToXmlString()."\n";
 
@@ -136,7 +161,7 @@ function GetFullDetailsOfElement($type,$id)
 		foreach($obj->nodes as $nd)
 		{
 			$nid = $nd[0];
-			$n = $map->GetElementById("node",$nid);
+			$n = $map->GetElementById("node",(int)$nid);
 			if($n==null) return "not-found";
 			$out = $out.$n->ToXmlString()."\n";
 		}
@@ -146,7 +171,7 @@ function GetFullDetailsOfElement($type,$id)
 	foreach($firstObj->nodes as $nd)
 	{
 		$nid = $nd[0];
-		$n = $map->GetElementById("node",$nid);
+		$n = $map->GetElementById("node",(int)$nid);
 		if($n==null) return "not-found";
 		$out = $out.$n->ToXmlString()."\n";
 	}

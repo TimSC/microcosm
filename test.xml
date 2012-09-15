@@ -1,4 +1,5 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<osm version='0.6' generator='JOSM'>
-  <node id='-371' visible='true' changeset='279' lat='51.26242525667565' lon='-0.5617789714748784' />
-</osm>
+<osmChange version="0.6" generator="JOSM">
+<modify>
+  <node id='891' action='modify' visible='true' version='1' changeset='282' lat='51.23693195057228' lon='-0.5884553886209052' />
+</modify>
+</osmChange>
