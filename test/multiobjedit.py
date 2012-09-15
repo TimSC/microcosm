@@ -2,7 +2,7 @@ import sys
 sys.path.append( "." )
 from urlutil import *
 
-def TestSingleObjectEditing(userpass, verbose=0):
+def TestMultiObjectEditing(userpass, verbose=0):
 
 	#Create a changeset
 	createChangeset = "<?xml version='1.0' encoding='UTF-8'?>\n" +\
@@ -21,43 +21,37 @@ def TestSingleObjectEditing(userpass, verbose=0):
 	lat = 51.25022331526812
 	lon = -0.6042092878597837
 
-	#Create a node
-	createNode = "<?xml version='1.0' encoding='UTF-8'?>\n" +\
-	"<osm version='0.6' generator='JOSM'>\n" +\
+	#Create a way between two nodes
+	create = "<?xml version='1.0' encoding='UTF-8'?>\n" +\
+	"<osmChange version='0.6' generator='JOSM'>\n" +\
+	"<create version='0.6' generator='JOSM'>\n" +\
 	"  <node id='-289' changeset='"+str(cid)+"' lat='"+str(lat)+"' lon='"+str(lon)+"' />\n" +\
-	"</osm>\n"
-	response = Put(baseurl+"/0.6/node/create",createNode,userpass)
-	if verbose: print response
-	if HeaderResponseCode(response[1]) != "HTTP/1.1 200 OK": return (0,"Error creating node")
-	nodeId = int(response[0])
-
-	#Create another node
-	createNode = "<?xml version='1.0' encoding='UTF-8'?>\n"+\
-	"<osm version='0.6' generator='JOSM'>\n"+\
 	"  <node id='-2008' changeset='"+str(cid)+"' lat='51.2419166618214' lon='-0.5910182209303836' />\n"+\
-	"</osm>\n"
-	response = Put(baseurl+"/0.6/node/create",createNode,userpass)
-	if verbose: print response
-	if HeaderResponseCode(response[1]) != "HTTP/1.1 200 OK": return (0,"Error creating node")
-	nodeId2 = int(response[0])
-
-	#Create a way
-	createWay = "<?xml version='1.0' encoding='UTF-8'?>\n"+\
-	"<osm version='0.6' generator='JOSM'>\n"+\
 	"  <way id='-2010' changeset='"+str(cid)+"'>\n"+\
-	"    <nd ref='"+str(nodeId)+"' />\n"+\
-	"    <nd ref='"+str(nodeId2)+"' />\n"+\
+	"    <nd ref='-289' />\n"+\
+	"    <nd ref='-2008' />\n"+\
 	"  </way>\n"+\
-	"</osm>\n"
-	response = Put(baseurl+"/0.6/way/create",createWay,userpass)
+	"</create>\n" +\
+	"</osmChange>\n"
+	response = Post(baseurl+"/0.6/changeset/"+str(cid)+"/upload",create,userpass)
 	if verbose: print response
 	if HeaderResponseCode(response[1]) != "HTTP/1.1 200 OK": return (0,"Error creating node")
-	wayId = int(response[0])
-
+	#wayId = int(response[0])
+	print response[0]
+	
 	#Close the changeset
 	response = Put(baseurl+"/0.6/changeset/"+str(cid)+"/close","",userpass)
 	if verbose: print response
 	if HeaderResponseCode(response[1]) != "HTTP/1.1 200 OK": return (0,"Error closing changeset")
+
+	return (1,"OK")
+
+
+
+
+
+
+
 
 	#Read back node
 	response = Get(baseurl+"/0.6/node/"+str(nodeId))
@@ -153,7 +147,7 @@ def TestSingleObjectEditing(userpass, verbose=0):
 
 	return (1,"OK")
 
-def ReadDeletedNode(nodeId,verbose=1):
+def ReadDeletedNode(nodeId,verbose=0):
 	#Attempt to read deleted node
 	response = Get(baseurl+"/0.6/node/"+str(nodeId))
 	if verbose: print response
@@ -168,12 +162,11 @@ def ReadDeletedNode(nodeId,verbose=1):
 
 
 baseurl = "http://localhost/m/microcosm.php"
-#baseurl = "http://www.sheerman-chase.org.uk:81/m/microcosm.php"
 #baseurl = "http://www.openstreetmap.org/api"
 username = raw_input("Username:")
 password = raw_input("Password:")
 userpass = username+":"+password
 
-print TestSingleObjectEditing(userpass,1)
+print TestMultiObjectEditing(userpass,1)
 #print ReadDeletedNode(981182860,1)
 

@@ -15,6 +15,9 @@ def Put(url, stringIn, userpass = None):
 	c.setopt(pycurl.READFUNCTION, p.read)
 	if userpass is not None: c.setopt(pycurl.USERPWD, userpass)
 	
+	#header = ["Content-Length: "+str(len(stringIn))]
+	#c.setopt(pycurl.HTTPHEADER, header)
+
 	b = StringIO.StringIO()
 	c.setopt(pycurl.WRITEFUNCTION, b.write)
 	h = StringIO.StringIO()

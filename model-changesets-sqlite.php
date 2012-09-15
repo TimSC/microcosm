@@ -107,7 +107,7 @@ class ChangesetDatabaseSqlite extends GenericSqliteTable
 		{
 			$c = $this[$cid];
 			if(get_class($c['data'])!='OsmChangeset')
-				throw new Exception ("Expecting changeset, instead got ".get_class($c['data']));
+				throw new Exception ("Expecting changeset, but database returned a ".get_class($c['data']));
 			if(!is_null($user) and $user != $c['data']->attr['uid']) continue; 
 			if(!is_null($open) and $open==1 and strcmp($c['data']->attr['open'],"true")!=0) continue;
 			if(!is_null($open) and $open==0 and strcmp($c['data']->attr['open'],"false")!=0) continue;

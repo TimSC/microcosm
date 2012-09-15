@@ -1,6 +1,8 @@
 <?php
 require_once('modelfactory.php');
 
+die("Currently not implemented.");
+
 $lock=GetReadDatabaseLock();
 $db = OsmDatabase();
 

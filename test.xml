@@ -1,9 +1,0 @@
-<osmChange version="0.6" generator="JOSM">
-<modify>
-  <node id='1260' action='modify' visible='true' version='5' changeset='488' lat='51.23835205163862' lon='-0.5777746539791907'>
-    <tag k='access' v='yes' />
-    <tag k='amenity' v='bench' />
-    <tag k='fee' v='no' />
-  </node>
-</modify>
-</osmChange>

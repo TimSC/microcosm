@@ -88,11 +88,12 @@ function ChangesetClose($userInfo,$argExp)
 
 //<osmChange version='0.6' generator='JOSM'><delete><way id='171' action='delete' timestamp='2010-10-14T08:41:57Z' uid='6809' user='TimSC' visible='true' version='1' changeset='209'/>  <node id='681' action='delete' timestamp='2010-10-14T08:41:57Z' uid='6809' user='TimSC' visible='true' version='1' changeset='209' lat='51.26718186473299' lon='-0.5552857742301459'/></delete></osmChange>
 
-function CheckChildrenExist(&$children, $childType, &$createdEls,$map)
+function CheckChildrenExist(&$children, &$createdEls,$map)
 {
 	foreach($children as $child)
 	{
-		$id = $child[0];
+		$childType = $child[0];
+		$id = $child[1];
 		if($id>0)
 		{
 			//Check the element exists (in a non deleted state)
@@ -144,9 +145,9 @@ function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChang
 
 			$match = 0;
 			//Check if this node is used
-			foreach($el->nodes as $n)
+			foreach($el->members as $n)
 			{
-				if((int)$n[0]==(int)$id) {$match = $n[0];break;}
+				if($n[0] == "node" and (int)$n[1]==(int)$id) {$match = $n[1];break;}
 			}
 
 			//Conflict found
@@ -177,21 +178,11 @@ function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChang
 
 		$match = 0;
 		//Check if this element is used
-		if(strcmp($type,"node")==0)
-		foreach($el->nodes as $n)
+		foreach($el->members as $n)
 		{
-			if((int)$n[0]==(int)$id) {$match = $n[0];break;}
+			if($n[0] == $type and (int)$n[1]==(int)$id) {$match = $n[1];break;}
 		}
-		if(strcmp($type,"way")==0)
-		foreach($el->ways as $n)
-		{
-			if((int)$n[0]==(int)$id) {$match = $n[0];break;}
-		}
-		if(strcmp($type,"relation")==0)
-		foreach($el->relations as $n)
-		{
-			if((int)$n[0]==(int)$id) {$match = $n[0];break;}
-		}
+
 
 		//Conflict found
 		if($match!=0) return "deleting-would-break,".$id.",relation,".$match;
@@ -326,16 +317,8 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 			$deletedEls[$type.$id] = 1;
 
 
-		//Check if referenced elements actual exist, Nodes
-		$ret = CheckChildrenExist($el->nodes, "node", $createdEls, $map);
-		if($ret==0) return array(0,null,"object-not-found",$type,$id);
-
-		//Check if referenced elements actual exist, Ways
-		$ret = CheckChildrenExist($el->ways, "way", $createdEls, $map);
-		if($ret==0) return array(0,null,"object-not-found",$type,$id);
-
-		//Check if referenced elements actual exist, Relations
-		$ret = CheckChildrenExist($el->relations, "relation", $createdEls, $map);
+		//Check if referenced elements actual exist
+		$ret = CheckChildrenExist($el->members, $createdEls, $map);
 		if($ret==0) return array(0,null,"object-not-found",$type,$id);
 	
 		//Check if deleting stuff will break ways
@@ -348,7 +331,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 		//Check if deleting stuff will break relations
 
 		//Enforce max nodes in way and relations, etc
-		if (count($el->nodes)>MAX_WAY_NODES)
+		if (count($el->members)>MAX_WAY_NODES)
 			return array(0,null,"too-large");
 		}
 	}	
@@ -450,44 +433,18 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 		//Renumber members, for each element
 		foreach($els as $i2 => $el)
 		{
-			//Renumber child nodes
-			//if(strcmp($el->GetType(),"way")==0 or strcmp($el->GetType(),"relation")==0)
-			foreach($el->nodes as $i3 => $nd)
+			//Renumber child members
+			foreach($el->members as $i3 => $nd)
 			{		
-				$oldid = $nd[0];
+				$oldid = $nd[1];
 				if($oldid >= 0) continue;
-				$type = "node";
+				$type = $nd[0];
 				if(!isset($idmapping[$type.",".$oldid]))
 					throw new Exception("ID not found in mapping ".$type.",".$oldid);
 				$newid = $idmapping[$type.",".$oldid][0];
-				$el->nodes[$i3][0] = $newid;
+				$el->members[$i3][1] = $newid;
 			}
 
-			//Renumber child ways
-			//if(strcmp($el->GetType(),"relation")==0)
-			foreach($el->ways as $i3 => $way)
-			{	
-				$oldid = $way[0];
-				if($oldid >= 0) continue;
-				$type = "way";
-				if(!isset($idmapping[$type.",".$oldid]))
-					throw new Exception("ID not found in mapping ".$type.",".$oldid);
-				$newid = $idmapping[$type.",".$oldid][0];
-				$el->ways[$i3][0] = $newid;
-			}
-
-			//Renumber child relations			
-			//if(strcmp($el->GetType(),"relation")==0)
-			foreach($el->relations as $i3 => $relation)
-			{	
-				$oldid = $relation[0];
-				if($oldid >= 0) continue;
-				$type = "relations";
-				if(!isset($idmapping[$type.",".$oldid]))
-					throw new Exception("ID not found in mapping ".$type.",".$oldid);
-				$newid = $idmapping[$type.",".$oldid][0];
-				$el->relations[$i3][0] = $newid;
-			}
 
 		}
 
@@ -536,6 +493,7 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 		foreach($els as $el)
 		{
 			$type = $el->GetType();
+			$el->attr['visible'] = "true";
 
 			//Create in main db
 			$map->CreateElement($type,$el->attr['id'],$el);
@@ -548,6 +506,7 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 		foreach($els as $el)
 		{
 			$type = $el->GetType();
+			$el->attr['visible'] = "true";
 
 			//Modify element in main db
 			$map->ModifyElement($type,$el->attr['id'],$el);
@@ -561,6 +520,7 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 		{
 			$type = $el->GetType();
 			$value = simplexml_load_string($el->ToXmlString());
+			$el->attr['visible'] = "false";
 
 			//Delete object in main db
 			$map->DeleteElement($type,$el->attr['id'],$el);
@@ -718,6 +678,7 @@ function ChangesetExpandBbox($userInfo, $args)
 
 function GetChangesets($userInfo,$query)
 {
+
 	$lock=GetReadDatabaseLock();
 	$csd = ChangesetDatabase();
 
@@ -726,6 +687,7 @@ function GetChangesets($userInfo,$query)
 	$open = null;
 	if(isset($query['open'])) $open = (strcmp($query['open'],"true")==0);
 	$timerange = null; //TODO implement this and other arguments
+
 	$csids = $csd->Query($user,$open,$timerange);
 	//print_r($csids);
 	

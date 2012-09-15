@@ -2,10 +2,11 @@
 require_once ('model-osmxml.php');
 require_once ('model-filetree.php');
 require_once ('model-sqlite.php');
+require_once ('model-mysql.php');
 require_once ('model-sqlite-opt.php');
 require_once ('model-changesets-sqlite.php');
 require_once ("model-bbox.php");
-
+require_once ("config.php");
 
 //The backend database is implemented using a strategy software pattern. This makes
 //them nice and modular. The specific strategy to use is determined in this factory.
@@ -16,7 +17,11 @@ function OsmDatabase()
 	//$db = new OsmDatabaseByFileTree();
 	//$db = new OsmDatabaseSqlite();
 	//$db = new OsmDatabaseSqliteOpt();
-	$db = new OsmDatabaseMultiplexer();
+	//$db = new OsmDatabaseMultiplexer();
+	if(BACKEND_DATABASE == "mysql")
+		$db = new OsmDatabaseMysql();
+	if(BACKEND_DATABASE == "sqlite")
+		$db = new OsmDatabaseSqliteOpt();
 
 	$checkPermissions = $db->CheckPermissions();
 	if($checkPermissions != 1)
@@ -34,8 +39,8 @@ function ChangesetDatabase()
 	//return new ChangesetDatabaseOsmXml();
 	return new ChangesetDatabaseSqlite();
 }
-
-class OsmDatabaseMultiplexer extends OsmDatabaseSqliteOpt
+/*
+class OsmDatabaseMultiplexer extends OsmDatabaseMysql
 {
 	var $bboxDb;
 	var $modifiedEls = array();
@@ -47,7 +52,8 @@ class OsmDatabaseMultiplexer extends OsmDatabaseSqliteOpt
 		$this->modifiedEls['way'] = array();
 		$this->modifiedEls['relation'] = array();
 
-		OsmDatabaseSqliteOpt::__construct();
+		//OsmDatabaseSqliteOpt::__construct();
+		OsmDatabaseMysql::__construct();
 		$this->bboxDb = FactoryBboxDatabase();
 	}
 
@@ -59,7 +65,8 @@ class OsmDatabaseMultiplexer extends OsmDatabaseSqliteOpt
 		$this->bboxDb->Update($modified,$this);
 
 		unset($this->bboxDb);
-		OsmDatabaseSqliteOpt::__destruct();
+		//OsmDatabaseSqliteOpt::__destruct();
+		OsmDatabaseMysql::__destruct();
 	}
 
 	public function CheckModifiedQueue()
@@ -84,7 +91,7 @@ class OsmDatabaseMultiplexer extends OsmDatabaseSqliteOpt
 	public function CreateElement($type,$id,$el)
 	{
 		$this->modifiedEls[$type][$id] = $el;
-		$ret = OsmDatabaseSqliteOpt::CreateElement($type,$id,$el);
+		$ret = OsmDatabaseMysql::CreateElement($type,$id,$el);
 		$this->CheckModifiedQueue();
 		return $ret;
 	}
@@ -92,7 +99,7 @@ class OsmDatabaseMultiplexer extends OsmDatabaseSqliteOpt
 	public function ModifyElement($type,$id,$el)
 	{
 		$this->modifiedEls[$type][$id] = $el;
-		$ret = OsmDatabaseSqliteOpt::ModifyElement($type,$id,$el);
+		$ret = OsmDatabaseMysql::ModifyElement($type,$id,$el);
 		$this->CheckModifiedQueue();
 		return $ret;
 	}
@@ -100,7 +107,7 @@ class OsmDatabaseMultiplexer extends OsmDatabaseSqliteOpt
 	public function DeleteElement($type,$id,$el)
 	{
 		$this->modifiedEls[$type][$id] = $el;
-		$ret = OsmDatabaseSqliteOpt::DeleteElement($type,$id,$el);
+		$ret = OsmDatabaseMysql::DeleteElement($type,$id,$el);
 		$this->CheckModifiedQueue();
 		return $ret;
 	}
@@ -108,7 +115,7 @@ class OsmDatabaseMultiplexer extends OsmDatabaseSqliteOpt
 	public function Purge()
 	{
 		$this->bboxDb->Purge();
-		return OsmDatabaseSqliteOpt::Purge();
+		return OsmDatabaseMysql::Purge();
 	}	
 
 	function FindModifiedElementsIncParents()
@@ -155,9 +162,9 @@ class OsmDatabaseMultiplexer extends OsmDatabaseSqliteOpt
 
 	function Dump($callback)
 	{
-		return OsmDatabaseSqliteOpt::Dump($callback);
+		return OsmDatabaseMysql::Dump($callback);
 	}
 
-}
+}*/
 
 ?>

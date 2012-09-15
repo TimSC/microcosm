@@ -144,7 +144,7 @@ class OsmTypesStream extends ExtractToXml
 			{
 				//print_r($attrs);
 				$ref = (int)$attrs['REF'];
-				array_push($this->currentObj->nodes,array($ref,null));
+				array_push($this->currentObj->members,array("node",$ref,null));
 			}
 
 			if(strcasecmp($name,"member")==0)
@@ -153,12 +153,7 @@ class OsmTypesStream extends ExtractToXml
 				$ref = (int)$attrs['REF'];
 				$type = ValidateValue($attrs['TYPE'],'string');
 				$role = ValidateValue($attrs['ROLE'],'string');
-				if(strcmp($type,"node")==0)
-					array_push($this->currentObj->nodes,array($ref,$role));
-				if(strcmp($type,"way")==0)
-					array_push($this->currentObj->ways,array($ref,$role));
-				if(strcmp($type,"relation")==0)
-					array_push($this->currentObj->relations,array($ref,$role));
+				array_push($this->currentObj->members,array($type,$ref,$role));
 			}
 		}
 

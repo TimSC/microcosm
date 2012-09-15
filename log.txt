@@ -1,0 +1,2506 @@
+GET	/0.6/capabilities		array (
+)	
+GET	/favicon.ico		array (
+)	
+GET	/favicon.ico		array (
+)	
+GET	/0.6/way/103887429		array (
+)	
+GET	/0.6/way/103887429		array (
+)	
+GET	/0.6/way/103887429		array (
+)	
+GET	/0.6/way/103887429		array (
+)	
+GET	/0.6/way/103887429		array (
+)	
+GET	/0.6/node/1199191811		array (
+)	
+GET	/0.6/node/1199191811		array (
+)	
+GET	/0.6/node/1199191811		array (
+)	
+GET	/0.6/node/1199191811		array (
+)	
+GET	/0.6/node/1199191811		array (
+)	
+GET	/0.6/node/1199191811		array (
+)	
+GET	/0.6/node/1199191811		array (
+)	
+GET	/0.6/node/1199191811/history		array (
+)	
+GET	/0.6/node/1199191811/history		array (
+)	
+GET	/0.6/node/1199191811/history		array (
+)	
+GET	/0.6/node/1199191811/history		array (
+)	
+GET	/0.6/node/1199191811/history		array (
+)	
+GET	/0.6/node/1199191811/history		array (
+)	
+GET	/0.6/map	bbox=59.94140625,-85.18574527658,60.029296875,-85.17836334864	array (
+)	
+GET	/0.6/map	bbox=59.94140625,-85.18574527658,60.029296875,-85.17836334864	array (
+)	
+GET	/0.6/map	bbox=59.94140625,-85.18574527658,60.029296875,-85.17836334864	array (
+)	
+GET	/0.6/map	bbox=59.94140625,-85.18574527658,60.029296875,-85.17836334864	array (
+)	
+GET	/0.6/map	bbox=59.94140625,-85.18574527658,60.029296875,-85.17836334864	array (
+)	
+GET	/0.6/map	bbox=59.94140625,-85.18574527658,60.029296875,-85.17836334864	array (
+)	
+GET	/0.6/map	bbox=59.94140625,-85.18574527658,60.029296875,-85.17836334864	array (
+)	
+GET	/0.6/map	bbox=59.94140625,-85.18574527658,60.029296875,-85.17836334864	array (
+)	
+GET	/0.6/map	bbox=59.94140625,-85.18574527658,60.029296875,-85.17836334864	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=59.94140625,-85.18574527658,60.029296875,-85.17836334864	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/capabilities		array (
+)	
+GET	/0.6/map	bbox=-0.7209778,51.205162599999994,-0.4174805,51.301428099999995	array (
+)	
+GET	/0.6/map	bbox=-0.6805604,51.1740577,-0.5786273,51.240564	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.6805604,51.1740577,-0.5786273,51.240564	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/capabilities		array (
+)	
+GET	/0.6/map	bbox=-0.6805604,51.1740577,-0.5786273,51.240564	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.6580981,51.196394299999994,-0.6153038,51.224313599999995	array (
+)	
+GET	/0.6/map	bbox=0.1318359,50.8406358,1.9445800999999998,51.542918799999995	array (
+)	
+GET	/0.6/map	bbox=0.811615,51.1035219,0.9791565,51.206022999999995	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+GET	/m/wen/		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549533' lat='51.2502233153' lon='-0.60420928786' />
+</osm>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549534' lat='51.2502233153' lon='-0.60420928786' />
+</osm>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549535' lat='51.2502233153' lon='-0.60420928786' />
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-2008' changeset='7549535' lat='51.2419166618214' lon='-0.5910182209303836' />
+</osm>
+
+PUT	/0.6/way/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <way id='-2010' changeset='7549535'>
+    <nd ref='1199197429' />
+    <nd ref='1199197430' />
+  </way>
+</osm>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549536' lat='51.2502233153' lon='-0.60420928786' />
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-2008' changeset='7549536' lat='51.2419166618214' lon='-0.5910182209303836' />
+</osm>
+
+PUT	/0.6/way/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <way id='-2010' changeset='7549536'>
+    <nd ref='1199197431' />
+    <nd ref='1199197432' />
+  </way>
+</osm>
+
+PUT	/0.6/changeset/7549536/close		array (
+)	
+GET	/0.6/node/1199197431		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549537/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM">
+<modify>
+  <node id=\'1199197431\' version=\'1\' changeset=\'7549537\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+</modify>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM">
+<modify>
+  <node id='1199197431' version='1' changeset='7549537' lat='51.2502233153' lon='-0.60420928786' />
+</modify>
+</osmChange>
+
+POST	/0.6/changeset/7549537/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM">
+<delete>
+  <way id=\'103888313\' version=\'1\' changeset=\'7549537\'/>
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM">
+<delete>
+  <way id='103888313' version='1' changeset='7549537'/>
+</delete>
+</osmChange>
+
+POST	/0.6/changeset/7549537/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM"><delete>
+  <node id=\'1199197431\' version=\'2\' changeset=\'7549537\' lat=\'51.2502233153\'  lon=\'-0.60420928786\' />
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM"><delete>
+  <node id='1199197431' version='2' changeset='7549537' lat='51.2502233153'  lon='-0.60420928786' />
+</delete>
+</osmChange>
+
+GET	/0.6/map	bbox=0.811615,51.1035219,0.9791565,51.206022999999995	array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982/history		array (
+)	
+GET	/0.6/node/1199195982/1		array (
+)	
+GET	/0.6/node/1199195982/history		array (
+)	
+GET	/0.6/node/1199195982/history		array (
+)	
+GET	/0.6/node/1199195982/history		array (
+)	
+GET	/0.6/node/1199195982/history		array (
+)	
+GET	/0.6/node/1199195982/history		array (
+)	
+GET	/0.6/node/1199195982/history		array (
+)	
+GET	/0.6/node/11991959825/history		array (
+)	
+GET	/0.6/node/1199195982/history		array (
+)	
+GET	/0.6/node/1199195982/1		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982/1		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982/history		array (
+)	
+GET	/0.6/node/1199195982/history		array (
+)	
+GET	/0.6/node/1199195982/history		array (
+)	
+GET	/0.6/node/1199195982/history		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982/1		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982/history		array (
+)	
+GET	/0.6/node/1199195982/1		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982/1		array (
+)	
+GET	/0.6/node/1199195982/1		array (
+)	
+GET	/0.6/node/1199195982/1		array (
+)	
+GET	/0.6/node/1199195982/1		array (
+)	
+GET	/0.6/node/1199195982/2		array (
+)	
+GET	/0.6/node/1199195982/1		array (
+)	
+GET	/0.6/node/1199195982/0		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982/history		array (
+)	
+GET	/0.6/node/1199195982/full		array (
+)	
+GET	/0.6/node/1199195982		array (
+)	
+GET	/0.6/node/1199195982/1		array (
+)	
+GET	/0.6/node/1199195982/1		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/node/1199195982/1		array (
+)	
+GET	/0.6/capabilities		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/map	bbox=0.8631289,51.1357231,0.9081454999999999,51.165130399999995	array (
+)	
+GET	/0.6/map	bbox=0.8631289,51.1357231,0.9081454999999999,51.165130399999995	array (
+)	
+GET	/0.6/map	bbox=0.8631289,51.1357231,0.9081454999999999,51.165130399999995	array (
+)	
+GET	/0.6/node/1,199,195,963		array (
+)	
+GET	/0.6/node/1199195963		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549538/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<modify>
+  <node id='1199195964' timestamp='2011-08-14T22:41:45Z' uid='1' user='TimSC' visible='false' version='2' changeset='7549538' lat='51.15026010349' lon='0.8693090117184' />
+</modify>
+</osmChange>
+
+GET	/0.6/map	bbox=0.8631289,51.1357231,0.9081454999999999,51.165130399999995	array (
+)	
+GET	/0.6/map	bbox=0.8960724,51.1127908,0.9489441,51.1522168	array (
+)	
+GET	/0.6/way/103886998		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+PUT	/0.6/changeset/7549538		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='7549538' open='true'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549538/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<delete>
+  <node id='1199188423' action='delete' timestamp='2011-08-14T13:19:11Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549538' lat='51.1208110423' lon='0.916576155879'/>
+</delete>
+</osmChange>
+
+PUT	/0.6/changeset/7549538/close		array (
+)	
+
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423/history		array (
+)	
+GET	/0.6/node/1199188423/2		array (
+)	
+GET	/0.6/node/1199188423/1		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/map	bbox=0.8960724,51.1127908,0.9489441,51.1522168	array (
+)	
+GET	/0.6/map	bbox=0.8960724,51.1127908,0.9489441,51.1522168	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549539/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<delete>
+  <node id='1199188423' action='delete' timestamp='2011-08-14T13:19:11Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549539' lat='51.1208110423' lon='0.916576155879'/>
+</delete>
+</osmChange>
+
+PUT	/0.6/changeset/7549539/close		array (
+)	
+
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/map	bbox=0.8960724,51.1127908,0.9489441,51.1522168	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549540/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<delete>
+  <node id='1199188423' action='delete' timestamp='2011-08-14T13:19:11Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549540' lat='51.1208110423' lon='0.916576155879'/>
+</delete>
+</osmChange>
+
+PUT	/0.6/changeset/7549540/close		array (
+)	
+
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423/history		array (
+)	
+GET	/0.6/node/1199188423/history/1		array (
+)	
+GET	/0.6/node/1199188423/1		array (
+)	
+GET	/0.6/node/1199188423/2		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423/full		array (
+)	
+GET	/0.6/node/1199188423/full		array (
+)	
+GET	/0.6/node/1199188423/full		array (
+)	
+GET	/0.6/node/1199188423/full		array (
+)	
+GET	/0.6/node/1199188423/full		array (
+)	
+GET	/0.6/node/1199188423/full		array (
+)	
+GET	/0.6/node/1199188423/full		array (
+)	
+GET	/0.6/node/1199188423/full		array (
+)	
+GET	/0.6/node/1199188423/full		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423/1		array (
+)	
+GET	/0.6/node/1199188423/1		array (
+)	
+GET	/0.6/node/1199188423/1		array (
+)	
+GET	/0.6/node/1199188423/1		array (
+)	
+GET	/0.6/node/1199188423/1		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549541/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-13043' visible='true' changeset='7549541' lat='51.13422884666356' lon='0.9398577857008207' />
+  <node id='-13040' visible='true' changeset='7549541' lat='51.1355508479179' lon='0.9269761369009366' />
+  <node id='-13041' visible='true' changeset='7549541' lat='51.13868572815887' lon='0.9297450894467059' />
+  <way id='-13042' action='modify' visible='true' changeset='7549541'>
+    <nd ref='-13040' />
+    <nd ref='-13041' />
+    <nd ref='-13043' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549541/close		array (
+)	
+
+GET	/0.6/node/1199188423		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549542' lat='51.2502233153' lon='-0.60420928786' />
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-2008' changeset='7549542' lat='51.2419166618214' lon='-0.5910182209303836' />
+</osm>
+
+PUT	/0.6/way/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <way id='-2010' changeset='7549542'>
+    <nd ref='1199197436' />
+    <nd ref='1199197437' />
+  </way>
+</osm>
+
+PUT	/0.6/changeset/7549542/close		array (
+)	
+GET	/0.6/node/1199197436		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549543/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM">
+<modify>
+  <node id=\'1199197436\' version=\'1\' changeset=\'7549543\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+</modify>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM">
+<modify>
+  <node id='1199197436' version='1' changeset='7549543' lat='51.2502233153' lon='-0.60420928786' />
+</modify>
+</osmChange>
+
+POST	/0.6/changeset/7549543/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM">
+<delete>
+  <way id=\'103888315\' version=\'1\' changeset=\'7549543\'/>
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM">
+<delete>
+  <way id='103888315' version='1' changeset='7549543'/>
+</delete>
+</osmChange>
+
+POST	/0.6/changeset/7549543/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM"><delete>
+  <node id=\'1199197436\' version=\'2\' changeset=\'7549543\' lat=\'51.2502233153\'  lon=\'-0.60420928786\' />
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM"><delete>
+  <node id='1199197436' version='2' changeset='7549543' lat='51.2502233153'  lon='-0.60420928786' />
+</delete>
+</osmChange>
+
+POST	/0.6/changeset/7549543/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM"><delete>
+  <node id=\'1199197437\' version=\'1\' changeset=\'7549543\' lat=\'51.2502233153\'  lon=\'-0.60420928786\' />
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM"><delete>
+  <node id='1199197437' version='1' changeset='7549543' lat='51.2502233153'  lon='-0.60420928786' />
+</delete>
+</osmChange>
+
+PUT	/0.6/changeset/7549543/close		array (
+)	
+GET	/0.6/node/1199197436		array (
+)	
+GET	/0.6/node/1199197436		array (
+)	
+GET	/0.6/node/1199197437		array (
+)	
+GET	/0.6/map	bbox=0.8960724,51.1127908,0.9489441,51.1522168	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549544/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <way id='-14114' action='modify' visible='true' changeset='7549544'>
+    <nd ref='1199197434' />
+    <nd ref='1199197435' />
+    <nd ref='1199197433' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549544/close		array (
+)	
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549545/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<modify>
+  <way id='103888316' action='modify' visible='true' version='1' changeset='7549545'>
+    <nd ref='1199197434' />
+    <nd ref='1199197433' />
+  </way>
+</modify>
+<delete>
+  <node id='1199197435' action='delete' timestamp='2011-09-04T12:11:47Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549545' lat='51.138685728159' lon='0.92974508944671'/>
+</delete>
+</osmChange>
+
+PUT	/0.6/changeset/7549545/close		array (
+)	
+
+GET	/0.6/map	bbox=0.8960724,51.1127908,0.9489441,51.1522168	array (
+)	
+GET	/0.6/map	bbox=0.8960724,51.1127908,0.9489441,51.1522168	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549546/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<delete>
+  <way id='103888316' action='delete' timestamp='2011-09-04T12:13:10Z' uid='1' user='TimSC' visible='true' version='2' changeset='7549546'/>
+  <node id='1199197433' action='delete' timestamp='2011-09-04T12:11:47Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549546' lat='51.134228846664' lon='0.93985778570082'/>
+</delete>
+</osmChange>
+
+PUT	/0.6/changeset/7549546/close		array (
+)	
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549547/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-16261' visible='true' changeset='7549547' lat='51.1357798424417' lon='0.9386673077811986' />
+  <node id='-16259' visible='true' changeset='7549547' lat='51.136761871144095' lon='0.9315643425550943' />
+  <node id='-16258' visible='true' changeset='7549547' lat='51.14008550561818' lon='0.9280128599420421' />
+  <way id='-16260' action='modify' visible='true' changeset='7549547'>
+    <nd ref='-16258' />
+    <nd ref='-16259' />
+    <nd ref='-16261' />
+  </way>
+</create>
+<modify>
+  <way id='103886754' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547'>
+    <nd ref='1199191095' />
+    <nd ref='1199191093' />
+    <nd ref='1199191076' />
+    <nd ref='1199191062' />
+    <nd ref='1199190965' />
+    <nd ref='1199190879' />
+    <nd ref='1199190792' />
+    <nd ref='1199190754' />
+    <nd ref='1199190742' />
+    <nd ref='1199190675' />
+    <nd ref='1199190625' />
+    <nd ref='1199190509' />
+    <nd ref='1199190484' />
+    <nd ref='1199190420' />
+    <nd ref='1199190379' />
+    <nd ref='1199190367' />
+    <nd ref='1199190364' />
+    <nd ref='1199190234' />
+    <nd ref='1199190179' />
+    <tag k='highway' v='primary' />
+    <tag k='ref' v='A20' />
+  </way>
+  <way id='103886911' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547'>
+    <nd ref='1199191167' />
+    <nd ref='1199191170' />
+    <nd ref='1199191187' />
+    <nd ref='1199191205' />
+    <nd ref='1199191217' />
+    <nd ref='1199191271' />
+    <nd ref='1199191317' />
+    <nd ref='1199191347' />
+    <nd ref='1199191378' />
+    <nd ref='1199191401' />
+    <nd ref='1199191405' />
+    <tag k='designation' v='public_footpath' />
+    <tag k='foot' v='designated' />
+    <tag k='highway' v='service' />
+  </way>
+  <way id='103887873' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547'>
+    <nd ref='1199191175' />
+    <nd ref='1199191167' />
+    <nd ref='1199191163' />
+    <nd ref='1199191140' />
+    <nd ref='1199191128' />
+    <nd ref='1199191117' />
+    <tag k='highway' v='unclassified' />
+    <tag k='note' v='STUFF' />
+  </way>
+  <node id='1199191405' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547' lat='51.14594003140904' lon='0.927328851415' />
+  <node id='1199191409' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547' lat='51.146026817374086' lon='0.9264610829179998' />
+  <node id='1199191424' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547' lat='51.146350290743825' lon='0.9252122508630001' />
+  <node id='1199191467' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547' lat='51.14696567279597' lon='0.9232415360290002' />
+  <node id='1199191507' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547' lat='51.14739631428096' lon='0.91638187264' />
+  <node id='1199191509' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547' lat='51.1474153698148' lon='0.920172905401' />
+  <node id='1199191510' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547' lat='51.147423259211614' lon='0.919279984194' />
+  <node id='1199191514' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547' lat='51.14754224477188' lon='0.920832867074'>
+    <tag k='barrier' v='kissing_gate' />
+  </node>
+  <node id='1199191515' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547' lat='51.14754662782569' lon='0.920747066286' />
+  <node id='1199191516' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547' lat='51.14756526785444' lon='0.918475097472' />
+  <node id='1199191517' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547' lat='51.147588935944896' lon='0.9169156294480001' />
+</modify>
+<delete>
+  <node id='1199190573' action='delete' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547' lat='51.1277278438' lon='0.931303981465'/>
+  <node id='1199191291' action='delete' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549547' lat='51.1449922392' lon='0.926060877488'/>
+</delete>
+</osmChange>
+
+PUT	/0.6/changeset/7549547/close		array (
+)	
+
+GET	/0.6/map	bbox=0.8960724,51.1127908,0.9489441,51.1522168	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549548' lat='51.2502233153' lon='-0.60420928786' />
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-2008' changeset='7549548' lat='51.2419166618214' lon='-0.5910182209303836' />
+</osm>
+
+PUT	/0.6/way/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <way id='-2010' changeset='7549548'>
+    <nd ref='1199197441' />
+    <nd ref='1199197442' />
+  </way>
+</osm>
+
+PUT	/0.6/changeset/7549548/close		array (
+)	
+GET	/0.6/node/1199197441		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549549/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM">
+<modify>
+  <node id=\'1199197441\' version=\'1\' changeset=\'7549549\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+</modify>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM">
+<modify>
+  <node id='1199197441' version='1' changeset='7549549' lat='51.2502233153' lon='-0.60420928786' />
+</modify>
+</osmChange>
+
+POST	/0.6/changeset/7549549/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM">
+<delete>
+  <way id=\'103888318\' version=\'1\' changeset=\'7549549\'/>
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM">
+<delete>
+  <way id='103888318' version='1' changeset='7549549'/>
+</delete>
+</osmChange>
+
+POST	/0.6/changeset/7549549/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM"><delete>
+  <node id=\'1199197441\' version=\'2\' changeset=\'7549549\' lat=\'51.2502233153\'  lon=\'-0.60420928786\' />
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM"><delete>
+  <node id='1199197441' version='2' changeset='7549549' lat='51.2502233153'  lon='-0.60420928786' />
+</delete>
+</osmChange>
+
+POST	/0.6/changeset/7549549/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM"><delete>
+  <node id=\'1199197442\' version=\'1\' changeset=\'7549549\' lat=\'51.2502233153\'  lon=\'-0.60420928786\' />
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM"><delete>
+  <node id='1199197442' version='1' changeset='7549549' lat='51.2502233153'  lon='-0.60420928786' />
+</delete>
+</osmChange>
+
+PUT	/0.6/changeset/7549549/close		array (
+)	
+GET	/0.6/node/1199197441		array (
+)	
+GET	/0.6/node/1199197441		array (
+)	
+GET	/0.6/node/1199197442		array (
+)	
+GET	/0.6/map	bbox=0.9018267999999999,51.1187106,0.9512465,51.1510052	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549550/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <way id='-18176' visible='true' changeset='7549550'>
+    <nd ref='1199197434' />
+    <nd ref='1199197439' />
+  </way>
+</create>
+</osmChange>
+
+GET	/capabilities		array (
+)	
+GET	/0.6/map	bbox=0.9018267999999999,51.1187106,0.9512465,51.1510052	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549551/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-831' visible='true' changeset='7549551' lat='51.13673833996341' lon='0.9257037337078652' />
+  <node id='-834' visible='true' changeset='7549551' lat='51.1378997140627' lon='0.9344030816479403' />
+  <node id='-832' visible='true' changeset='7549551' lat='51.13940945671799' lon='0.9303310464419475' />
+  <way id='-833' action='modify' visible='true' changeset='7549551'>
+    <nd ref='-831' />
+    <nd ref='-832' />
+    <nd ref='-834' />
+  </way>
+</create>
+</osmChange>
+
+POST	/0.6/changeset/7549551/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-831' visible='true' changeset='7549551' lat='51.13673833996341' lon='0.9257037337078652' />
+  <node id='-834' visible='true' changeset='7549551' lat='51.1378997140627' lon='0.9344030816479403' />
+  <node id='-832' visible='true' changeset='7549551' lat='51.13940945671799' lon='0.9303310464419475' />
+  <way id='-833' action='modify' visible='true' changeset='7549551'>
+    <nd ref='-831' />
+    <nd ref='-832' />
+    <nd ref='-834' />
+  </way>
+</create>
+</osmChange>
+
+POST	/0.6/changeset/7549551/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-831' visible='true' changeset='7549551' lat='51.13673833996341' lon='0.9257037337078652' />
+  <node id='-834' visible='true' changeset='7549551' lat='51.1378997140627' lon='0.9344030816479403' />
+  <node id='-832' visible='true' changeset='7549551' lat='51.13940945671799' lon='0.9303310464419475' />
+  <way id='-833' action='modify' visible='true' changeset='7549551'>
+    <nd ref='-831' />
+    <nd ref='-832' />
+    <nd ref='-834' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549551/close		array (
+)	
+
+GET	/0.6/map	bbox=0.9018267999999999,51.1187106,0.9512465,51.1510052	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549552' lat='51.2502233153' lon='-0.60420928786' />
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-2008' changeset='7549552' lat='51.2419166618214' lon='-0.5910182209303836' />
+</osm>
+
+PUT	/0.6/way/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <way id='-2010' changeset='7549552'>
+    <nd ref='1199197452' />
+    <nd ref='1199197453' />
+  </way>
+</osm>
+
+PUT	/0.6/changeset/7549552/close		array (
+)	
+GET	/0.6/node/1199197452		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549553/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM">
+<modify>
+  <node id=\'1199197452\' version=\'1\' changeset=\'7549553\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+</modify>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM">
+<modify>
+  <node id='1199197452' version='1' changeset='7549553' lat='51.2502233153' lon='-0.60420928786' />
+</modify>
+</osmChange>
+
+POST	/0.6/changeset/7549553/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM">
+<delete>
+  <way id=\'103888322\' version=\'1\' changeset=\'7549553\'/>
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM">
+<delete>
+  <way id='103888322' version='1' changeset='7549553'/>
+</delete>
+</osmChange>
+
+POST	/0.6/changeset/7549553/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM"><delete>
+  <node id=\'1199197452\' version=\'2\' changeset=\'7549553\' lat=\'51.2502233153\'  lon=\'-0.60420928786\' />
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM"><delete>
+  <node id='1199197452' version='2' changeset='7549553' lat='51.2502233153'  lon='-0.60420928786' />
+</delete>
+</osmChange>
+
+POST	/0.6/changeset/7549553/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM"><delete>
+  <node id=\'1199197453\' version=\'1\' changeset=\'7549553\' lat=\'51.2502233153\'  lon=\'-0.60420928786\' />
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM"><delete>
+  <node id='1199197453' version='1' changeset='7549553' lat='51.2502233153'  lon='-0.60420928786' />
+</delete>
+</osmChange>
+
+PUT	/0.6/changeset/7549553/close		array (
+)	
+GET	/0.6/node/1199197452		array (
+)	
+GET	/0.6/node/1199197452		array (
+)	
+GET	/0.6/node/1199197453		array (
+)	
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549554/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-2305' visible='true' changeset='7549554' lat='51.13826413133835' lon='0.9214593311477406' />
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549554/close		array (
+)	
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549555/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-2306' visible='true' changeset='7549555' lat='51.13687049004118' lon='0.9217940189422762' />
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549555/close		array (
+)	
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549556/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <way id='-2308' visible='true' changeset='7549556'>
+    <nd ref='1199197455' />
+    <nd ref='1199197454' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549556/close		array (
+)	
+
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549557/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-2939' visible='true' changeset='7549557' lat='51.13839776596474' lon='0.9243498166460027' />
+  <node id='-2942' visible='true' changeset='7549557' lat='51.139352287761575' lon='0.9248670614193758' />
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549557/close		array (
+)	
+
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549558/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <way id='-3574' visible='true' changeset='7549558'>
+    <nd ref='1199197456' />
+    <nd ref='1199197457' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549558/close		array (
+)	
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549559/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-3575' visible='true' changeset='7549559' lat='51.138913210186104' lon='0.9221591328999514' />
+  <node id='-3576' visible='true' changeset='7549559' lat='51.13965773056858' lon='0.922706803836464' />
+  <way id='-3577' visible='true' changeset='7549559'>
+    <nd ref='-3575' />
+    <nd ref='-3576' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549559/close		array (
+)	
+
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549561/upload		array (
+  '<?xml_version' => '\'1.0\' encoding=\'UTF-8\'?>
+<osmChange version=\'0.6\' generator=\'JOSM\'>
+<create version=\'0.6\' generator=\'JOSM\'>
+  <node id=\'-289\' changeset=\'7549561\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+  <node id=\'-2008\' changeset=\'7549561\' lat=\'51.2419166618214\' lon=\'-0.5910182209303836\' />
+  <way id=\'-2010\' changeset=\'7549561\'>
+    <nd ref=\'-289\' />
+    <nd ref=\'-2008\' />
+  </way>
+</create>
+</osm>
+',
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osmChange version='0.6' generator='JOSM'>
+<create version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549561' lat='51.2502233153' lon='-0.60420928786' />
+  <node id='-2008' changeset='7549561' lat='51.2419166618214' lon='-0.5910182209303836' />
+  <way id='-2010' changeset='7549561'>
+    <nd ref='-289' />
+    <nd ref='-2008' />
+  </way>
+</create>
+</osm>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549562/upload		array (
+  '<?xml_version' => '\'1.0\' encoding=\'UTF-8\'?>
+<osmChange version=\'0.6\' generator=\'JOSM\'>
+<create version=\'0.6\' generator=\'JOSM\'>
+  <node id=\'-289\' changeset=\'7549562\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+  <node id=\'-2008\' changeset=\'7549562\' lat=\'51.2419166618214\' lon=\'-0.5910182209303836\' />
+  <way id=\'-2010\' changeset=\'7549562\'>
+    <nd ref=\'-289\' />
+    <nd ref=\'-2008\' />
+  </way>
+</create>
+</osm>
+',
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osmChange version='0.6' generator='JOSM'>
+<create version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549562' lat='51.2502233153' lon='-0.60420928786' />
+  <node id='-2008' changeset='7549562' lat='51.2419166618214' lon='-0.5910182209303836' />
+  <way id='-2010' changeset='7549562'>
+    <nd ref='-289' />
+    <nd ref='-2008' />
+  </way>
+</create>
+</osm>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549563/upload		array (
+  '<?xml_version' => '\'1.0\' encoding=\'UTF-8\'?>
+<osmChange version=\'0.6\' generator=\'JOSM\'>
+<create version=\'0.6\' generator=\'JOSM\'>
+  <node id=\'-289\' changeset=\'7549563\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+  <node id=\'-2008\' changeset=\'7549563\' lat=\'51.2419166618214\' lon=\'-0.5910182209303836\' />
+  <way id=\'-2010\' changeset=\'7549563\'>
+    <nd ref=\'-289\' />
+    <nd ref=\'-2008\' />
+  </way>
+</create>
+</osmChange>
+',
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osmChange version='0.6' generator='JOSM'>
+<create version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549563' lat='51.2502233153' lon='-0.60420928786' />
+  <node id='-2008' changeset='7549563' lat='51.2419166618214' lon='-0.5910182209303836' />
+  <way id='-2010' changeset='7549563'>
+    <nd ref='-289' />
+    <nd ref='-2008' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549564/upload		array (
+  '<?xml_version' => '\'1.0\' encoding=\'UTF-8\'?>
+<osmChange version=\'0.6\' generator=\'JOSM\'>
+<create version=\'0.6\' generator=\'JOSM\'>
+  <node id=\'-289\' changeset=\'7549564\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+  <node id=\'-2008\' changeset=\'7549564\' lat=\'51.2419166618214\' lon=\'-0.5910182209303836\' />
+  <way id=\'-2010\' changeset=\'7549564\'>
+    <nd ref=\'-289\' />
+    <nd ref=\'-2008\' />
+  </way>
+</create>
+</osmChange>
+',
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osmChange version='0.6' generator='JOSM'>
+<create version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549564' lat='51.2502233153' lon='-0.60420928786' />
+  <node id='-2008' changeset='7549564' lat='51.2419166618214' lon='-0.5910182209303836' />
+  <way id='-2010' changeset='7549564'>
+    <nd ref='-289' />
+    <nd ref='-2008' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549565/upload		array (
+  '<?xml_version' => '\'1.0\' encoding=\'UTF-8\'?>
+<osmChange version=\'0.6\' generator=\'JOSM\'>
+<create version=\'0.6\' generator=\'JOSM\'>
+  <node id=\'-289\' changeset=\'7549565\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+  <node id=\'-2008\' changeset=\'7549565\' lat=\'51.2419166618214\' lon=\'-0.5910182209303836\' />
+  <way id=\'-2010\' changeset=\'7549565\'>
+    <nd ref=\'-289\' />
+    <nd ref=\'-2008\' />
+  </way>
+</create>
+</osmChange>
+',
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osmChange version='0.6' generator='JOSM'>
+<create version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549565' lat='51.2502233153' lon='-0.60420928786' />
+  <node id='-2008' changeset='7549565' lat='51.2419166618214' lon='-0.5910182209303836' />
+  <way id='-2010' changeset='7549565'>
+    <nd ref='-289' />
+    <nd ref='-2008' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549566/upload		array (
+  '<?xml_version' => '\'1.0\' encoding=\'UTF-8\'?>
+<osmChange version=\'0.6\' generator=\'JOSM\'>
+<create version=\'0.6\' generator=\'JOSM\'>
+  <node id=\'-289\' changeset=\'7549566\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+  <node id=\'-2008\' changeset=\'7549566\' lat=\'51.2419166618214\' lon=\'-0.5910182209303836\' />
+  <way id=\'-2010\' changeset=\'7549566\'>
+    <nd ref=\'-289\' />
+    <nd ref=\'-2008\' />
+  </way>
+</create>
+</osmChange>
+',
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osmChange version='0.6' generator='JOSM'>
+<create version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549566' lat='51.2502233153' lon='-0.60420928786' />
+  <node id='-2008' changeset='7549566' lat='51.2419166618214' lon='-0.5910182209303836' />
+  <way id='-2010' changeset='7549566'>
+    <nd ref='-289' />
+    <nd ref='-2008' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549567/upload		array (
+  '<?xml_version' => '\'1.0\' encoding=\'UTF-8\'?>
+<osmChange version=\'0.6\' generator=\'JOSM\'>
+<create version=\'0.6\' generator=\'JOSM\'>
+  <node id=\'-289\' changeset=\'7549567\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+  <node id=\'-2008\' changeset=\'7549567\' lat=\'51.2419166618214\' lon=\'-0.5910182209303836\' />
+  <way id=\'-2010\' changeset=\'7549567\'>
+    <nd ref=\'-289\' />
+    <nd ref=\'-2008\' />
+  </way>
+</create>
+</osmChange>
+',
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osmChange version='0.6' generator='JOSM'>
+<create version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549567' lat='51.2502233153' lon='-0.60420928786' />
+  <node id='-2008' changeset='7549567' lat='51.2419166618214' lon='-0.5910182209303836' />
+  <way id='-2010' changeset='7549567'>
+    <nd ref='-289' />
+    <nd ref='-2008' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549568/upload		array (
+  '<?xml_version' => '\'1.0\' encoding=\'UTF-8\'?>
+<osmChange version=\'0.6\' generator=\'JOSM\'>
+<create version=\'0.6\' generator=\'JOSM\'>
+  <node id=\'-289\' changeset=\'7549568\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+  <node id=\'-2008\' changeset=\'7549568\' lat=\'51.2419166618214\' lon=\'-0.5910182209303836\' />
+  <way id=\'-2010\' changeset=\'7549568\'>
+    <nd ref=\'-289\' />
+    <nd ref=\'-2008\' />
+  </way>
+</create>
+</osmChange>
+',
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osmChange version='0.6' generator='JOSM'>
+<create version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549568' lat='51.2502233153' lon='-0.60420928786' />
+  <node id='-2008' changeset='7549568' lat='51.2419166618214' lon='-0.5910182209303836' />
+  <way id='-2010' changeset='7549568'>
+    <nd ref='-289' />
+    <nd ref='-2008' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549568/close		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549569/upload		array (
+  '<?xml_version' => '\'1.0\' encoding=\'UTF-8\'?>
+<osmChange version=\'0.6\' generator=\'JOSM\'>
+<create version=\'0.6\' generator=\'JOSM\'>
+  <node id=\'-289\' changeset=\'7549569\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+  <node id=\'-2008\' changeset=\'7549569\' lat=\'51.2419166618214\' lon=\'-0.5910182209303836\' />
+  <way id=\'-2010\' changeset=\'7549569\'>
+    <nd ref=\'-289\' />
+    <nd ref=\'-2008\' />
+  </way>
+</create>
+</osmChange>
+',
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osmChange version='0.6' generator='JOSM'>
+<create version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549569' lat='51.2502233153' lon='-0.60420928786' />
+  <node id='-2008' changeset='7549569' lat='51.2419166618214' lon='-0.5910182209303836' />
+  <way id='-2010' changeset='7549569'>
+    <nd ref='-289' />
+    <nd ref='-2008' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549569/close		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549570/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-4213' visible='true' changeset='7549570' lat='51.14233524300135' lon='0.922083330133868' />
+  <way id='-4212' visible='true' changeset='7549570'>
+    <nd ref='1199197458' />
+    <nd ref='1199197459' />
+  </way>
+</create>
+<modify>
+  <way id='103886911' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549570'>
+    <nd ref='1199191167' />
+    <nd ref='1199191170' />
+    <nd ref='1199191187' />
+    <nd ref='1199191217' />
+    <nd ref='1199191271' />
+    <nd ref='1199191291' />
+    <nd ref='1199191317' />
+    <nd ref='1199191347' />
+    <nd ref='1199191378' />
+    <nd ref='1199191401' />
+    <nd ref='1199191405' />
+    <tag k='designation' v='public_footpath' />
+    <tag k='foot' v='designated' />
+    <tag k='highway' v='service' />
+  </way>
+  <way id='103887873' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549570'>
+    <nd ref='1199191175' />
+    <nd ref='1199191167' />
+    <nd ref='1199191163' />
+    <nd ref='-4213' />
+    <nd ref='1199191140' />
+    <nd ref='1199191128' />
+    <nd ref='1199191117' />
+    <tag k='highway' v='unclassified' />
+  </way>
+  <node id='1199191467' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549570' lat='51.14659682767963' lon='0.9231806837027208' />
+</modify>
+<delete>
+  <node id='1199191205' action='delete' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549570' lat='51.1436134744' lon='0.925290298137'/>
+</delete>
+</osmChange>
+
+PUT	/0.6/changeset/7549570/close		array (
+)	
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549571/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<modify>
+  <way id='103888333' action='modify' visible='true' version='1' changeset='7549571'>
+    <nd ref='1199197458' />
+    <nd ref='1199197459' />
+    <tag k='highway' v='motorway' />
+  </way>
+  <way id='103887873' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='2' changeset='7549571'>
+    <nd ref='1199191175' />
+    <nd ref='1199191167' />
+    <nd ref='1199191163' />
+    <nd ref='1199191140' />
+    <nd ref='1199191128' />
+    <nd ref='1199191117' />
+    <tag k='highway' v='unclassified' />
+  </way>
+  <way id='103888323' action='modify' timestamp='2011-09-04T12:57:18Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549571'>
+    <nd ref='1199197455' />
+    <nd ref='1199197454' />
+    <tag k='waterway' v='river' />
+  </way>
+  <node id='1199197443' action='modify' timestamp='2011-09-04T12:37:15Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549571' lat='51.13763562325808' lon='0.926707797091477' />
+  <node id='1199197446' action='modify' timestamp='2011-09-04T12:37:25Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549571' lat='51.13836107359891' lon='0.9253690459133346' />
+  <node id='1199197449' action='modify' timestamp='2011-09-04T12:37:35Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549571' lat='51.1372156204823' lon='0.9243954086928671' />
+</modify>
+<delete>
+  <way id='103888324' action='delete' timestamp='2011-09-04T12:57:46Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549571'/>
+  <node id='1199197456' action='delete' timestamp='2011-09-04T12:57:35Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549571' lat='51.138397765965' lon='0.924349816646'/>
+  <node id='1199197457' action='delete' timestamp='2011-09-04T12:57:35Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549571' lat='51.138569581345024' lon='0.9245323736248445'/>
+  <node id='1199197474' action='delete' visible='true' version='1' changeset='7549571' lat='51.14233524300135' lon='0.922083330133868'/>
+</delete>
+</osmChange>
+
+PUT	/0.6/changeset/7549571/close		array (
+)	
+
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549572/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<modify>
+  <way id='103886754' action='modify' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549572'>
+    <nd ref='1199191095' />
+    <nd ref='1199191093' />
+    <nd ref='1199191076' />
+    <nd ref='1199191062' />
+    <nd ref='1199190879' />
+    <nd ref='1199190792' />
+    <nd ref='1199190754' />
+    <nd ref='1199190742' />
+    <nd ref='1199190675' />
+    <nd ref='1199190625' />
+    <nd ref='1199190573' />
+    <nd ref='1199190509' />
+    <nd ref='1199190484' />
+    <nd ref='1199190420' />
+    <nd ref='1199190379' />
+    <nd ref='1199190367' />
+    <nd ref='1199190364' />
+    <nd ref='1199190234' />
+    <nd ref='1199190179' />
+    <tag k='highway' v='primary' />
+    <tag k='ref' v='A20' />
+  </way>
+  <node id='1199197443' action='modify' timestamp='2011-09-04T13:13:06Z' uid='1' user='TimSC' visible='true' version='2' changeset='7549572' lat='51.137177438222224' lon='0.9269512063965966' />
+  <node id='1199197446' action='modify' timestamp='2011-09-04T13:13:06Z' uid='1' user='TimSC' visible='true' version='2' changeset='7549572' lat='51.13918196418469' lon='0.9255516028921675' />
+  <node id='1199197454' action='modify' timestamp='2011-09-04T12:57:04Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549572' lat='51.13826413133801' lon='0.9203944154378543' />
+  <node id='1199197455' action='modify' timestamp='2011-09-04T12:57:11Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549572' lat='51.136870490041' lon='0.920729103232394' />
+  <node id='1199197458' action='modify' timestamp='2011-09-04T12:57:51Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549572' lat='51.13855049077831' lon='0.9227068038364626' />
+  <node id='1199197459' action='modify' timestamp='2011-09-04T12:57:51Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549572' lat='51.13929501701072' lon='0.9232544747729725' />
+</modify>
+<delete>
+  <way id='103887350' action='delete' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549572'/>
+  <node id='1199190965' action='delete' timestamp='2011-08-14T13:19:12Z' uid='1' user='TimSC' visible='true' version='1' changeset='7549572' lat='51.1359821667' lon='0.916966966647'/>
+</delete>
+</osmChange>
+
+PUT	/0.6/changeset/7549572/close		array (
+)	
+
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/node/1199188423		array (
+)	
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549573/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-5486' visible='true' changeset='7549573' lat='51.13628027599911' lon='0.9225909410072287' />
+  <node id='-5481' visible='true' changeset='7549573' lat='51.13836120356941' lon='0.919822160161525' />
+  <node id='-5488' visible='true' changeset='7549573' lat='51.13858760530574' lon='0.9198614589027515' />
+  <node id='-5484' visible='true' changeset='7549573' lat='51.13988843018111' lon='0.9243556584693254' />
+  <node id='-5482' visible='true' changeset='7549573' lat='51.140289318795205' lon='0.9201568479560606' />
+  <way id='-5483' action='modify' visible='true' changeset='7549573'>
+    <nd ref='-5481' />
+    <nd ref='-5488' />
+    <nd ref='-5482' />
+    <nd ref='-5484' />
+    <nd ref='-5486' />
+    <nd ref='-5488' />
+    <tag k='building' v='yes' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549573/close		array (
+)	
+
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549574/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-6752' visible='true' changeset='7549574' lat='51.13702321990702' lon='0.9239238503620484' />
+  <node id='-6747' visible='true' changeset='7549574' lat='51.13742413340109' lon='0.9206073985798318' />
+  <node id='-6750' visible='true' changeset='7549574' lat='51.138474128434744' lon='0.9253234538664699' />
+  <node id='-6748' visible='true' changeset='7549574' lat='51.13965773056856' lon='0.922798082325883' />
+  <way id='-6749' action='modify' visible='true' changeset='7549574'>
+    <nd ref='-6747' />
+    <nd ref='-6748' />
+    <nd ref='-6750' />
+    <nd ref='-6752' />
+    <nd ref='-6747' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549574/close		array (
+)	
+
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549575/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-8025' visible='true' changeset='7549575' lat='51.136985037487925' lon='0.9250191922350738' />
+  <node id='-8023' visible='true' changeset='7549575' lat='51.13738595131356' lon='0.9196337613593644' />
+  <node id='-8027' visible='true' changeset='7549575' lat='51.13965773056858' lon='0.9255668631715865' />
+  <node id='-8022' visible='true' changeset='7549575' lat='51.13984863129673' lon='0.921276774168903' />
+  <node id='-8029' visible='true' changeset='7549575' lat='51.13996317135473' lon='0.920972512537507' />
+  <way id='-8024' action='modify' visible='true' changeset='7549575'>
+    <nd ref='-8022' />
+    <nd ref='-8023' />
+    <nd ref='-8025' />
+    <nd ref='-8027' />
+    <nd ref='-8029' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549575/close		array (
+)	
+
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549576/upload		array (
+  '<?xml_version' => '\'1.0\' encoding=\'UTF-8\'?>
+<osmChange version=\'0.6\' generator=\'JOSM\'>
+<create version=\'0.6\' generator=\'JOSM\'>
+  <node id=\'-289\' changeset=\'7549576\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+  <node id=\'-2008\' changeset=\'7549576\' lat=\'51.2419166618214\' lon=\'-0.5910182209303836\' />
+  <way id=\'-2010\' changeset=\'7549576\'>
+    <nd ref=\'-289\' />
+    <nd ref=\'-2008\' />
+  </way>
+</create>
+</osmChange>
+',
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osmChange version='0.6' generator='JOSM'>
+<create version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549576' lat='51.2502233153' lon='-0.60420928786' />
+  <node id='-2008' changeset='7549576' lat='51.2419166618214' lon='-0.5910182209303836' />
+  <way id='-2010' changeset='7549576'>
+    <nd ref='-289' />
+    <nd ref='-2008' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549576/close		array (
+)	
+GET	/0.6/way/103888337		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549577/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-8659' visible='true' changeset='7549577' lat='51.13695678247747' lon='0.9225887503234825' />
+  <node id='-8664' visible='true' changeset='7549577' lat='51.13772042532722' lon='0.9239579276647646' />
+  <node id='-8662' visible='true' changeset='7549577' lat='51.13884677547618' lon='0.9240492061541834' />
+  <node id='-8660' visible='true' changeset='7549577' lat='51.138923137203506' lon='0.9226496026497617' />
+  <way id='-8661' action='modify' visible='true' changeset='7549577'>
+    <nd ref='-8659' />
+    <nd ref='-8660' />
+    <nd ref='-8662' />
+    <nd ref='-8664' />
+    <nd ref='-8659' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549577/close		array (
+)	
+
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549578/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-9926' visible='true' changeset='7549578' lat='51.137271404861465' lon='0.9252626015401906' />
+  <node id='-9924' visible='true' changeset='7549578' lat='51.137462315457064' lon='0.9213072003320425' />
+  <node id='-9923' visible='true' changeset='7549578' lat='51.14053586738201' lon='0.9258711248029827' />
+  <way id='-9925' action='modify' visible='true' changeset='7549578'>
+    <nd ref='-9923' />
+    <nd ref='-9924' />
+    <nd ref='-9926' />
+    <nd ref='-9923' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549578/close		array (
+)	
+
+GET	/0.6/map	bbox=0.9060286999999999,51.133262099999996,0.9293747,51.1492018	array (
+)	
+GET	/0.6/map	bbox=0.9039786999999999,51.1289174,0.9338791,51.148455	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549579/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-21787' visible='true' changeset='7549579' lat='51.136028815496736' lon='0.9260773726591759' />
+  <node id='-21785' visible='true' changeset='7549579' lat='51.13729363257881' lon='0.9200674295880147' />
+  <node id='-21784' visible='true' changeset='7549579' lat='51.139846583727234' lon='0.923203052059925' />
+</create>
+<modify>
+  <node id='1199195963' timestamp='2011-08-14T22:41:45Z' uid='1' user='TimSC' visible='false' version='2' changeset='7549579' lat='51.149965397973' lon='0.87069607966941' />
+  <node id='1199195964' timestamp='2011-08-14T22:41:45Z' uid='1' user='TimSC' visible='false' version='2' changeset='7549579' lat='51.15026010349' lon='0.8693090117184' />
+</modify>
+<create>
+  <way id='-21786' action='modify' visible='true' changeset='7549579'>
+    <nd ref='-21784' />
+    <nd ref='-21785' />
+    <nd ref='-21787' />
+    <nd ref='-21784' />
+  </way>
+</create>
+<modify>
+  <way id='103887996' timestamp='2011-08-14T22:41:45Z' uid='1' user='TimSC' visible='false' version='3' changeset='7549579'>
+  </way>
+</modify>
+</osmChange>
+
+GET	/0.6/map	bbox=0.9039786999999999,51.1289174,0.9338791,51.148455	array (
+)	
+PUT	/0.6/changeset/7549579		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='7549579' open='true'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4223 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549579/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-22394' visible='true' changeset='7549579' lat='51.136520692923604' lon='0.9198061277153559' />
+  <node id='-22396' visible='true' changeset='7549579' lat='51.136731495931016' lon='0.9235390116104869' />
+  <node id='-22393' visible='true' changeset='7549579' lat='51.14017447547925' lon='0.9233523674157305' />
+  <way id='-22395' action='modify' visible='true' changeset='7549579'>
+    <nd ref='-22393' />
+    <nd ref='-22394' />
+    <nd ref='-22396' />
+    <nd ref='-22393' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549579/close		array (
+)	
+
+GET	/0.6/map	bbox=0.9039786999999999,51.1289174,0.9338791,51.148455	array (
+)	
+GET	/0.6/map	bbox=0.9039786999999999,51.1289174,0.9338791,51.148455	array (
+)	
+GET	/0.6/way/103888337		array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/favicon.ico		array (
+)	
+GET	/favicon.ico		array (
+)	
+GET	/capabilities		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549580' lat='51.2502233153' lon='-0.60420928786' />
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-2008' changeset='7549580' lat='51.2419166618214' lon='-0.5910182209303836' />
+</osm>
+
+PUT	/0.6/way/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <way id='-2010' changeset='7549580'>
+    <nd ref='1199197501' />
+    <nd ref='1199197502' />
+  </way>
+</osm>
+
+PUT	/0.6/changeset/7549580/close		array (
+)	
+GET	/0.6/node/1199197501		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549581/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM">
+<modify>
+  <node id=\'1199197501\' version=\'1\' changeset=\'7549581\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+</modify>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM">
+<modify>
+  <node id='1199197501' version='1' changeset='7549581' lat='51.2502233153' lon='-0.60420928786' />
+</modify>
+</osmChange>
+
+POST	/0.6/changeset/7549581/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM">
+<delete>
+  <way id=\'103888341\' version=\'1\' changeset=\'7549581\'/>
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM">
+<delete>
+  <way id='103888341' version='1' changeset='7549581'/>
+</delete>
+</osmChange>
+
+POST	/0.6/changeset/7549581/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM"><delete>
+  <node id=\'1199197501\' version=\'2\' changeset=\'7549581\' lat=\'51.2502233153\'  lon=\'-0.60420928786\' />
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM"><delete>
+  <node id='1199197501' version='2' changeset='7549581' lat='51.2502233153'  lon='-0.60420928786' />
+</delete>
+</osmChange>
+
+POST	/0.6/changeset/7549581/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM"><delete>
+  <node id=\'1199197502\' version=\'1\' changeset=\'7549581\' lat=\'51.2502233153\'  lon=\'-0.60420928786\' />
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM"><delete>
+  <node id='1199197502' version='1' changeset='7549581' lat='51.2502233153'  lon='-0.60420928786' />
+</delete>
+</osmChange>
+
+PUT	/0.6/changeset/7549581/close		array (
+)	
+GET	/0.6/node/1199197501		array (
+)	
+GET	/0.6/node/1199197501		array (
+)	
+GET	/0.6/node/1199197502		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549582' lat='51.2502233153' lon='-0.60420928786' />
+</osm>
+
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/favicon.ico		array (
+)	
+GET	/favicon.ico		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549583/upload		array (
+  '<?xml_version' => '\'1.0\' encoding=\'UTF-8\'?>
+<osmChange version=\'0.6\' generator=\'JOSM\'>
+<create version=\'0.6\' generator=\'JOSM\'>
+  <node id=\'-289\' changeset=\'7549583\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+  <node id=\'-2008\' changeset=\'7549583\' lat=\'51.2419166618214\' lon=\'-0.5910182209303836\' />
+  <way id=\'-2010\' changeset=\'7549583\'>
+    <nd ref=\'-289\' />
+    <nd ref=\'-2008\' />
+  </way>
+</create>
+</osmChange>
+',
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osmChange version='0.6' generator='JOSM'>
+<create version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549583' lat='51.2502233153' lon='-0.60420928786' />
+  <node id='-2008' changeset='7549583' lat='51.2419166618214' lon='-0.5910182209303836' />
+  <way id='-2010' changeset='7549583'>
+    <nd ref='-289' />
+    <nd ref='-2008' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549583/close		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-289' changeset='7549584' lat='51.2502233153' lon='-0.60420928786' />
+</osm>
+
+PUT	/0.6/node/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <node id='-2008' changeset='7549584' lat='51.2419166618214' lon='-0.5910182209303836' />
+</osm>
+
+PUT	/0.6/way/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <way id='-2010' changeset='7549584'>
+    <nd ref='1199197847' />
+    <nd ref='1199197848' />
+  </way>
+</osm>
+
+PUT	/0.6/changeset/7549584/close		array (
+)	
+GET	/0.6/node/1199197847		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='python test function' />
+    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549585/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM">
+<modify>
+  <node id=\'1199197847\' version=\'1\' changeset=\'7549585\' lat=\'51.2502233153\' lon=\'-0.60420928786\' />
+</modify>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM">
+<modify>
+  <node id='1199197847' version='1' changeset='7549585' lat='51.2502233153' lon='-0.60420928786' />
+</modify>
+</osmChange>
+
+POST	/0.6/changeset/7549585/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM">
+<delete>
+  <way id=\'103888363\' version=\'1\' changeset=\'7549585\'/>
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM">
+<delete>
+  <way id='103888363' version='1' changeset='7549585'/>
+</delete>
+</osmChange>
+
+POST	/0.6/changeset/7549585/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM"><delete>
+  <node id=\'1199197847\' version=\'2\' changeset=\'7549585\' lat=\'51.2502233153\'  lon=\'-0.60420928786\' />
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM"><delete>
+  <node id='1199197847' version='2' changeset='7549585' lat='51.2502233153'  lon='-0.60420928786' />
+</delete>
+</osmChange>
+
+POST	/0.6/changeset/7549585/upload		array (
+  '<osmChange_version' => '"0.6" generator="JOSM"><delete>
+  <node id=\'1199197848\' version=\'1\' changeset=\'7549585\' lat=\'51.2502233153\'  lon=\'-0.60420928786\' />
+</delete>
+</osmChange>
+',
+)	<osmChange version="0.6" generator="JOSM"><delete>
+  <node id='1199197848' version='1' changeset='7549585' lat='51.2502233153'  lon='-0.60420928786' />
+</delete>
+</osmChange>
+
+PUT	/0.6/changeset/7549585/close		array (
+)	
+GET	/0.6/node/1199197847		array (
+)	
+GET	/0.6/node/1199197847		array (
+)	
+GET	/0.6/node/1199197848		array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/capabilities		array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4399 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4399 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4399 en_GB)' />
+  </changeset>
+</osm>
+
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4399 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549586/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-210' visible='true' changeset='7549586' lat='51.30609513267067' lon='-0.5399676820224719' />
+  <node id='-215' visible='true' changeset='7549586' lat='51.31491094178878' lon='-0.5047911151061174' />
+  <node id='-213' visible='true' changeset='7549586' lat='51.32686530977921' lon='-0.5302414423220974' />
+  <node id='-211' visible='true' changeset='7549586' lat='51.32828341787803' lon='-0.5425613459425718' />
+  <way id='-212' action='modify' visible='true' changeset='7549586'>
+    <nd ref='-210' />
+    <nd ref='-211' />
+    <nd ref='-213' />
+    <nd ref='-215' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549586/close		array (
+)	
+
+GET	/0.6/map	bbox=-0.6056197999999999,51.2829242,-0.4757745,51.3674247	array (
+)	
+GET	/0.6/user/details		array (
+)	
+GET	/0.6/changesets	user=1&open=true	array (
+)	
+GET	/0.6/capabilities		array (
+)	
+GET	/0.6/user/changesets		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/map	bbox=-0.636129,51.207553,-0.5081755,51.2828722	array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/map	bbox=-0.5745996,51.2994791,-0.48942369999999996,51.3549073	array (
+)	
+PUT	/0.6/changeset/create		array (
+)	<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' generator='JOSM'>
+  <changeset  id='0' open='false'>
+    <tag k='comment' v='test' />
+    <tag k='created_by' v='JOSM/1.5 (4399 en_GB)' />
+  </changeset>
+</osm>
+
+POST	/0.6/changeset/7549587/upload		array (
+)	<osmChange version="0.6" generator="JOSM">
+<create>
+  <node id='-638' visible='true' changeset='7549587' lat='51.325440695355475' lon='-0.5170713079900126' />
+  <node id='-640' visible='true' changeset='7549587' lat='51.332151608224464' lon='-0.5030348300873908' />
+  <node id='-637' visible='true' changeset='7549587' lat='51.337333621302946' lon='-0.5235578621722847' />
+  <node id='-642' visible='true' changeset='7549587' lat='51.33899439897884' lon='-0.5054805800249689' />
+  <way id='-639' action='modify' visible='true' changeset='7549587'>
+    <nd ref='-637' />
+    <nd ref='-638' />
+    <nd ref='-640' />
+    <nd ref='-642' />
+  </way>
+</create>
+</osmChange>
+
+PUT	/0.6/changeset/7549587/close		array (
+)	
+
+GET	/0.6/changesets		array (
+)	
+GET	/0.6/changesets		array (
+)	

@@ -149,30 +149,35 @@ function GetFullDetailsOfElement($userInfo,$urlExp)
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<osm version="0.6" generator="'.SERVER_NAME.'">';
 	$map = OsmDatabase();
 	$firstObj = $map->GetElementById($type,(int)$id);
-	if($firstObj==null) return array(0,Null,"not-found");
+	//print_r($firstObj);
+	if($firstObj===null or $firstObj==0) return array(0,Null,"not-found");
+	if($firstObj==-2) return array(0,Null,"gone",$type,$id);
 	$out = $out.$firstObj->ToXmlString()."\n";
 
 	//Get relations but don't go recursively
-	foreach($firstObj->relations as $data)
+	foreach($firstObj->members as $data)
 	{
-		$id = $data[0];
+		if($data[0] != "relation") continue;
+		$id = $data[1];
 		$obj = $map->GetElementById("relation",(int)$id);
 		if($obj==null) return array(0,Null,"not-found");
 		$out = $out.$obj->ToXmlString()."\n";		
 	}
 
 	//Get ways
-	foreach($firstObj->ways as $data)
+	foreach($firstObj->members as $data)
 	{
-		$id = $data[0];
+		if($data[0] != "way") continue;
+		$id = $data[1];
 		$obj = $map->GetElementById("way",(int)$id);
 		if($obj==null) return array(0,Null,"not-found");
 		$out = $out.$obj->ToXmlString()."\n";
 
 		//Get nodes of ways
-		foreach($obj->nodes as $nd)
+		foreach($obj->members as $mem)
 		{
-			$nid = $nd[0];
+			if($mem[0] != "node") continue;
+			$nid = $mem[1];
 			$n = $map->GetElementById("node",(int)$nid);
 			if($n==null) return array(0,Null,"not-found");
 			$out = $out.$n->ToXmlString()."\n";
@@ -180,9 +185,10 @@ function GetFullDetailsOfElement($userInfo,$urlExp)
 	}
 
 	//Get nodes of ways
-	foreach($firstObj->nodes as $nd)
+	foreach($firstObj->members as $nd)
 	{
-		$nid = $nd[0];
+		if($data[0] != "node") continue;
+		$nid = $nd[1];
 		$n = $map->GetElementById("node",(int)$nid);
 		if($n==null) return array(0,Null,"not-found");
 		$out = $out.$n->ToXmlString()."\n";

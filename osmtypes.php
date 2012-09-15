@@ -30,9 +30,7 @@ class OsmElement
 {
 	public $attr = array();
 	public $tags = array();
-	public $nodes = array();
-	public $ways = array();
-	public $relations = array();
+	public $members = array();
 	
 	public function AttributesFromXml($input, $allowed)
 	{
@@ -65,7 +63,7 @@ class OsmElement
 		foreach($input->nd as $nd)
 		{
 			$ref=(int)$nd['ref'];
-			array_push($this->nodes,array($ref,null));
+			array_push($this->members,array("node",$ref,null));
 		}
 	}
 
@@ -77,9 +75,7 @@ class OsmElement
 			$type=(string)$m['type'];
 			$role=(string)$m['role'];
 			if(strlen($role)>MAX_VALUE_LEN) throw new InvalidArgumentException("Role is too long");
-			if(strcmp($type,"node")==0) array_push($this->nodes,array($ref,$role));
-			if(strcmp($type,"way")==0) array_push($this->ways,array($ref,$role));
-			if(strcmp($type,"relation")==0) array_push($this->relations,array($ref,$role));
+			array_push($this->members,array($type,$ref,$role));
 		}
 	}
 
@@ -99,17 +95,17 @@ class OsmElement
 			//$out = $out.'<tag k="'.$key;
 			//$out = $out.'" v="'.$value.'"/>'."\n";
 		}
-		foreach($this->nodes as $node)
+		foreach($this->members as $member)
 		{
 			if(strcmp($type,"way")==0)
-				$out = $out.'<nd ref="'.$node[0].'"/>'."\n";
+				$out = $out.'<nd ref="'.$member[1].'"/>'."\n";
 			else
-				$out = $out.'<member type="node" ref="'.$node[0].'" role="'.$node[1].'"/>'."\n";
+			{
+				$out = $out.'<member type="'.$member[0].'" ref="'.$member[1].'" role="'.
+					htmlspecialchars($member[2],ENT_QUOTES,"UTF-8").'"/>'."\n";
+
+			}
 		}
-		foreach($this->ways as $way)
-			$out = $out.'<member type="way" ref="'.$way[0].'" role="'.htmlspecialchars($way[1],ENT_QUOTES,"UTF-8").'"/>'."\n";
-		foreach($this->relations as $rel)
-			$out = $out.'<member type="relation" ref="'.$rel[0].'" role="'.htmlspecialchars($rel[1],ENT_QUOTES,"UTF-8").'"/>'."\n";
 
 		$out = $out."</".$type.">\n";
 		return $out;

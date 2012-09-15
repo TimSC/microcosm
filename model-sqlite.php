@@ -43,7 +43,7 @@ class ElementTable
 		if($this->latlon) $sql .= ', lat REAL, lon REAL';
 		$sql .= ', changeset INTEGER, user STRING, uid INTEGER, ';
 		$sql .= 'visible INTEGER, timestamp INTEGER, version INTEGER';
-		$sql .= ', current INTEGER, tags BLOB, nodes BLOB, ways BLOB, relations BLOB';
+		$sql .= ', current INTEGER, tags BLOB, members BLOB';
 		$sql .= ');';
 		$this->CheckTableExistsOtherwiseCreate("elements",$sql);
 	}
@@ -75,7 +75,7 @@ class ElementTable
 		$insertsql .= ", changeset";
 		$insertsql .= ", user";
 		$insertsql .= ", uid";
-		$insertsql .= ", visible, timestamp, version, current, tags, nodes, ways, relations) VALUES (";
+		$insertsql .= ", visible, timestamp, version, current, tags, members) VALUES (";
 		$insertsql .= "null, ";
 		$insertsql .= (int)$el->attr['id'].", ";
 		if($this->latlon) $insertsql .= (float)$el->attr['lat'].", ";
@@ -94,9 +94,7 @@ class ElementTable
 		$insertsql .= ((int)$el->attr['version']);
 		$insertsql .= ", 1";
 		$insertsql .= ", '".sqlite_escape_string(serialize($el->tags))."'";
-		$insertsql .= ", '".sqlite_escape_string(serialize($el->nodes))."'";
-		$insertsql .= ", '".sqlite_escape_string(serialize($el->ways))."'";
-		$insertsql .= ", '".sqlite_escape_string(serialize($el->relations))."'";
+		$insertsql .= ", '".sqlite_escape_string(serialize($el->members))."'";
 		$insertsql .= ");\n";
 
 		$ret = $this->dbh->exec($insertsql);
@@ -156,9 +154,7 @@ class ElementTable
 
 		//Tags and members
 		$el->tags = unserialize($row['tags']);
-		$el->nodes = unserialize($row['nodes']);
-		$el->ways = unserialize($row['ways']);
-		$el->relations = unserialize($row['relations']);
+		$el->members = unserialize($row['members']);
 		return $el;
 	}
 

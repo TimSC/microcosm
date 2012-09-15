@@ -34,9 +34,9 @@ abstract class OsmDatabaseCommon
 		foreach($ways as $way)
 		{
 			//print_r($way);
-			foreach($way->nodes as $data)
+			foreach($way->members as $data)
 			{
-				$id = $data[0];
+				$id = $data[1];
 				if(in_array($id,$nids)) continue;
 				array_push($additionalNodes, $id);
 			}
@@ -191,12 +191,8 @@ abstract class OsmDatabaseCommon
 				$el->attr['lon'],$el->attr['lat']));
 
 		//Recursively get member elements
-		foreach($el->nodes as $member)
-			UpdateBbox($bbox,$this->GetBboxOfElement("node",$member[0],$depth+1));
-		foreach($el->ways as $member)
-			UpdateBbox($bbox,$this->GetBboxOfElement("way",$member[0],$depth+1));
-		foreach($el->relations as $member)
-			UpdateBbox($bbox,$this->GetBboxOfElement("relation",$member[0],$depth+1));
+		foreach($el->members as $member)
+			UpdateBbox($bbox,$this->GetBboxOfElement($member[0],$member[1],$depth+1));
 
 		return $bbox;
 	}

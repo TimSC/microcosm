@@ -193,24 +193,17 @@ class ElementTableOpt extends ElementTable
 	{
 		if(!is_object($el)) throw new Exception ('Argument should be an object');
 
-		foreach($el->nodes as $child)
-			$this->AddParentForChild("node",$child[0],$el->attr['id']);
-		foreach($el->ways as $child)
-			$this->AddParentForChild("way",$child[0],$el->attr['id']);
-		foreach($el->relations as $child)
-			$this->AddParentForChild("relation",$child[0],$el->attr['id']);
+		foreach($el->members as $child)
+			$this->AddParentForChild($child[0],$child[1],$el->attr['id']);
+
 	}
 
 	function RemoveChildrenLinksForElement($el)
 	{
 		if(!is_object($el)) throw new Exception ('Argument should be an object');
 
-		foreach($el->nodes as $child)
-			$this->RemoveParentForChild("node",$child[0],$el->attr['id']);
-		foreach($el->ways as $child)
-			$this->RemoveParentForChild("way",$child[0],$el->attr['id']);
-		foreach($el->relations as $child)
-			$this->RemoveParentForChild("relation",$child[0],$el->attr['id']);
+		foreach($el->members as $child)
+			$this->RemoveParentForChild($child[0],$child[1],$el->attr['id']);
 	}
 
 	//**********************
@@ -637,15 +630,16 @@ function CheckElementTableOptAgainstChildren(&$table, &$db)
 
 		if($row['current']!=1) continue;
 		//Check Children
-		foreach($obj->nodes as $data)
+		foreach($obj->members as $data)
 		{
-			$idchild = $data[0];
-			$parentsOfChild = $table->GetParentsForChildElement("node",$idchild);
+			$childtype = $data[0];
+			$idchild = $data[1];
+			$parentsOfChild = $table->GetParentsForChildElement($childtype,$idchild);
 			if($visible)
 			{
 			if(is_null($parentsOfChild)) echo "Child links not defined\n";
 			if(!in_array($id,$parentsOfChild)) echo "Child link broken\n";
-			$childObj = $db->GetElementById("node",$idchild);
+			$childObj = $db->GetElementById($childtype,$idchild);
 			if(!is_object($childObj)) 
 				echo "Child object of ".$obj->GetType()." ".$id." doesn't exist ".$idchild."\n";
 			}
@@ -655,7 +649,7 @@ function CheckElementTableOptAgainstChildren(&$table, &$db)
 			}
 		}
 
-		foreach($obj->ways as $data)
+		/*foreach($obj->ways as $data)
 		{
 			$idchild = $data[0];
 			$parentsOfChild = $table->GetParentsForChildElement("way",$idchild);
@@ -689,7 +683,7 @@ function CheckElementTableOptAgainstChildren(&$table, &$db)
 			{
 			if(!is_null($parentsOfChild)) echo "Child links exist for delete element\n";
 			}
-		}
+		}*/
 	}
 }
 
