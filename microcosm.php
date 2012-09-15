@@ -4,26 +4,25 @@ require_once("querymap.php");
 require_once('changeset.php');
 require_once('capabilities.php');
 require_once('fileutils.php');
+include_once('userdetails.php');
 
 //******************************
 //Start up functions and logging
 //******************************
 
-
 //print_r($_SERVER);
-
 CheckPermissions();
 
 //Convert path to internally usable format
 if(isset($_SERVER['PATH_INFO'])) 
 	$pathInfo = $_SERVER['PATH_INFO'];
-else
+if(!isset($pathInfo) and isset($_SERVER['REDIRECT_URL'])) 
 {
-//	$pathInfo = "";
-	$pathInfo = $_SERVER['REQUEST_URI'];
+	$pathInfo = $_SERVER['REDIRECT_URL'];
 	$pathInfoExp = explode("/",$pathInfo);
 	$pathInfo = "/".implode("/",array_slice($pathInfoExp,INSTALL_FOLDER_DEPTH));
 }
+if(!isset($pathInfo)) die("Could not determine URL path");
 //print_r($pathInfo);
 
 //Log the request
@@ -141,7 +140,7 @@ $content = null;
 //************************
 
 //Get API capabilities
-if(strcmp($pathInfo,"/capabilities")==0)
+if(strcmp($pathInfo,"/capabilities")==0 or strcmp($pathInfo,"/0.6/capabilities")==0)
 {
 	RequireMethod("GET");
 	$header =("Content-Type:text/xml");
@@ -169,7 +168,6 @@ if(count($urlExp) >= 3 and strcmp($urlExp[2],"user")==0)
 if(count($urlExp) == 4 && strcmp($urlExp[3],"details")==0)
 {
 	RequireMethod("GET");
-	include_once('userdetails.php');
 	if($userId == null) list ($displayName, $userId) = RequireAuth();
 	
 	$header = ("Content-Type:text/xml");
@@ -181,17 +179,16 @@ if(count($urlExp) == 4 && strcmp($urlExp[3],"details")==0)
 //User perferences GET
 if(count($urlExp) == 4 && strcmp($urlExp[3],"perferences")==0)
 {
-	include_once('userdetails.php');
 	if($userId == null) list ($displayName, $userId) = RequireAuth();
 
-	if(strcmp(GetServerRequestMethod,"GET")==0)
+	if(strcmp(GetServerRequestMethod(),"GET")==0)
 	{
 		RequireMethod("GET");
 		$header = ("Content-Type:text/xml");
 		$content = GetUserPreferences($userId);
 	}
 
-	if(strcmp(GetServerRequestMethod,"PUT")==0)
+	if(strcmp(GetServerRequestMethod(),"PUT")==0)
 	{
 		RequireMethod("PUT");
 		$data = $putDataStr;
@@ -214,8 +211,14 @@ if(count($urlExp) == 5 && strcmp($urlExp[3],"perferences")==0)
 	}
 	
 	$ret = SetUserPreferencesSingle($userId,$key,$value);
+	if($ret!=1)
+	{
+		//TODO tidy
+		print_r($ret);
+		exit();
+	}
 
-	if($ret==-100)
+	if($ret=="not-implemented")
 	{
 		header('HTTP/1.1 501 Not Implemented');
 		echo "This feature has not been implemented.";
@@ -468,7 +471,6 @@ if(strncmp($pathInfo,"/0.6/changeset/",15)==0 and count($urlExp)>=4 and is_numer
 //API for modifying single objects
 //**********************************
 
-//TODO /0.6/way/60357322/history
 if(count($urlExp)>=4)
 if(strcmp($urlExp[2],"way")==0 or strcmp($urlExp[2],"node")==0 or strcmp($urlExp[2],"relation")==0)
 {

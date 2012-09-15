@@ -19,6 +19,7 @@ function GetNewObjectId($type)
 function ChangesetOpen($putData,$displayName,$userId)
 {
 	$lock=GetWriteDatabaseLock();
+	$csd = new ChangesetDatabase();
 
 	$data = ParseOsmXmlChangeset($putData);
 	if(is_null($data)) return "bad-input";
@@ -26,35 +27,38 @@ function ChangesetOpen($putData,$displayName,$userId)
 	$cid = ReadAndIncrementFileNum("nextchangesetid.txt");
 	$data->attr['id'] = $cid;
 
-	if(CheckChangesetIsOpen($cid)!=-1)
+	if($csd->IsOpen($cid)!=-1)
 		return "changeset-already-exists";
 
-	return ChangesetOpenLowLevel($cid,$data,$displayName,$userId);
+	return $csd->Open($cid,$data,$displayName,$userId);
 }
 
 function ChangesetUpdate($cid,$putData,$displayName,$userId)
 {
 	$lock=GetWriteDatabaseLock();
+	$csd = new ChangesetDatabase();
+
 	$data = ParseOsmXmlChangeset($putData);
 	if(is_null($data)) return "bad-input";
 
 	//Check user is correct
 	$xmlcid = $data->attr['id'];
-	$cUser = GetChangesetUid($cid);
+	$cUser = $csd->GetUid($cid);
 	if(is_null($cUser)) return "not-found";
 	if($userId != $cUser) return "conflict";
 	if($cid != $xmlcid) return "conflict";
 
-	if(CheckChangesetIsOpen($cid)!=1)
+	if($csd->IsOpen($cid)!=1)
 		return "conflict";
 
-	return ChangesetUpdateLowLevel($cid,$data,$displayName,$userId);
+	return $csd->Update($cid,$data,$displayName,$userId);
 }
 
 function ChangesetClose($cid)
 {
 	$lock=GetWriteDatabaseLock();
-	ChangesetCloseLowLevel($cid);
+	$csd = new ChangesetDatabase();
+	$csd->Close($cid);
 }
 
 //**************************************
@@ -182,6 +186,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 	$createdEls = array();
 	$deletedEls = array();
 	$recentlyChanged = array();
+	$csd = new ChangesetDatabase();
 
 	//Check API version
 	$ver = $osmchange->version;
@@ -199,7 +204,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 
 		//Actions can only be create, modify, delete
 		if(!(strcmp($action,"create")==0 or strcmp($action,"modify")==0
-			or strcmp($action,"delete")==0)) 
+			or strcmp($action,"delete")==0))
 			throw new Exception("Action not supported");
 
 		foreach($els as $i2 => $el)
@@ -231,14 +236,14 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 
 		//Check if changeset is open
 		$cid = $el->attr['changeset'];
-		if(!CheckChangesetIsOpen($cid)) throw new Exception("Changeset is not open");
+		if(!$csd->IsOpen($cid)) throw new Exception("Changeset is not open");
 
 		//Check if user has permission to add to this changeset
-		$ciduser = GetChangesetUid($cid);
+		$ciduser = $csd->GetUid($cid);
 		if($ciduser != $userId) throw new Exception("Changeset belongs to a different user");
 
 		//Check we don't exceed number of max elements
-		$cidsize = GetChangetsetSize($cid);
+		$cidsize = $csd->GetSize($cid);
 		if(is_null($cidsize)) throw new Exception("Changeset size could not be determined ".$cid);
 		if($cidsize + 1 > MAX_CHANGESET_SIZE)
 			throw new Exception("Max changeset size exceeded");
@@ -451,6 +456,8 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 
 function ApplyChangeToDatabase(&$osmchange,&$map)
 {
+	$csd = new ChangesetDatabase();
+
 	//For each element
 	foreach($osmchange->data as $data)
 	{
@@ -466,7 +473,7 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 			//CloneElement($value, $newdata);
 
 			//Also store in changeset
-			AppendElementToChangeset($el->attr['changeset'], $method, $el);
+			$csd->AppendElement($el->attr['changeset'], $method, $el);
 		}
 
 		if(strcmp($method,"modify")==0)
@@ -481,7 +488,7 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 			//CloneElement($value, $element);
 
 			//Also store in changeset
-			AppendElementToChangeset($el->attr['changeset'], $method, $el);
+			$csd->AppendElement($el->attr['changeset'], $method, $el);
 		}
 
 		if(strcmp($method,"delete")==0)
@@ -495,7 +502,7 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 			//RemoveElementById($map, $type, $value['id']);
 
 			//Also store in changeset
-			AppendElementToChangeset($el->attr['changeset'], $method, $el);
+			$csd->AppendElement($el->attr['changeset'], $method, $el);
 		}
 
 	}
@@ -539,6 +546,7 @@ function ProcessSingleObject($method,$data,$displayName,$userId)
 
 	//Construct an OsmChange from the single object
 	$osmchange = new OsmChange();
+	$osmchange->version = 0.6;
 	$singleObj = SingleObjectFromXml($data);
 	array_push($osmchange->data,array($method,array($singleObj)));
 	$cid = null;
@@ -590,47 +598,17 @@ function ChangesetUpload($cid,$data,$displayName,$userId)
 	return $changes;
 }
 
-/*function ChangesetToXml($cid)
-{
-	$open = CheckChangesetIsOpen($cid);
-	if($open==-1) return "not-found";
-	$path = "changesets-open/";
-	if($open==0) $path = "changesets-closed/";
-	
-	$details = explode(";",file_get_contents($path.$cid."/details.txt"));
-	$xml = simplexml_load_file($path.$cid."/putdata.xml");	
-
-	//2010-10-02T11:43:37Z
-	$da = date("c", (int)$details[2]);
-	$out = '<changeset id="'.$cid.'" user="'.$details[0].'" uid="'.$details[1].'" created_at="'.$da;
-	if($open==true) $out = $out.'" open="true"';
-	if($open==false) $out = $out.'" open="false"';
-	//TODO bounding box calculation
-	//$out = $out.' min_lon="7.4444867" min_lat="46.997839" max_lon="7.4774895" max_lat="47.014299"';
-	$out = $out. '>'."\n";
-	foreach ($xml as $type => $changsetxml)
-	{
-		foreach ($changsetxml as $type => $v)
-		{
-			//echo "here".$v['k'];
-			if(strcmp($type,"tag")!=0) continue;
-			$out = $out.'<tag k="'.$v['k'].'" v="'.$v['v'].'"/>'."\n";
-		}
-	}
-
-	$out = $out.'</changeset>'."\n";
-	return $out;
-}*/
-
 function GetChangesets($query)
 {
 	$lock=GetReadDatabaseLock();
+	$csd = new ChangesetDatabase();
+
 	$user = null;
 	if(isset($query['user'])) $user = (int)$query['user'];
 	$open = null;
 	if(isset($query['open'])) $open = (strcmp($query['open'],"true")==0);
-	$timerange = null; //TODO implement this
-	$csids = ChangesetsQuery($user,$open,$timerange);
+	$timerange = null; //TODO implement this and other arguments
+	$csids = $csd->Query($user,$open,$timerange);
 	//print_r($csids);
 	
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
@@ -638,9 +616,9 @@ function GetChangesets($query)
 
 	foreach($csids as $cid)
 	{ 
-		if(isset($query['user']) and $query['user'] != GetChangesetUid($cid)) continue;
+		if(isset($query['user']) and $query['user'] != $csd->GetUid($cid)) continue;
 		#$out = $out.ChangesetToXml($cid);
-		$out = $out.GetChangesetMetadataLowLevel($cid)->ToXmlString();
+		$out = $out.$csd->GetMetadata($cid)->ToXmlString();
 	}
 	
 	$out = $out.'</osm>'."\n";
@@ -650,20 +628,25 @@ function GetChangesets($query)
 function GetChangesetMetadata($cid)
 {
 	$lock=GetReadDatabaseLock();
-	$data = GetChangesetMetadataLowLevel($cid);
+	$csd = new ChangesetDatabase();
+	$data = $csd->GetMetadata($cid);
 	if(is_null($data)) return "not-found";
 	return '<osm version="0.6" generator="'.SERVER_NAME.'">'.$data->ToXmlString().'</osm>';
+}
 
-	//$data = ChangesetToXml($cid);
-	//if(strcmp("not-found",$data)==0) return $data;
-	//return '<osm version="0.6" generator="'.SERVER_NAME.'">'.$data.'</osm>';
-
+function GetChangesetUid($cid)
+{
+	$lock=GetReadDatabaseLock();
+	$csd = new ChangesetDatabase();
+	return $csd->GetUid($cid);
 }
 
 function GetChangesetContents($cid)
 {
 	$lock=GetReadDatabaseLock();
-	$changeset = GetChangesetContentObject($cid);
+	$csd = new ChangesetDatabase();
+
+	$changeset = $csd->GetContentObject($cid);
 	if(is_null($changeset)) return "not-found";
 
 	return($changeset->ToXmlString());
@@ -673,7 +656,8 @@ function GetChangesetContents($cid)
 function GetChangesetClosedTime($cid)
 {
 	$lock=GetReadDatabaseLock();
-	GetChangesetClosedTimeLowLevel($cid);
+	$csd = new ChangesetDatabase();
+	return $csd->GetClosedTime($cid);
 }
 
 ?>

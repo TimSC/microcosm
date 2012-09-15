@@ -1,6 +1,7 @@
 <?php
 
 include_once('config.php');
+include_once('osmtypes.php');
 
 function GetUserDetails($uid)
 {
@@ -89,7 +90,7 @@ function GetUserPreferences($uid)
 
 function SetUserPreferences($userId,$data)
 {
-	//Validate XML
+/*	//Validate XML
 	$xml = simplexml_load_string($data);
 	if (!$xml)
 	{
@@ -101,31 +102,57 @@ function SetUserPreferences($userId,$data)
 	
 	//Check for too many keys or malformed data
 	//TODO
+*/
+	//Parse
+	$prefs = new UserPreferences();
+	$prefs->FromXmlString($data);
 
 	//Write to file
 	$lock=GetWriteDatabaseLock();
-	$fname = "userperferences/".(int)$uid.".xml";
+	$fname = "userpreferences/".(int)$userId.".xml";
 	$fi = fopen($fname,"wt");
-	fwrite($fi, $data);
+	fwrite($fi, '<osm>'.$prefs->ToXmlString().'</osm>');
 }
 
 function SetUserPreferencesSingle($userId,$key,$value)
 {
 	$lock=GetWriteDatabaseLock();
-	$fname = "userperferences/".(int)$uid.".xml";
-	$xml = simplexml_load_file($data);
-	if (!$xml)
+	$fname = "userpreferences/".(int)$userId.".xml";
+
+	//$xml = simplexml_load_file($data);
+	//if (!$xml)
+	//{
+	//	throw new Exception("Failed to parse XML.");
+	//}
+
+	$key = html_entity_decode($key);
+	$value = html_entity_decode($value);
+
+	$prefs = new UserPreferences();
+	if(file_exists($fname))
 	{
-		throw new Exception("Failed to parse XML.");
+		$fi = fopen($fname,"rt");
+		$prefs->FromXmlString(fread($fi,filesize($fname)));
+		fclose($fi);
 	}
 
+	if(count($prefs->data)+1>MAX_USER_PERFS)
+		return "too-many-preferences";
+
 	//Check key doesn't exist, otherwise fail and return
-	//TODO
+	//print_r($prefs);
+	if(isset($prefs->data[$key]))
+		return "key-already-exists";
 
 	//Set key
-	//TODO
-	
-	return -100;
+	$prefs->data[$key] = $value;
+
+	//Write to file
+	$fi = fopen($fname,"wt");
+	fwrite($fi, '<osm>'.$prefs->ToXmlString().'</osm>');
+	clearstatcache($fname);
+
+	return 1;
 }
 
 ?>

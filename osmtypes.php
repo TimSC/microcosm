@@ -9,7 +9,7 @@ function ValidateValue($in, $type)
 	if(strcmp($type,"string")==0)
 	{
 		if(strlen($in)>MAX_VALUE_LEN) throw new InvalidArgumentException("String is too long");
-		return (string)$in;
+		return html_entity_decode((string)$in);
 	}
 	if(strcmp($type,"timestamp")==0)
 	{
@@ -56,7 +56,7 @@ class OsmElement
 			if(strlen($key)>MAX_KEY_LEN) throw new InvalidArgumentException("Key is too long");
 			$value=(string)$tag['v'];
 			if(strlen($value)>MAX_VALUE_LEN) throw new InvalidArgumentException("Value is too long");
-			$this->tags[$key] = $value;
+			$this->tags[html_entity_decode($key)] = html_entity_decode($value);
 		}
 	}
 
@@ -93,7 +93,10 @@ class OsmElement
 		$out = $out.">\n";
 
 		foreach($this->tags as $key => $value)
-			$out = $out.'<tag k="'.$key.'" v="'.$value.'"/>'."\n";
+		{
+			$out = $out.'<tag k="'.htmlentities($key,ENT_QUOTES);
+			$out = $out.'" v="'.htmlentities($value,ENT_QUOTES).'"/>'."\n";
+		}
 		foreach($this->nodes as $node)
 		{
 			if(strcmp($type,"way")==0)
@@ -350,5 +353,56 @@ function ParseOsmXmlChangeset($input)
 	}		
 	return null;
 }
+
+class UserPreferences
+{
+	public $data = array();
+
+	public function FromXmlString($input)
+	{
+		//Parse input
+		$xml = simplexml_load_string($input);
+		if (!$xml)
+		{
+			$err = "Failed to parse XML upload diff.";
+			foreach(libxml_get_errors() as $error) {
+				$err = $err."\t".$error->message;
+			}
+			throw new InvalidArgumentException($err);
+		}
+
+		//Copy into internal structure
+		$count = 0;
+		foreach($xml as $key => $prefs)
+		{
+			foreach($prefs->preference as $i => $pref)
+			{
+				$k = (string)$pref['k'];
+				$v = (string)$pref['v'];
+				if(strlen($k)>MAX_KEY_LEN) InvalidArgumentException("Key too large");
+				if(strlen($v)>MAX_VALUE_LEN) InvalidArgumentException("Value too large");
+				if(isset($this->data[$k])) InvalidArgumentException("Duplicate key");
+				$this->data[html_entity_decode($k)] = html_entity_decode($v);
+				$count ++;
+			}
+		}
+		if($count > MAX_USER_PERFS) InvalidArgumentException("Too many prefs");
+
+		return 1;
+	}
+
+	public function ToXmlString()
+	{
+		$out = "<preferences>\n";
+		foreach($this->data as $k => $v)
+		{
+			$out = $out.'<preference k="'.htmlentities($k,ENT_QUOTES).'" v="'.htmlentities($v,ENT_QUOTES).'"/>'."\n";
+		}
+		$out = $out."</preferences>\n";
+		return $out;
+	}
+
+}
+
 
 ?>

@@ -1,12 +1,16 @@
 <?php
 
 require_once("fileutils.php");
+require_once("osmtypes.php");
 
 //***************************************
 //Low level changeset functions
 //***************************************
 
-function ChangesetOpenLowLevel($cid,$data,$displayName,$userId)
+class ChangesetDatabase
+{
+//ChangesetOpenLowLevel
+function Open($cid,$data,$displayName,$userId)
 {
 	mkdir("changesets-open/".$cid,0777);
 	chmod("changesets-open/".$cid,0777);
@@ -21,7 +25,8 @@ function ChangesetOpenLowLevel($cid,$data,$displayName,$userId)
 	return $cid;
 }
 
-function ChangesetUpdateLowLevel($cid,$data,$displayName,$userId)
+//ChangesetUpdateLowLevel
+function Update($cid,$data,$displayName,$userId)
 {
 	//Read existing data
 	$filename = "changesets-open/".$cid."/putdata.xml";
@@ -36,7 +41,8 @@ function ChangesetUpdateLowLevel($cid,$data,$displayName,$userId)
 	return 1;
 }
 
-function CheckChangesetIsOpen($cid)
+//CheckChangesetIsOpen
+function IsOpen($cid)
 {
 	//Check if the changeset is open
 	if(!is_dir("changesets-open/".$cid))
@@ -50,7 +56,8 @@ function CheckChangesetIsOpen($cid)
 	return 1;
 }
 
-function GetChangesetContentObject($cid)
+//GetChangesetContentObject
+function GetContentObject($cid)
 {
 	$filename = "changesets-open/".$cid."/data.txt";
 	if(!file_exists($filename))
@@ -58,7 +65,7 @@ function GetChangesetContentObject($cid)
 		$filename = "changesets-closed/".$cid."/data.txt";
 		if(!file_exists($filename))
 		{
-			if(CheckChangesetIsOpen($cid)==1) return new OsmChange();
+			if($this->IsOpen($cid)==1) return new OsmChange();
 			return null;
 		}
 	}
@@ -70,12 +77,13 @@ function GetChangesetContentObject($cid)
 	return $changeset;
 }
 
-function GetChangetsetSize($cid)
+//GetChangetsetSize
+function GetSize($cid)
 {
-	$changeset = GetChangesetContentObject($cid);
+	$changeset = $this->GetContentObject($cid);
 	if(is_null($changeset))
 	{
-		$isopen=CheckChangesetIsOpen($cid);
+		$isopen=$this->IsOpen($cid);
 		if($isopen==1) return 0;
 		if($isopen==-1) return null;
 	}
@@ -89,10 +97,11 @@ function GetChangetsetSize($cid)
 	return $count;
 }
 
-function AppendElementToChangeset($cid, $action, $el)
+//AppendElementToChangeset
+function AppendElement($cid, $action, $el)
 {
 	$filename = "changesets-open/".$cid."/data.txt";
-	$changeset = GetChangesetContentObject($cid);
+	$changeset = $this->GetContentObject($cid);
 	if(is_null($changeset)) $changeset = new OsmChange();
 
 	array_push($changeset->data,array($action,array($el)));
@@ -107,15 +116,10 @@ function AppendElementToChangeset($cid, $action, $el)
 	fclose($fi);
 	clearstatcache($filename);
 	//echo filesize($filename).",";
-
-	//$serdataIn = $serdata;
-	//$fi = fopen($filename,"r+t");
-	//$serdataIn = fread($fi,$datalen);
-	//echo strlen($serdataIn).",";
-	//$changeset = unserialize($serdataIn);
 }
 
-function GetChangesetClosedTimeLowLevel($cid)
+//GetChangesetClosedTimeLowLevel
+function GetClosedTime($cid)
 {
 	//$lock=GetReadDatabaseLock();
 	$fname = "changesets-closed/".$cid."/closetime.txt";
@@ -127,7 +131,8 @@ function GetChangesetClosedTimeLowLevel($cid)
 	return null;
 }
 
-function GetChangesetUid($cid)
+//GetChangesetUid
+function GetUid($cid)
 {
 	if(file_exists("changesets-open/".$cid."/details.txt"))
 	{
@@ -142,9 +147,10 @@ function GetChangesetUid($cid)
 	return null;
 }
 
-function GetChangesetMetadataLowLevel($cid)
+//GetChangesetMetadataLowLevel
+function GetMetadata($cid)
 {
-	$open = CheckChangesetIsOpen($cid);
+	$open = $this->IsOpen($cid);
 	if($open == -1) return null;
 
 	//Read tags
@@ -164,14 +170,15 @@ function GetChangesetMetadataLowLevel($cid)
 	$data->attr['uid'] = $details[1];
 	$data->attr['created_at'] = date("c", (int)$details[2]);
 
-	if(!$open) $data->attr['closed_at'] = date("c", GetChangesetClosedTimeLowLevel($cid));
+	if(!$open) $data->attr['closed_at'] = date("c", $this->GetClosedTime($cid));
 
 	//TODO bounding box calculation
 	
 	return $data;
 }
 
-function ChangesetCloseLowLevel($cid)
+//ChangesetCloseLowLevel
+function Close($cid)
 {
 	if(is_dir("changesets-open/".$cid))
 	{
@@ -184,7 +191,8 @@ function ChangesetCloseLowLevel($cid)
 	}
 }
 
-function ChangesetsQuery($user,$open,$timerange)
+//ChangesetsQuery
+function Query($user,$open,$timerange)
 {
 	$out = array();
 	$opencs = getDirectory('changesets-open');
@@ -205,6 +213,12 @@ function ChangesetsQuery($user,$open,$timerange)
 	}
 	return $out;
 }
+
+}//End of class
+
+//**************************
+//Utility Functions
+//**************************
 
 function CloneElement($from,$to)
 {
@@ -227,11 +241,15 @@ function CloneElement($from,$to)
 	}
 }
 
+//****************************
+//Map Model Stored as OSM file
+//****************************
 
 class OsmDatabase
 {
 	public $db = null;
 
+	//Load state
 	function __construct()
 	{
 		//Load database
@@ -240,14 +258,17 @@ class OsmDatabase
 			throw new Exception("Failed to load internal database.");
 	}	
 
+	//Save state
 	public function Save()
 	{
 		$this->db->saveXML("map.osm");
 	}
 
+	//**********************
 	//Internal processing
+	//**********************
 	
-	function GetElementById($typeIn, $idIn)
+	function GetElementXmlById($typeIn, $idIn)
 	{
 		foreach ($this->db as $type => $v)
 		{
@@ -281,7 +302,9 @@ class OsmDatabase
 		return 1;
 	}
 
+	//**********************
 	//General main query
+	//**********************
 
 	public function MapQuery($bbox)
 	{
@@ -289,20 +312,41 @@ class OsmDatabase
 		return $out;
 	}
 
+	//**********************************
 	//Get specific info from database
+	//**********************************
 
 	public function GetCurentVerOfElement($type,$id)
 	{
-		$currentObj = $this->GetElementById($type,$id);
+		$currentObj = $this->GetElementXmlById($type,$id);
 		if(is_null($currentObj)) return null;
 		if(!isset($currentObj['version'])) 
 			throw new Exception("Internal database has missing version attribute.");
 		return (int)$currentObj['version'];
 	}
 
+	public function GetElementById($type,$id,$version=null)
+	{
+		$object = $this->GetElementXmlById($type, $id);
+		//print_r($object);
+
+		//This implementation can only return the current version
+		if($version != null and (int)$object['version'] > (int)$version) return -1;
+		if($version != null and (int)$object['version'] < (int)$version) return 0;
+		if($object==null) return 0;
+		return SingleObjectFromXml("<osm>".$object->asXML()."</osm>");
+	}
+
+	public function GetElementFullHistory($type,$id)
+	{
+		//Just get current version, for this implementation
+		$out = array($this->GetElementById($type,$id));
+		return $out;
+	}
+
 	public function CheckElementExists($type,$id)
 	{
-		return !is_null($this->GetElementById($type,$id));
+		return !is_null($this->GetElementXmlById($type,$id));
 	}
 
 	public function GetCitingWaysOfNode($id)
@@ -342,12 +386,14 @@ class OsmDatabase
 
 	public function GetElementAsXmlString($type,$id)
 	{
-		$el = $this->GetElementById($type,$id);
+		$el = $this->GetElementXmlById($type,$id);
 		if(is_null($el)) return null;
 		return $el->asXML();
 	}
 
+	//***********************
 	//Modification functions
+	//***********************
 
 	public function CreateElement($type,$id,$el)
 	{
