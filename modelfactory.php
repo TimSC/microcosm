@@ -39,86 +39,46 @@ function ChangesetDatabase()
 	//return new ChangesetDatabaseOsmXml();
 	return new ChangesetDatabaseSqlite();
 }
-/*
-class OsmDatabaseMultiplexer extends OsmDatabaseMysql
+
+class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 {
-	var $bboxDb;
-	var $modifiedEls = array();
-	var $maxBufferSize = 1000;
 
 	function __construct()
 	{
-		$this->modifiedEls['node'] = array();
-		$this->modifiedEls['way'] = array();
-		$this->modifiedEls['relation'] = array();
-
-		//OsmDatabaseSqliteOpt::__construct();
-		OsmDatabaseMysql::__construct();
-		$this->bboxDb = FactoryBboxDatabase();
+		$this->masterDb = new OsmDatabaseMysql();
 	}
 
 	function __destruct()
 	{
-
-		//Update bboxes of all modified elements, and their parents
-		$modified = $this->FindModifiedElementsIncParents();
-		$this->bboxDb->Update($modified,$this);
-
-		unset($this->bboxDb);
-		//OsmDatabaseSqliteOpt::__destruct();
-		OsmDatabaseMysql::__destruct();
+		unset($this->masterDb);
 	}
 
-	public function CheckModifiedQueue()
+	function GetElementById($type,$id,$version=null)
 	{
-		$totalMod = count($this->modifiedEls['node']) +
-			count($this->modifiedEls['way']) + 
-			count($this->modifiedEls['relation']);
-		//Check if buffer is full
-		if($totalMod>$this->maxBufferSize)
-		{
-			//Flush buffer
-			$modified = $this->FindModifiedElementsIncParents();
-			$this->bboxDb->Update($modified,$this);
-
-			//Clear buffer
-			$this->modifiedEls['node'] = array();
-			$this->modifiedEls['way'] = array();
-			$this->modifiedEls['relation'] = array();
-		}
+		return $this->masterDb->GetElementById($type, $id, $version);
 	}
 
 	public function CreateElement($type,$id,$el)
 	{
-		$this->modifiedEls[$type][$id] = $el;
-		$ret = OsmDatabaseMysql::CreateElement($type,$id,$el);
-		$this->CheckModifiedQueue();
-		return $ret;
+		return $this->masterDb->CreateElement($type,$id,$el);
 	}
 
 	public function ModifyElement($type,$id,$el)
 	{
-		$this->modifiedEls[$type][$id] = $el;
-		$ret = OsmDatabaseMysql::ModifyElement($type,$id,$el);
-		$this->CheckModifiedQueue();
-		return $ret;
+		return $this->masterDb->ModifyElement($type,$id,$el);
 	}
 
 	public function DeleteElement($type,$id,$el)
 	{
-		$this->modifiedEls[$type][$id] = $el;
-		$ret = OsmDatabaseMysql::DeleteElement($type,$id,$el);
-		$this->CheckModifiedQueue();
-		return $ret;
+		return $this->masterDb->DeleteElement($type,$id,$el);
 	}
 
 	public function Purge()
 	{
-		$this->bboxDb->Purge();
-		return OsmDatabaseMysql::Purge();
+		return $this->masterDb->Purge();
 	}	
 
-	function FindModifiedElementsIncParents()
+	/*function FindModifiedElementsIncParents()
 	{
 		$out = array('node'=>array(),'way'=>array(),'relation'=>array());
 
@@ -151,20 +111,21 @@ class OsmDatabaseMultiplexer extends OsmDatabaseMysql
 	
 		//print_r($out);
 		return $out;
-	}
+	}*/
 
 	function QueryXapi($type=null,$bbox=null,$key,$value=null)
 	{
 		//Get ids of matching elements
-		$refs = $this->bboxDb->QueryXapi($type,$bbox,$key,$value);
-		return $refs;
+		//$refs = $this->bboxDb->QueryXapi($type,$bbox,$key,$value);
+		//return $refs;
 	}
 
 	function Dump($callback)
 	{
-		return OsmDatabaseMysql::Dump($callback);
+		//return OsmDatabaseMysql::Dump($callback);
+		return $this->masterDb->Dump();
 	}
 
-}*/
+}
 
 ?>

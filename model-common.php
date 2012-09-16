@@ -201,6 +201,26 @@ abstract class OsmDatabaseCommon
 	//Modification functions
 	//***********************
 
+	public function CreateElement($type,$id,$el)
+	{
+		
+	}
+
+	public function ModifyElement($type,$id,$el)
+	{
+		
+	}
+
+	public function DeleteElement($type,$id,$el)
+	{
+
+	}
+
+	public function Purge()
+	{
+
+	}
+	
 }
 
 
