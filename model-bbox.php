@@ -51,7 +51,7 @@ class BboxDatabaseSqlite
 		if(!in_array($posTableName,$this->tables))
 		{
 		//echo "Creating table ".$posTableName."\n";
-		$sql="CREATE VIRTUAL TABLE [".sqlite_escape_string($posTableName);
+		$sql="CREATE VIRTUAL TABLE [".$this->dbh->quote($posTableName);
 		$sql.="] USING rtree(rowid,minLat,maxLat,minLon,maxLon);";
 		SqliteCheckTableExistsOtherwiseCreate($this->dbh,$posTableName,$sql);
 		//echo "Done.\n";
@@ -60,7 +60,7 @@ class BboxDatabaseSqlite
 		if(!in_array($dataTableName,$this->tables))
 		{
 		//echo "Creating table ".$dataTableName."\n";
-		$sql="CREATE TABLE [".sqlite_escape_string($dataTableName);
+		$sql="CREATE TABLE [".$this->dbh->quote($dataTableName);
 		$sql.="] (rowid INTEGER PRIMARY KEY,elementid STRING UNIQUE, value STRING, ";
 		$sql.="type INTEGER, hasNodes INTEGER, hasWays INTEGER);";
 		SqliteCheckTableExistsOtherwiseCreate($this->dbh,$dataTableName,$sql);
@@ -117,7 +117,7 @@ class BboxDatabaseSqlite
 		$out = array();
 		foreach($this->tables as $table)
 		{
-			$query = "SELECT count(*) FROM [".sqlite_escape_string($table)."];";
+			$query = "SELECT count(*) FROM [".$this->dbh->quote($table)."];";
 			$ret = $this->dbh->query($query);
 			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 
@@ -165,18 +165,20 @@ class BboxDatabaseSqlite
 		if($type=="relation") $typeInt = 3;
 		if(is_null($typeInt)) throw new Exception("Unknown type, can't convert to int");
 
-		$sql = "INSERT INTO [".sqlite_escape_string($dataTableName)."] ";
-		$sql .= "(rowid,elementid,value,type,hasNodes,hasWays) VALUES (null,'";
-		$sql .= sqlite_escape_string($elementidStr)."','".sqlite_escape_string($value)."',".$typeInt;
-		$sql .= ",".(int)(count($el->nodes)>0);//hasNodes
-		$sql .= ",".(int)(count($el->ways)>0);//hasWays
+		$sql = "INSERT INTO [".$this->dbh->quote($dataTableName)."] ";
+		$sql .= "(rowid,elementid,value,type,hasNodes,hasWays) VALUES (null,?,?,?";
+		$sql .= ",?";//hasNodes
+		$sql .= ",?";//hasWays
 		$sql.= ");";
-		$ret = $this->dbh->exec($sql);
-		//echo $sql."\n";
+		$sqlVals = array($elementidStr, $value, $typeInt, (int)(count($el->nodes)>0), (int)(count($el->ways)>0));
+
+		$sth = $this->dbh->prepare($sql);
+		if($sth===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+		$ret = $sth->execute($sqlVals);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		$rowid = $this->dbh->lastInsertId();
 
-		$sql = "INSERT INTO [".sqlite_escape_string($posTableName)."] (rowid,minLat,maxLat,minLon,maxLon) VALUES (";
+		$sql = "INSERT INTO [".$this->dbh->quote($posTableName)."] (rowid,minLat,maxLat,minLon,maxLon) VALUES (";
 		$sql .= $rowid.",".$bbox[1].','.$bbox[3].','.$bbox[0].','.$bbox[2].");";
 		$ret = $this->dbh->exec($sql);
 		//echo $sql."\n";
@@ -185,12 +187,15 @@ class BboxDatabaseSqlite
 
 	function GetRowIdOfTable($table,$elementid)
 	{
-		$query = "SELECT rowid FROM [".sqlite_escape_string($table);
-		$query.= "] WHERE elementid='".sqlite_escape_string($elementid)."';";
-		$ret = $this->dbh->query($query);
+		$query = "SELECT rowid FROM [".$this->dbh->quote($table)."] WHERE elementid=?;";
+		$sqlVals = array($elementid);
+
+		$sth = $this->dbh->query($query);
+		if($sth===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		$ret = $sth->execute($sqlVals);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 
-		foreach($ret as $row)
+		foreach($sth->fetchAll() as $row)
 		{
 			return $row[0];
 		}
@@ -217,11 +222,11 @@ class BboxDatabaseSqlite
 			$row = $this->GetRowIdOfTable($dataTableName, $elementidStr);
 			if(is_null($row)) continue;
 
-			$sql = "DELETE FROM [".sqlite_escape_string($posTableName)."] WHERE rowid=".$row.";";
+			$sql = "DELETE FROM [".$this->dbh->quote($posTableName)."] WHERE rowid=".$row.";";
 			$ret = $this->dbh->exec($sql);
 			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
-			$sql = "DELETE FROM [".sqlite_escape_string($dataTableName)."] WHERE rowid=".$row.";";
+			$sql = "DELETE FROM [".$this->dbh->quote($dataTableName)."] WHERE rowid=".$row.";";
 			$ret = $this->dbh->exec($sql);
 			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		}
@@ -328,34 +333,46 @@ class BboxDatabaseSqlite
 		$dataTableName = $keySanitized."_data";
 		if(is_null($bbox)) $bbox = array(-180,-90,180,90);
 
-		$query = "SELECT elementid,value FROM [".sqlite_escape_string($posTableName);
-		$query .= "] INNER JOIN [".sqlite_escape_string($dataTableName);
-		$query .= "] ON [".sqlite_escape_string($posTableName);
-		$query .= "].rowid=[".sqlite_escape_string($dataTableName)."].rowid";
-		$query .= " WHERE minLat > ".(float)$bbox[1];
-		$query .= " and maxLat < ".(float)$bbox[3];
-		$query .= " and maxLon < ".(float)$bbox[2]." and minLon > ".(float)$bbox[0];
+		$query = "SELECT elementid,value FROM [".$this->dbh->quote($posTableName);
+		$query .= "] INNER JOIN [".$this->dbh->quote($dataTableName);
+		$query .= "] ON [".$this->dbh->quote($posTableName);
+		$query .= "].rowid=[".$this->dbh->quote($dataTableName)."].rowid";
+		$query .= " WHERE minLat > ?";
+		$query .= " and maxLat < ?";
+		$query .= " and maxLon < ? and minLon > ?";
+		$sqlVals = array((float)$bbox[1], (float)$bbox[3], (float)$bbox[2], (float)$bbox[0]);
+
 		if(!is_null($value))
 		{
 			$valueExp = explode("|",$value);
-			$query .= " and (value='".sqlite_escape_string($valueExp[0])."'";
+			$query .= " and (value=?";
+			array_push($sqlVals, $valueExp[0]);
 			for($i=1;$i<count($valueExp);$i++)
-				$query .= " or value='".sqlite_escape_string($valueExp[$i])."'";
+			{
+				$query .= " or value=?";
+				array_push($sqlVals, $valueExp[$i]);
+			}
 			$query .= ")";
 		}
 
 		if($type=="node") $query .= " and type=1";
 		if($type=="way") $query .= " and type=2";
 		if($type=="relation") $query .= " and type=3";
-		if(!is_null($maxRecords)) $query .= " LIMIT 0,".((int)$maxRecords);
+		if(!is_null($maxRecords))
+		{	
+			$query .= " LIMIT 0,?";
+			array_push($sqlVals, (int)$maxRecords);
+		}
 		$query .= ";";
 
-		$ret = $this->dbh->query($query);
+		$sth = $this->dbh->prepare($query);
+		if($sth===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		$ret = $sth->execute($query);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 
 		$out = array();
 
-		foreach($ret as $row)
+		foreach($sth->fetchAll() as $row)
 		{
 			//$expId = explode("-",$row['elementid']);
 			//$type = $expId[0];

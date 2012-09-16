@@ -176,16 +176,11 @@ function InsertTraceIntoDb($userInfo, $args)
 	InitialiseTraceDbSchema($db);
 
 	//Insert metadata
-	$sql = "INSERT INTO meta (tid,public,visible,uid,name,description,tags,pending,timestamp) VALUES (".(int)$tid.",";
-	$sql .= (int)$public;
-	$sql .= ",".(int)$visibleNum;
-	$sql .= ",".(int)$uid;
-	$sql .= ",'".sqlite_escape_string($name)."'";
-	$sql .= ",'".sqlite_escape_string($description)."'";
-	$sql .= ",'".sqlite_escape_string($tags)."',1";
-	$sql .= ",".time();
-	$sql .= ");";
-	$ret = $db->exec($sql);
+	$sql = "INSERT INTO meta (tid,public,visible,uid,name,description,tags,pending,timestamp) VALUES (? ,?, ?, ?, ?, ?, ?, 1, ?);";
+	$sqlVals = array((int)$tid, (int)$public, (int)$visibleNum, (int)$uid, $name, $description, $tags, time());
+	$sth = $db->prepare($sql);
+	if($sth===false) {$err= $db->errorInfo();throw new Exception($sql.",".$err[2]);}
+	$ret = $sth->execute($sqlVals);
 	if($ret===false) {$err= $db->errorInfo();throw new Exception($sql.",".$err[2]);}
 	
 	ProcessPendingTrace($db,$tid,$gpx);
@@ -240,9 +235,11 @@ function ProcessPendingTrace($db,$tid,$gpx)
 			$id = $db->lastInsertId();
 
 			//Insert point position
-			$sql = "INSERT INTO position (id,minLat,maxLat,minLon,maxLon) VALUES (".$id.",";
-			$sql .= $lat.",".$lat.",".$lon.",".$lon.");";
-			$ret = $db->exec($sql);
+			$sql = "INSERT INTO position (id,minLat,maxLat,minLon,maxLon) VALUES (?,?,?,?,?);";
+			$sqlVals = array($id, $lat, $lat, $lon, $lon);
+			$sth = $db->prepare($sql);
+			if($sth===false) {$err= $db->errorInfo();throw new Exception($sql.",".$err[2]);}
+			$ret = $sth->execute($sqlVals);
 			if($ret===false) {$err= $db->errorInfo();throw new Exception($sql.",".$err[2]);}
 		}
 		$segid += 1;
