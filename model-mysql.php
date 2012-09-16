@@ -491,7 +491,9 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		$uid = "NULL";
 		if (isset($el->attr['uid']))
 			$uid = $this->dbh->quote($el->attr['uid']);
-		$timestamp = $this->dbh->quote((int)strtotime($el->attr['timestamp']));
+		$timestamp = 0;
+		if (isset($el->attr['timestamp']))
+			$timestamp = $this->dbh->quote((int)strtotime($el->attr['timestamp']));
 		$visible = "NULL";
 		if (isset($el->attr['visible']) and $el->attr['visible'] == "true") $visible = 1;
 		if (isset($el->attr['visible']) and $el->attr['visible'] == "false") $visible = 0;
