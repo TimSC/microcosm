@@ -17,11 +17,11 @@ function OsmDatabase()
 	//$db = new OsmDatabaseByFileTree();
 	//$db = new OsmDatabaseSqlite();
 	//$db = new OsmDatabaseSqliteOpt();
-	//$db = new OsmDatabaseMultiplexer();
-	if(BACKEND_DATABASE == "mysql")
-		$db = new OsmDatabaseMysql();
-	if(BACKEND_DATABASE == "sqlite")
-		$db = new OsmDatabaseSqliteOpt();
+	$db = new OsmDatabaseMultiplexer();
+	//if(BACKEND_DATABASE == "mysql")
+	//	$db = new OsmDatabaseMysql();
+	//if(BACKEND_DATABASE == "sqlite")
+	//	$db = new OsmDatabaseSqliteOpt();
 
 	$checkPermissions = $db->CheckPermissions();
 	if($checkPermissions != 1)
@@ -46,11 +46,13 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 	function __construct()
 	{
 		$this->masterDb = new OsmDatabaseMysql();
+		$this->events = fopen("events.txt","wt");
 	}
 
 	function __destruct()
 	{
 		unset($this->masterDb);
+		fclose($this->events);
 	}
 
 	function GetElementById($type,$id,$version=null)
@@ -60,23 +62,27 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 
 	public function CreateElement($type,$id,$el)
 	{
+		fwrite($this->events, "Create ".$type." ".$id."\n");
 		return $this->masterDb->CreateElement($type,$id,$el);
 	}
 
 	public function ModifyElement($type,$id,$el)
 	{
+		fwrite($this->events, "Modify ".$type." ".$id."\n");
 		return $this->masterDb->ModifyElement($type,$id,$el);
 	}
 
 	public function DeleteElement($type,$id,$el)
 	{
+		fwrite($this->events, "Delete ".$type." ".$id."\n");
 		return $this->masterDb->DeleteElement($type,$id,$el);
 	}
 
 	public function Purge()
 	{
+		fwrite($this->events, "Purge\n");
 		return $this->masterDb->Purge();
-	}	
+	}
 
 	/*function FindModifiedElementsIncParents()
 	{
@@ -124,6 +130,26 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 	{
 		//return OsmDatabaseMysql::Dump($callback);
 		return $this->masterDb->Dump();
+	}
+
+	function CheckPermissions()
+	{
+		return $this->masterDb->CheckPermissions();
+	}
+
+	function GetNodesInBbox($bbox)
+	{
+		return $this->masterDb->GetNodesInBbox($bbox);
+	}
+
+	function GetParentWaysOfNodes(&$nodes)
+	{
+		return $this->masterDb->GetParentWaysOfNodes($nodes);
+	}
+
+	function GetParentRelations(&$els)
+	{
+		return $this->masterDb->GetParentRelations($els);
 	}
 
 }

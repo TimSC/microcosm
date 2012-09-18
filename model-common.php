@@ -8,17 +8,17 @@ abstract class OsmDatabaseCommon
 	//General main query
 	//**********************
 
-	public function GetNodesInBbox($bbox)
-	{
+	public abstract function GetNodesInBbox($bbox);
+	//{
 		//Return node objects in array
-		return array();
-	}
+	//	return array();
+	//}
 
-	public function GetParentWaysOfNodes(&$nodes)
-	{
+	public abstract function GetParentWaysOfNodes(&$nodes);
+	//{
 		//Return way objects in array
-		return array();
-	}
+	//	return array();
+	//}
 
 	public function GetNodesToCompleteWays(&$nodes, &$ways)
 	{
@@ -53,11 +53,11 @@ abstract class OsmDatabaseCommon
 		return 1;
 	}
 	
-	public function GetParentRelations(&$els)
-	{
-		//Return way objects in array
-		return array();
-	}
+	public abstract function GetParentRelations(&$els);
+	//{
+	//	//Return way objects in array
+	//	return array();
+	//}
 
 	public function MapQuery($bbox)
 	{
@@ -197,29 +197,19 @@ abstract class OsmDatabaseCommon
 		return $bbox;
 	}
 
+	public abstract function CheckPermissions();
+
 	//***********************
 	//Modification functions
 	//***********************
 
-	public function CreateElement($type,$id,$el)
-	{
-		
-	}
+	public abstract function CreateElement($type,$id,$el);
 
-	public function ModifyElement($type,$id,$el)
-	{
-		
-	}
+	public abstract function ModifyElement($type,$id,$el);
 
-	public function DeleteElement($type,$id,$el)
-	{
+	public abstract function DeleteElement($type,$id,$el);
 
-	}
-
-	public function Purge()
-	{
-
-	}
+	public abstract function Purge();
 	
 }
 
