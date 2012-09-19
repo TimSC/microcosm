@@ -2,6 +2,7 @@
 
 require_once('modelfactory.php');
 require_once('fileutils.php');
+require_once('messagepump.php');
 
 function MapQuery($userInfo,$bboxStr)
 {
@@ -15,6 +16,11 @@ function MapQuery($userInfo,$bboxStr)
 
 	$lock=GetReadDatabaseLock();
 	$map = OsmDatabase();
+
+	$queryEvent = new Message(Message::MAP_QUERY, $bbox);
+	global $messagePump;
+	$messagePump->AddAndProcess($queryEvent);
+
 	return array(1,array("Content-Type:text/xml"),$map->MapQuery($bbox));
 }
 

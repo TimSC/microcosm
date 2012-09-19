@@ -4,6 +4,7 @@ require_once("config.php");
 require_once("querymap.php");
 require_once("osmtypes.php");
 require_once("modelfactory.php");
+require_once("messagepump.php");
 
 function GetNewObjectId($type)
 {
