@@ -25,3 +25,17 @@ export.php
 
 Import data: 
 Usage: php import.php -i data.osm [--dontnuke] [--dontlock]
+
+
+Setup permissions :
+  chown www-data:www-data *.txt
+  sudo chown www-data:www-data *.txt
+  sudo chown www-data:www-data db.lock 
+  sudo chown www-data:www-data log.txt
+  touch log.txt
+  sudo chown www-data:www-data log.txt
+
+
+Setup apache :
+
+apachemain.conf
