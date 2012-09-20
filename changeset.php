@@ -89,7 +89,7 @@ function ChangesetClose($userInfo,$argExp)
 
 //<osmChange version='0.6' generator='JOSM'><delete><way id='171' action='delete' timestamp='2010-10-14T08:41:57Z' uid='6809' user='TimSC' visible='true' version='1' changeset='209'/>  <node id='681' action='delete' timestamp='2010-10-14T08:41:57Z' uid='6809' user='TimSC' visible='true' version='1' changeset='209' lat='51.26718186473299' lon='-0.5552857742301459'/></delete></osmChange>
 
-function CheckChildrenExist(&$children, &$createdEls,$map)
+function CheckChildrenExist(&$children, &$createdEls)
 {
 	foreach($children as $child)
 	{
@@ -115,7 +115,7 @@ function CheckElementInList(&$li, $type, $id)
 	return isset($li[$type.$id]);
 }
 
-function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChanged)
+function CheckCitationsIfDeleted($type, $el, &$deletedEls, &$recentlyChanged)
 {
 	$id = $el->attr['id'];
 	$type = $el->GetType();
@@ -197,7 +197,7 @@ function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChang
 
 $requiredAttributes = array('id','changeset');
 
-function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
+function ValidateOsmChange($osmchange,$cid,$displayName,$userId)
 {
 	$createdEls = array();
 	$deletedEls = array();
@@ -322,13 +322,13 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 
 
 		//Check if referenced elements actual exist
-		$ret = CheckChildrenExist($el->members, $createdEls, $map);
+		$ret = CheckChildrenExist($el->members, $createdEls);
 		if($ret==0) return array(0,null,"object-not-found",$type,$id);
 	
 		//Check if deleting stuff will break ways
 		if(strcmp($action,"delete")==0)
 		{
-		$ret = CheckCitationsIfDeleted($type, $el, $map, $deletedEls, $recentlyChanged);
+		$ret = CheckCitationsIfDeleted($type, $el, $deletedEls, $recentlyChanged);
 		if($ret!=1) return $ret;
 		}
 
@@ -457,7 +457,7 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 	return $changes;
 }
 
-function GetBboxOfReferencedElements($osmchange,&$map)
+function GetBboxOfReferencedElements($osmchange)
 {
 	//For each element
 	$bbox= null;
@@ -485,7 +485,7 @@ function ExpandChangesetBbox($cid,$bbox)
 	return 1;
 }
 
-function ApplyChangeToDatabase(&$osmchange,&$map)
+function ApplyChangeToDatabase(&$osmchange)
 {
 	$csd = ChangesetDatabase();
 
@@ -542,12 +542,11 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 	$lock=GetWriteDatabaseLock();
 
 	//Load database
-	$map = null;
 
 	//Validate change
 	try
 	{
-	$valret = ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map);
+	$valret = ValidateOsmChange($osmchange,$cid,$displayName,$userId);
 	if($valret != 1)
 		return $valret;
 	}
@@ -561,19 +560,18 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 
 	//Bbox for elements before change is applied
 	//TODO relations should be handled differently
-	$bbox = GetBboxOfReferencedElements($osmchange,$map);
+	$bbox = GetBboxOfReferencedElements($osmchange);
 	ExpandChangesetBbox($cid,$bbox);
 
 	//Apply changes to database
-	ApplyChangeToDatabase($osmchange,$map);
+	ApplyChangeToDatabase($osmchange);
 
 	//Bbox for elements after change is applied
-	$bbox = GetBboxOfReferencedElements($osmchange,$map);
+	$bbox = GetBboxOfReferencedElements($osmchange);
 	ExpandChangesetBbox($cid,$bbox);
 
 	//Cause the destructor of the map and bbox databases object to run
 	unset($bboxdb);
-	unset($map); 
 
 	return array(1,$changes);
 }
