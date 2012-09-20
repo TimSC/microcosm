@@ -26,35 +26,40 @@ class MessagePump
 
 	function Add($event)
 	{
-		array_unshift($this->buffer, $event);
+		array_push($this->buffer, $event);
 	}
 
-	function AddListener($eventType, $listenerFunc)
+	function AddListener($eventType, $listenerFunc, $listenVars)
 	{
-		
+		if(!isset($this->listeners[$eventType]))
+			$this->listeners[$eventType] = array();
+		array_push($this->listeners[$eventType], array($listenerFunc, $listenVars));
 	}
 
 	function ProcessSingleEvent($event)
 	{
 		if(!isset($this->listeners[$event->type])) return Null;
+		$ret = Null;
+		foreach($this->listeners[$event->type] as $li)
+		{
+			$liFunc = $li[0];
+			$ret = $liFunc($event->type, $event->content, $li[1]);
+		}
+		return $ret;
 	}
 
 	function Process()
 	{
+		$ret = Null;
 		$event = array_shift($this->buffer);
 		while($event !== Null)
 		{
-			$this->ProcessSingleEvent($event);			
-
+			$ret = $this->ProcessSingleEvent($event);
 			$event = array_shift($this->buffer);
 		}
+		return $ret;
 	}
 
-	function AddAndProcess($event)
-	{
-		$this->Process();
-		return $this->ProcessSingleEvent($event);
-	}
 }
 
 $messagePump = new MessagePump();

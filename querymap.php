@@ -19,9 +19,11 @@ function MapQuery($userInfo,$bboxStr)
 
 	$queryEvent = new Message(Message::MAP_QUERY, $bbox);
 	global $messagePump;
-	$messagePump->AddAndProcess($queryEvent);
+	$messagePump->Add($queryEvent);
+	$ret = $messagePump->Process();
 
-	return array(1,array("Content-Type:text/xml"),$map->MapQuery($bbox));
+	return array(1,array("Content-Type:text/xml"),$ret);
+	//return array(1,array("Content-Type:text/xml"),$map->MapQuery($bbox));
 }
 
 function MapObjectQuery($userInfo,$expUrl)

@@ -6,6 +6,7 @@ require_once ('model-mysql.php');
 require_once ('model-sqlite-opt.php');
 require_once ('model-changesets-sqlite.php');
 require_once ("model-bbox.php");
+require_once ("messagepump.php");
 require_once ("config.php");
 
 //The backend database is implemented using a strategy software pattern. This makes
@@ -153,5 +154,21 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 	}
 
 }
+
+$dbGlobal = Null;
+
+function DatabaseEventHandler($eventType, $content, $listenVars)
+{
+	global $dbGlobal;
+	if($dbGlobal === Null)
+		$dbGlobal = OsmDatabase();
+
+	if($eventType === Message::MAP_QUERY)
+	{
+		return $dbGlobal->MapQuery($content);
+	}
+}
+
+$messagePump->AddListener(Message::MAP_QUERY, "DatabaseEventHandler", Null);
 
 ?>
