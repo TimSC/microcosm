@@ -1,6 +1,4 @@
 <?php
-
-require_once('modelfactory.php');
 require_once('fileutils.php');
 require_once('messagepump.php');
 
@@ -24,6 +22,14 @@ function MapQuery($userInfo,$bboxStr)
 	return array(1,array("Content-Type:text/xml"),$ret);
 }
 
+function GetObjectByIdMessage($type, $id, $version=null)
+{
+	$queryEvent = new Message(Message::GET_OBJECT_BY_ID, array($type,(int)$id,$version));
+	global $messagePump;
+	$messagePump->Add($queryEvent);
+	return $messagePump->Process();
+}
+
 function MapObjectQuery($userInfo,$expUrl)
 {
 	$type=$expUrl[2];
@@ -31,14 +37,8 @@ function MapObjectQuery($userInfo,$expUrl)
 	if(isset($expUrl[4])) $version=$expUrl[4];
 	else $version = Null;
 
-	$lock=GetReadDatabaseLock();
-	//$map = OsmDatabase();
-	//$obj = $map->GetElementById($type,(int)$id,$version);
-
-	$queryEvent = new Message(Message::GET_OBJECT_BY_ID, array($type,(int)$id,$version));
-	global $messagePump;
-	$messagePump->Add($queryEvent);
-	$obj = $messagePump->Process();
+	$lock = GetReadDatabaseLock();
+	$obj = GetObjectByIdMessage($type, $id, $version);
 
 	if(!is_object($obj))
 	{
@@ -59,8 +59,11 @@ function MapObjectFullHistory($userInfo,$expUrl)
 	$id=(int)$expUrl[3];
 
 	$lock=GetReadDatabaseLock();
-	$map = OsmDatabase();
-	$objs = $map->GetElementFullHistory($type,$id);
+
+	$queryEvent = new Message(Message::GET_FULL_HISTORY, array($type,(int)$id));
+	global $messagePump;
+	$messagePump->Add($queryEvent);
+	$objs = $messagePump->Process();
 
 	if(!is_array($objs))
 	{
@@ -85,7 +88,6 @@ function MultiFetch($userInfo, $args)
 
 	$lock=GetReadDatabaseLock();
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<osm version="0.6" generator="'.SERVER_NAME.'">';
-	$map = OsmDatabase();
 
 	$emptyQuery = 0;
 	if(count($ids)<1 or (count($ids)==1 and strlen($ids[0])==0))
@@ -94,7 +96,7 @@ function MultiFetch($userInfo, $args)
 	if(!$emptyQuery)
 	foreach($ids as $id)
 	{
-		$object = $map->GetElementById($type, (int)$id);
+		$object = GetObjectByIdMessage($type, (int)$id);
 		if($object==null) return array(0,Null,"not-found");
 		$out = $out.$object->ToXmlString()."\n";
 	}
@@ -110,7 +112,6 @@ function GetRelationsForElement($userInfo,$urlExp)
 
 	$lock=GetReadDatabaseLock();
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<osm version="0.6" generator="'.SERVER_NAME.'">';
-	$map = OsmDatabase();
 
 	$rels = $map->GetCitingRelations($type,(int)$id);
 
@@ -118,7 +119,7 @@ function GetRelationsForElement($userInfo,$urlExp)
 	foreach($rels as $id)
 	{
 		if(!is_integer($id)) throw new Exception("Values in relation array should be ID integers");
-		$object = $map->GetElementById("relation", (int)$id);
+		$object = GetObjectByIdMessage("relation", (int)$id);
 		if($object==null) return array(0,Null,"not-found");		
 		$out = $out.$object->ToXmlString()."\n";
 	}
@@ -133,15 +134,17 @@ function GetWaysForNode($userInfo,$urlExp)
 
 	$lock=GetReadDatabaseLock();
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<osm version="0.6" generator="'.SERVER_NAME.'">';
-	$map = OsmDatabase();
 
-	$ways = $map->GetCitingWaysOfNode((int)$id);
+	$queryEvent = new Message(Message::GET_WAYS_FOR_NODE, (int)$id);
+	global $messagePump;
+	$messagePump->Add($queryEvent);
+	$ways = $messagePump->Process();
 
 	//For each relation found to match	
 	foreach($ways as $id)
 	{
 		if(!is_integer($id)) throw new Exception("Values in way array should be ID integers");
-		$object = $map->GetElementById("way", (int)$id);
+		$object = GetObjectByIdMessage("way", (int)$id);
 		if($object==null) return array(0,Null,"not-found");		
 		$out = $out.$object->ToXmlString()."\n";
 	}
@@ -159,11 +162,11 @@ function GetFullDetailsOfElement($userInfo,$urlExp)
 
 	$lock=GetReadDatabaseLock();
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<osm version="0.6" generator="'.SERVER_NAME.'">';
-	$map = OsmDatabase();
-	$firstObj = $map->GetElementById($type,(int)$id);
+	$firstObj = GetObjectByIdMessage($type,(int)$id, Null);
+
 	//print_r($firstObj);
-	if($firstObj===null or $firstObj==0) return array(0,Null,"not-found");
-	if($firstObj==-2) return array(0,Null,"gone",$type,$id);
+	if($firstObj===null or $firstObj===0) return array(0,Null,"not-found");
+	if($firstObj===-2) return array(0,Null,"gone",$type,$id);
 	$out = $out.$firstObj->ToXmlString()."\n";
 
 	//Get relations but don't go recursively
@@ -171,7 +174,7 @@ function GetFullDetailsOfElement($userInfo,$urlExp)
 	{
 		if($data[0] != "relation") continue;
 		$id = $data[1];
-		$obj = $map->GetElementById("relation",(int)$id);
+		$obj = GetObjectByIdMessage("relation",(int)$id);
 		if($obj==null) return array(0,Null,"not-found");
 		$out = $out.$obj->ToXmlString()."\n";		
 	}
@@ -181,7 +184,7 @@ function GetFullDetailsOfElement($userInfo,$urlExp)
 	{
 		if($data[0] != "way") continue;
 		$id = $data[1];
-		$obj = $map->GetElementById("way",(int)$id);
+		$obj = GetObjectByIdMessage("way",(int)$id);
 		if($obj==null) return array(0,Null,"not-found");
 		$out = $out.$obj->ToXmlString()."\n";
 
@@ -190,7 +193,7 @@ function GetFullDetailsOfElement($userInfo,$urlExp)
 		{
 			if($mem[0] != "node") continue;
 			$nid = $mem[1];
-			$n = $map->GetElementById("node",(int)$nid);
+			$n = GetObjectByIdMessage("node",(int)$nid);
 			if($n==null) return array(0,Null,"not-found");
 			$out = $out.$n->ToXmlString()."\n";
 		}
@@ -201,7 +204,7 @@ function GetFullDetailsOfElement($userInfo,$urlExp)
 	{
 		if($data[0] != "node") continue;
 		$nid = $nd[1];
-		$n = $map->GetElementById("node",(int)$nid);
+		$n = GetObjectByIdMessage("node",(int)$nid);
 		if($n==null) return array(0,Null,"not-found");
 		$out = $out.$n->ToXmlString()."\n";
 	}

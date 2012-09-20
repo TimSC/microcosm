@@ -172,9 +172,31 @@ function DatabaseEventHandler($eventType, $content, $listenVars)
 	{
 		return $dbGlobal->GetElementById($content[0],$content[1],$content[2]);
 	}
+
+	if($eventType === Message::GET_FULL_HISTORY)
+	{
+		return $dbGlobal->GetElementFullHistory($content[0], $content[1]);
+	}
+
+	if($eventType === Message::GET_RELATIONS_FOR_ELEMENT)
+	{
+		return $dbGlobal->GetCitingRelations($content[0], $content[1]);
+	}
+
+	if($eventType === Message::GET_WAYS_FOR_NODE)
+	{
+		return $dbGlobal->GetCitingWaysOfNode($content);
+	}
+
 }
 
 $messagePump->AddListener(Message::MAP_QUERY, "DatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_OBJECT_BY_ID, "DatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_FULL_HISTORY, "DatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_RELATIONS_FOR_ELEMENT, "DatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_WAYS_FOR_NODE, "DatabaseEventHandler", Null);
+
+
+
 
 ?>

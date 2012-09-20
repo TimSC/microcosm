@@ -4,7 +4,10 @@ class Message
 {
     const MAP_QUERY = 0;
 	const GET_OBJECT_BY_ID = 1;
-
+	const GET_FULL_HISTORY = 2;
+	const GET_RELATIONS_FOR_ELEMENT = 3;
+	const GET_WAYS_FOR_NODE = 4;
+	
 	function __construct($type, $content)
 	{
 		$this->type = $type;
