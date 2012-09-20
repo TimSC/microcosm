@@ -130,7 +130,7 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 	function Dump($callback)
 	{
 		//return OsmDatabaseMysql::Dump($callback);
-		return $this->masterDb->Dump();
+		return $this->masterDb->Dump($callback);
 	}
 
 	function CheckPermissions()
@@ -206,6 +206,10 @@ function DatabaseEventHandler($eventType, $content, $listenVars)
 	if($eventType === Message::DELETE_ELEMENT)
 		return $dbGlobal->DeleteElement($content[0], $content[1], $content[2]);
 
+	if($eventType === Message::DUMP)
+	{
+		return $dbGlobal->Dump($content);
+	}
 }
 
 $messagePump->AddListener(Message::MAP_QUERY, "DatabaseEventHandler", Null);
@@ -219,5 +223,6 @@ $messagePump->AddListener(Message::GET_ELEMENT_BBOX, "DatabaseEventHandler", Nul
 $messagePump->AddListener(Message::CREATE_ELEMENT, "DatabaseEventHandler", Null);
 $messagePump->AddListener(Message::MODIFY_ELEMENT, "DatabaseEventHandler", Null);
 $messagePump->AddListener(Message::DELETE_ELEMENT, "DatabaseEventHandler", Null);
+$messagePump->AddListener(Message::DUMP, "DatabaseEventHandler", Null);
 
 ?>

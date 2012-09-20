@@ -13,6 +13,7 @@ class Message
 	const CREATE_ELEMENT = 8;
 	const MODIFY_ELEMENT = 9;
 	const DELETE_ELEMENT = 10;
+	const DUMP = 11;
 	
 	function __construct($type, $content)
 	{
@@ -41,6 +42,7 @@ class MessagePump
 
 	function AddListener($eventType, $listenerFunc, $listenVars)
 	{
+		//echo $eventType." ".$listenerFunc."\n";
 		if(!isset($this->listeners[$eventType]))
 			$this->listeners[$eventType] = array();
 		array_push($this->listeners[$eventType], array($listenerFunc, $listenVars));
@@ -48,10 +50,12 @@ class MessagePump
 
 	function ProcessSingleEvent($event)
 	{
+		//echo $event->type."\n";
 		if(!isset($this->listeners[$event->type])) return Null;
 		$ret = Null;
 		foreach($this->listeners[$event->type] as $li)
 		{
+			//echo $event->type." ".$liFunc."\n";
 			$liFunc = $li[0];
 			$ret = $liFunc($event->type, $event->content, $li[1]);
 		}

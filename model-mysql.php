@@ -457,7 +457,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		$sql = "SELECT * FROM current WHERE type = ".$this->dbh->quote($this->TypeToCode($ty)).";";
 		$ret = $this->dbh->query($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
-		foreach ($ret as $row) {$obj = $this->IntIdToObj($row['intid']);call_user_func($callback,$obj);}
+		foreach ($ret as $row) {$obj = $this->IntIdToObj($row['intid']);$callback($obj);}
 		}
 	}
 	
