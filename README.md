@@ -15,3 +15,13 @@ So create the following :
      mysql> create database db_map;
      mysql> grant all on db_map.* to map_map identified by '4yuy34udm';
 
+
+Test : 
+     info.php
+
+
+Export data:
+export.php
+
+Import data: 
+Usage: php import.php -i data.osm [--dontnuke] [--dontlock]
