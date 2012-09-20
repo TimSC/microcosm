@@ -129,7 +129,7 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 	function Dump($callback)
 	{
 		//return OsmDatabaseMysql::Dump($callback);
-		return $this->masterDb->Dump();
+		return $this->masterDb->Dump($callback);
 	}
 
 	function CheckPermissions()
