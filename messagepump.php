@@ -3,6 +3,7 @@
 class Message
 {
     const MAP_QUERY = 0;
+	const GET_OBJECT_BY_ID = 1;
 
 	function __construct($type, $content)
 	{

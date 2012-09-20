@@ -167,8 +167,14 @@ function DatabaseEventHandler($eventType, $content, $listenVars)
 	{
 		return $dbGlobal->MapQuery($content);
 	}
+
+	if($eventType === Message::GET_OBJECT_BY_ID)
+	{
+		return $dbGlobal->GetElementById($content[0],$content[1],$content[2]);
+	}
 }
 
 $messagePump->AddListener(Message::MAP_QUERY, "DatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_OBJECT_BY_ID, "DatabaseEventHandler", Null);
 
 ?>

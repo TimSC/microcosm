@@ -15,7 +15,6 @@ function MapQuery($userInfo,$bboxStr)
 	if($ret != 1) return array(0,Null,$ret);
 
 	$lock=GetReadDatabaseLock();
-	$map = OsmDatabase();
 
 	$queryEvent = new Message(Message::MAP_QUERY, $bbox);
 	global $messagePump;
@@ -23,7 +22,6 @@ function MapQuery($userInfo,$bboxStr)
 	$ret = $messagePump->Process();
 
 	return array(1,array("Content-Type:text/xml"),$ret);
-	//return array(1,array("Content-Type:text/xml"),$map->MapQuery($bbox));
 }
 
 function MapObjectQuery($userInfo,$expUrl)
@@ -34,8 +32,14 @@ function MapObjectQuery($userInfo,$expUrl)
 	else $version = Null;
 
 	$lock=GetReadDatabaseLock();
-	$map = OsmDatabase();
-	$obj = $map->GetElementById($type,(int)$id,$version);
+	//$map = OsmDatabase();
+	//$obj = $map->GetElementById($type,(int)$id,$version);
+
+	$queryEvent = new Message(Message::GET_OBJECT_BY_ID, array($type,(int)$id,$version));
+	global $messagePump;
+	$messagePump->Add($queryEvent);
+	$obj = $messagePump->Process();
+
 	if(!is_object($obj))
 	{
 		if($obj==0) return array(0,Null,"not-found");
