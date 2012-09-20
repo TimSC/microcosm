@@ -188,6 +188,24 @@ function DatabaseEventHandler($eventType, $content, $listenVars)
 		return $dbGlobal->GetCitingWaysOfNode($content);
 	}
 
+	if($eventType === Message::CHECK_ELEMENT_EXISTS)
+		return $dbGlobal->CheckElementExists($content[0], $content[1]);
+
+	if($eventType === Message::GET_CURRENT_ELEMENT_VER)
+		return $dbGlobal->GetCurentVerOfElement($content[0], $content[1]);
+
+	if($eventType === Message::GET_ELEMENT_BBOX)
+		return $dbGlobal->GetBboxOfElement($content[0], $content[1]);
+
+	if($eventType === Message::CREATE_ELEMENT)
+		return $dbGlobal->CreateElement($content[0], $content[1], $content[2]);
+
+	if($eventType === Message::MODIFY_ELEMENT)
+		return $dbGlobal->ModifyElement($content[0], $content[1], $content[2]);
+
+	if($eventType === Message::DELETE_ELEMENT)
+		return $dbGlobal->DeleteElement($content[0], $content[1], $content[2]);
+
 }
 
 $messagePump->AddListener(Message::MAP_QUERY, "DatabaseEventHandler", Null);
@@ -195,8 +213,11 @@ $messagePump->AddListener(Message::GET_OBJECT_BY_ID, "DatabaseEventHandler", Nul
 $messagePump->AddListener(Message::GET_FULL_HISTORY, "DatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_RELATIONS_FOR_ELEMENT, "DatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_WAYS_FOR_NODE, "DatabaseEventHandler", Null);
-
-
-
+$messagePump->AddListener(Message::CHECK_ELEMENT_EXISTS, "DatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_CURRENT_ELEMENT_VER, "DatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_ELEMENT_BBOX, "DatabaseEventHandler", Null);
+$messagePump->AddListener(Message::CREATE_ELEMENT, "DatabaseEventHandler", Null);
+$messagePump->AddListener(Message::MODIFY_ELEMENT, "DatabaseEventHandler", Null);
+$messagePump->AddListener(Message::DELETE_ELEMENT, "DatabaseEventHandler", Null);
 
 ?>

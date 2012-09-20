@@ -98,7 +98,7 @@ function CheckChildrenExist(&$children, &$createdEls,$map)
 		if($id>0)
 		{
 			//Check the element exists (in a non deleted state)
-			$exists = $map->CheckElementExists($childType,$id);
+			$exists = CallFuncByMessage(Message::CHECK_ELEMENT_EXISTS,array($childType,$id));
 			if($exists!=true) return 0;
 		}
 		if($id<0 and !isset($createdEls[$childType.$id]))
@@ -124,7 +124,8 @@ function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChang
 	if(strcmp($type,"node")==0)
 	{
 
-		$citingWays = $map->GetCitingWaysOfNode($id);
+		$citingWays = CallFuncByMessage(Message::GET_WAYS_FOR_NODE,(int)$id);
+
 		//All citing ways must already be on the "to delete list"
 		foreach($citingWays as $wayId)
 		{
@@ -157,7 +158,8 @@ function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChang
 	}
 
 	//Check relations would be ok
-	$citingRels = $map->GetCitingRelations($type,$id);
+	$citingRels = CallFuncByMessage(Message::GET_RELATIONS_FOR_ELEMENT,array($type,$id));
+
 	//All citing relations must already be on the "to delete list"
 	foreach($citingRels as $relId)
 	{
@@ -289,7 +291,8 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 		//Object versions
 		if($id >= 0)
 		{
-			$currentVer = $map->GetCurentVerOfElement($type,$id);
+			$currentVer = CallFuncByMessage(Message::GET_CURRENT_ELEMENT_VER,array($type,$id));
+
 			if($currentVer===-1)
 				return array(0,null,"not-found",$type,$id);
 			if($currentVer===-2)
@@ -465,7 +468,7 @@ function GetBboxOfReferencedElements($osmchange,&$map)
 		foreach($els as $el)
 		{
 			//echo $method." ".$el->GetType()." ".$el->attr['id']."\n";
-			$elBbox = $map->GetBboxOfElement($el->GetType(),(int)$el->attr['id']);
+			$elBbox = CallFuncByMessage(Message::GET_ELEMENT_BBOX,array($el->GetType(),(int)$el->attr['id']));
 			//print_r($elBbox);
 			UpdateBbox($bbox, $elBbox);
 		}
@@ -497,7 +500,7 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 			$el->attr['visible'] = "true";
 
 			//Create in main db
-			$map->CreateElement($type,$el->attr['id'],$el);
+			CallFuncByMessage(Message::CREATE_ELEMENT,array($type,$el->attr['id'],$el));
 
 			//Also store in changeset
 			$csd->AppendElement($el->attr['changeset'], $method, $el);
@@ -510,7 +513,7 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 			$el->attr['visible'] = "true";
 
 			//Modify element in main db
-			$map->ModifyElement($type,$el->attr['id'],$el);
+			CallFuncByMessage(Message::MODIFY_ELEMENT,array($type,$el->attr['id'],$el));
 
 			//Also store in changeset
 			$csd->AppendElement($el->attr['changeset'], $method, $el);
@@ -524,7 +527,7 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 			$el->attr['visible'] = "false";
 
 			//Delete object in main db
-			$map->DeleteElement($type,$el->attr['id'],$el);
+			CallFuncByMessage(Message::DELETE_ELEMENT,array($type,$el->attr['id'],$el));
 
 			//Also store in changeset
 			$csd->AppendElement($el->attr['changeset'], $method, $el);
@@ -539,7 +542,7 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 	$lock=GetWriteDatabaseLock();
 
 	//Load database
-	$map = OsmDatabase();
+	$map = null;
 
 	//Validate change
 	try
