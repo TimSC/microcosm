@@ -72,19 +72,28 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 	public function CreateElement($type,$id,$el)
 	{
 		//fwrite($this->events, "Create ".$type." ".$id."\n");
-		return $this->masterDb->CreateElement($type,$id,$el);
+		$ret = $this->masterDb->CreateElement($type,$id,$el);
+		
+		CallFuncByMessage(Message::ELEMENT_UPDATE_DONE,array($type,$id,$el));
+		return $ret;
 	}
 
 	public function ModifyElement($type,$id,$el)
 	{
 		//fwrite($this->events, "Modify ".$type." ".$id."\n");
-		return $this->masterDb->ModifyElement($type,$id,$el);
+		$ret = $this->masterDb->ModifyElement($type,$id,$el);
+
+		CallFuncByMessage(Message::ELEMENT_UPDATE_DONE,array($type,$id,$el));
+		return $ret;
 	}
 
 	public function DeleteElement($type,$id,$el)
 	{
 		//fwrite($this->events, "Delete ".$type." ".$id."\n");
-		return $this->masterDb->DeleteElement($type,$id,$el);
+		$ret = $this->masterDb->DeleteElement($type,$id,$el);
+
+		CallFuncByMessage(Message::ELEMENT_UPDATE_DONE,array($type,$id,$el));
+		return $ret;
 	}
 
 	public function Purge()

@@ -36,11 +36,11 @@ $messagePump->AddListener(Message::GET_CHANGESET_CLOSE_TIME, "ChangesetDatabaseE
 $messagePump->AddListener(Message::SCRIPT_END, "ChangesetDatabaseEventHandler", Null);
 
 $messagePump->AddListener(Message::XAPI_QUERY, "ModelBboxEventHandler", Null);
+$messagePump->AddListener(Message::PURGE_MAP, "ModelBboxEventHandler", Null);
+$messagePump->AddListener(Message::ELEMENT_UPDATE_PARENTS, "ModelBboxEventHandler", Null);
 $messagePump->AddListener(Message::SCRIPT_END, "ModelBboxEventHandler", Null);
 
-$messagePump->AddListener(Message::CREATE_ELEMENT, "RichEditEventHandler", Null);
-$messagePump->AddListener(Message::MODIFY_ELEMENT, "RichEditEventHandler", Null);
-$messagePump->AddListener(Message::DELETE_ELEMENT, "RichEditEventHandler", Null);
+$messagePump->AddListener(Message::ELEMENT_UPDATE_DONE, "RichEditEventHandler", Null);
 $messagePump->AddListener(Message::SCRIPT_END, "RichEditEventHandler", Null);
 
 ?>

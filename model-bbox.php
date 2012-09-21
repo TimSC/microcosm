@@ -406,16 +406,9 @@ function ModelBboxEventHandler($eventType, $content, $listenVars)
 		return $xapiGlobal->QueryXapi($content[0], $content[1], $content[2], $content[3]);
 	}
 
-	if($eventType === Message::CREATE_ELEMENT)
+	if($eventType === Message::ELEMENT_UPDATE_PARENTS)
 	{
-	}
-
-	if($eventType === Message::MODIFY_ELEMENT)
-	{
-	}
-
-	if($eventType === Message::DELETE_ELEMENT)
-	{
+		echo 'x';
 	}
 
 	if($eventType === Message::SCRIPT_END)
@@ -443,45 +436,35 @@ class RichEditProcessor
 
 	function HandleEvent($eventType, $content, $listenVars)
 	{
-		if($eventType === Message::CREATE_ELEMENT or 
-			$eventType === Message::MODIFY_ELEMENT or 
-			$eventType === Message::DELETE_ELEMENT)
+		if($eventType === Message::ELEMENT_UPDATE_DONE)
 		{
-			
+			$type = $content[0];
+			$eid = (int)$content[1];
+			$obj = $content[2];
+
+			$parents = $this->GetParents($type, $eid, $obj);
+
+			CallFuncByMessage(Message::ELEMENT_UPDATE_PARENTS, array($type, $eid, $obj, $parents));
 		}
 
 	}
 
-	function FindModifiedElementsIncParents()
+	function GetParents($type, $eid, $obj)
 	{
-		$out = array('node'=>array(),'way'=>array(),'relation'=>array());
-
-		//Add items in changset
-		foreach($this->modifiedEls as $elgroup)
-		foreach($elgroup as $el)
-		{
-			$type = $el->GetType();
-			$id = $el->attr['id'];
-			$out[$type][$id] = $el;
-		}
+		//echo $type.$eid."\n";
+		$out = array();
 
 		//Get parent ways
-		$parents = $this->GetParentWaysOfNodes($out['node']);
-		foreach($parents as $el)
+		if($type == "node")
 		{
-			$type = $el->GetType();
-			$id = $el->attr['id'];
-			$out[$type][$id] = $el;		
+			$pways = CallFuncByMessage(Message::GET_WAYS_FOR_NODE, $eid);
+			array_merge($out, $pways);
 		}
 
 		//Get parent relations
 		//TODO should relations be done recursively?
-		$parents = $this->GetParentRelations($out['node']);
-		foreach($parents as $el) {$type = $el->GetType();$id = $el->attr['id'];$out[$type][$id] = $el;}	
-		$parents = $this->GetParentRelations($out['way']);
-		foreach($parents as $el) {$type = $el->GetType();$id = $el->attr['id'];$out[$type][$id] = $el;}	
-		$parents = $this->GetParentRelations($out['relation']);
-		foreach($parents as $el) {$type = $el->GetType();$id = $el->attr['id'];$out[$type][$id] = $el;}
+		$prelations = CallFuncByMessage(Message::GET_RELATIONS_FOR_ELEMENT, array($type, $eid));
+		array_merge($out, $prelations);
 	
 		//print_r($out);
 		return $out;
@@ -495,7 +478,6 @@ function RichEditEventHandler($eventType, $content, $listenVars)
 	global $richGlobal;
 	if($richGlobal === Null)
 		$richGlobal = new RichEditProcessor();
-
 
 	if($eventType === Message::SCRIPT_END)
 	{

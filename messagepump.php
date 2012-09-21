@@ -16,6 +16,8 @@ class Message
 	const DELETE_ELEMENT = 10;
 	const DUMP = 11;
 	const PURGE_MAP = 12;
+	const ELEMENT_UPDATE_DONE = 13;
+	const ELEMENT_UPDATE_PARENTS = 14;
 
 	//Changeset messages
 	const CHANGESET_IS_OPEN = 100;
