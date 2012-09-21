@@ -23,6 +23,12 @@ class Message
 	const CLOSE_CHANGESET = 103;
 	const GET_CHANGESET_UID = 104;
 	const GET_CHANGESET_METADATA = 105;
+	const GET_CHANGESET_SIZE = 106;
+	const EXPAND_BBOX = 107;
+	const CHANGESET_APPEND_ELEMENT = 108;
+	const CHANGESET_QUERY = 109;
+	const GET_CHANGESET_CONTENT = 110;
+	const GET_CHANGESET_CLOSE_TIME = 111;
 	
 	function __construct($type, $content)
 	{

@@ -219,16 +219,34 @@ function ChangesetDatabaseEventHandler($eventType, $content, $listenVars)
 		return $changesetGlobal->Open($content[0], $content[1], $content[2], $content[3], $content[4]);
 
 	if($eventType === Message::UPDATE_CHANGESET)
-		return $changesetGlobal->Open($content[0], $content[1], $content[2], $content[3]);
+		return $changesetGlobal->Update($content[0], $content[1], $content[2], $content[3]);
 
 	if($eventType === Message::CLOSE_CHANGESET)
-		return $changesetGlobal->Open($content);
+		return $changesetGlobal->Close($content);
 
 	if($eventType === Message::GET_CHANGESET_UID)
 		return $changesetGlobal->GetUid($content);
 
 	if($eventType === Message::GET_CHANGESET_METADATA)
 		return $changesetGlobal->GetMetadata($content);
+
+	if($eventType === Message::GET_CHANGESET_SIZE)
+		return $changesetGlobal->GetSize($content);
+
+	if($eventType === Message::EXPAND_BBOX)
+		return $changesetGlobal->ExpandBbox($content[0], $content[1]);
+
+	if($eventType === Message::CHANGESET_APPEND_ELEMENT)
+		return $changesetGlobal->AppendElement($content[0], $content[1], $content[2]);
+
+	if($eventType === Message::CHANGESET_QUERY)
+		return $changesetGlobal->Query($content[0], $content[1], $content[2]);
+
+	if($eventType === Message::GET_CHANGESET_CONTENT)
+		return $changesetGlobal->GetContentObject($content);
+
+	if($eventType === Message::GET_CHANGESET_CLOSE_TIME)
+		return $changesetGlobal->GetClosedTime($content);
 
 }
 
@@ -251,6 +269,12 @@ $messagePump->AddListener(Message::UPDATE_CHANGESET, "ChangesetDatabaseEventHand
 $messagePump->AddListener(Message::CLOSE_CHANGESET, "ChangesetDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_CHANGESET_UID, "ChangesetDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_CHANGESET_METADATA, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_CHANGESET_SIZE, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::EXPAND_BBOX, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::CHANGESET_APPEND_ELEMENT, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::CHANGESET_QUERY, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_CHANGESET_CONTENT, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_CHANGESET_CLOSE_TIME, "ChangesetDatabaseEventHandler", Null);
 
 
 ?>
