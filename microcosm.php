@@ -6,10 +6,13 @@ require_once('fileutils.php');
 require_once('traces.php');
 require_once('userdetails.php');
 require_once('requestprocessor.php');
+require_once('messagepump.php');
 
 //******************************
 //Start up functions and logging
 //******************************
+
+CallFuncByMessage(Message::SCRIPT_START,Null); 
 
 //print_r($_SERVER);
 CheckPermissions();
@@ -133,11 +136,14 @@ $requestProcessor->AddMethod("/0.6/gpx/NUM/data", "GET", 'GetTraceData', 0, $url
 
 //This function determines with function to call based on the URL and, if it can, responds to the client.
 $processed = $requestProcessor->Process($pathInfo);
-if($processed) exit(); //All done
+if(!$processed)
+{
+	header ('HTTP/1.1 404 Not Found');
+	echo "URL not found.";
+}
 
-header ('HTTP/1.1 404 Not Found');
-echo "URL not found.";
-return;
+//Trigger destructors acts better, rather than letting database handle going out of scope
+CallFuncByMessage(Message::SCRIPT_END,Null); 
 
 //Housekeeping? Process traces?
 
