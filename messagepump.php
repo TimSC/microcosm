@@ -2,6 +2,7 @@
 
 class Message
 {
+	//Map data messages
     const MAP_QUERY = 0;
 	const GET_OBJECT_BY_ID = 1;
 	const GET_FULL_HISTORY = 2;
@@ -14,6 +15,14 @@ class Message
 	const MODIFY_ELEMENT = 9;
 	const DELETE_ELEMENT = 10;
 	const DUMP = 11;
+
+	//Changeset messages
+	const CHANGESET_IS_OPEN = 100;
+	const OPEN_CHANGESET = 101;
+	const UPDATE_CHANGESET = 102;
+	const CLOSE_CHANGESET = 103;
+	const GET_CHANGESET_UID = 104;
+	const GET_CHANGESET_METADATA = 105;
 	
 	function __construct($type, $content)
 	{

@@ -23,18 +23,18 @@ function ChangesetOpen($userInfo,$putData)
 	$userId = $userInfo['userId'];
 
 	$lock=GetWriteDatabaseLock();
-	$csd = ChangesetDatabase();
 
 	$data = ParseOsmXmlChangeset($putData);
 	if(is_null($data)) return array(0,Null,"bad-input");
 
 	$cid = ReadAndIncrementFileNum("nextchangesetid.txt");
 	$data->attr['id'] = $cid;
-
-	if($csd->IsOpen($cid)!=-1)
+	
+	if(CallFuncByMessage(Message::CHANGESET_IS_OPEN, $cid) !== -1)
 		return array(0,Null,"changeset-already-exists");
 
-	return array(1,array("Content-Type:text/plain"),$csd->Open($cid,$data,$displayName,$userId,time()));
+	return array(1,array("Content-Type:text/plain"), CallFuncByMessage(Message::OPEN_CHANGESET, 
+		array($cid,$data,$displayName,$userId,time())));
 }
 
 function ChangesetUpdate($userInfo, $args)
@@ -45,23 +45,22 @@ function ChangesetUpdate($userInfo, $args)
 	$cid = (int)$urlExp[3];
 
 	$lock=GetWriteDatabaseLock();
-	$csd = ChangesetDatabase();
 
 	$data = ParseOsmXmlChangeset($putData);
 	if(is_null($data)) return array(0,Null,"bad-input");
 
 	//Check user is correct
 	$xmlcid = $data->attr['id'];
-	$cUser = $csd->GetUid($cid);
+	$cUser = CallFuncByMessage(Message::GET_CHANGESET_UID, $cid);
 	if(is_null($cUser)) return array(0,Null,"not-found");
 	if($userId != $cUser) return array(0,Null,"user-mismatch",$userId,$cUser);
 	if($cid != $xmlcid) return array(0,Null,"conflict");
 
-	if($csd->IsOpen($cid)!=1)
+	if(CallFuncByMessage(Message::CHANGESET_IS_OPEN, $cid)!=1)
 		return array(0,Null,"conflict");
 
-	$ret = $csd->Update($cid,$data,$displayName,$userId);
-	return GetChangesetMetadataLowLevel($csd,$cid);
+	$ret = CallFuncByMessage(Message::UPDATE_CHANGESET, array($cid,$data,$displayName,$userId));
+	return GetChangesetMetadataLowLevel($cid);
 }
 
 function ChangesetClose($userInfo,$argExp)
@@ -71,15 +70,14 @@ function ChangesetClose($userInfo,$argExp)
 	$cid = (int)$argExp[3];
 
 	$lock=GetWriteDatabaseLock();
-	$csd = ChangesetDatabase();
 
 	//Validate user has rights
-	$cUser = $csd->GetUid($cid);
+	$cUser = CallFuncByMessage(Message::GET_CHANGESET_UID, $cid);
 	if(is_null($cUser)) return array(0,Null,"not-found");
 	if($userId != $cUser) return array(0,Null,"conflict");
 	
 	//Do close	
-	$csd->Close($cid);
+	CallFuncByMessage(Message::CLOSE_CHANGESET, $cid);
 	return array(1,array("Content-Type:text/plain"),"");
 }
 
@@ -675,7 +673,7 @@ function ChangesetExpandBbox($userInfo, $args)
 	if(is_array($bbox)) $csd->ExpandBbox($cid,$bbox);
 
 	//Return changeset
-	return GetChangesetMetadataLowLevel($csd,$cid);
+	return GetChangesetMetadataLowLevel($cid);
 }
 
 function GetChangesets($userInfo,$query)
@@ -707,9 +705,9 @@ function GetChangesets($userInfo,$query)
 	return array(1,array("Content-Type:text/xml"),$out);
 }
 
-function GetChangesetMetadataLowLevel(&$csd,$cid)
+function GetChangesetMetadataLowLevel($cid)
 {
-	$data = $csd->GetMetadata($cid);
+	$data = CallFuncByMessage(Message::GET_CHANGESET_METADATA, $cid);
 	if(is_null($data)) return array(0,Null,"not-found");
 	return array(1,array("Content-Type:text/xml"),
 		'<osm version="0.6" generator="'.SERVER_NAME.'">'.$data->ToXmlString().'</osm>');
@@ -721,7 +719,7 @@ function GetChangesetMetadata($userInfo, $urlExp)
 
 	$lock=GetReadDatabaseLock();
 	$csd = ChangesetDatabase();
-	return GetChangesetMetadataLowLevel($csd,$cid);
+	return GetChangesetMetadataLowLevel($cid);
 }
 
 function GetChangesetUid($cid)
