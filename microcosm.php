@@ -6,7 +6,7 @@ require_once('fileutils.php');
 require_once('traces.php');
 require_once('userdetails.php');
 require_once('requestprocessor.php');
-require_once('messagepump.php');
+require_once('system.php');
 
 //******************************
 //Start up functions and logging

@@ -34,7 +34,9 @@ class Message
 	//Execution events
 	const SCRIPT_START = 200;
 	const SCRIPT_END = 201;
-	
+
+	//eXtended API, XAPI
+	const XAPI_QUERY = 300;
 	
 	function __construct($type, $content)
 	{
@@ -89,7 +91,8 @@ class MessagePump
 		$event = array_shift($this->buffer);
 		while($event !== Null)
 		{
-			$ret = $this->ProcessSingleEvent($event);
+			$retval = $this->ProcessSingleEvent($event);
+			if($retval !== null) $ret = $retval;
 			$event = array_shift($this->buffer);
 		}
 		return $ret;

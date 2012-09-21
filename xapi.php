@@ -1,10 +1,9 @@
 <?php
-require_once('modelfactory.php');
+require_once('system.php');
 
-die("Currently not implemented.");
+CallFuncByMessage(Message::SCRIPT_START,Null); 
 
 $lock=GetReadDatabaseLock();
-$db = OsmDatabase();
 
 //$fi = fopen("log.txt","at");
 //fwrite($fi,$_SERVER['REQUEST_URI']."\n");
@@ -82,8 +81,11 @@ if(!is_null($bbox))
 //Query database
 try
 {
-	$refs = $db->QueryXapi($xapiType,$bboxAr,$key,$value);
-	$osmxml = XapiQueryToXml($refs, $bbox, $db);
+	$refs = CallFuncByMessage(Message::XAPI_QUERY, array($xapiType,$bboxAr,$key,$value));
+	if($refs===null)
+		throw new Exception("Null response from XAPI module (if it exists)");
+	else
+		$osmxml = XapiQueryToXml($refs, $bbox);
 	header("Content-Type:text/xml");
 	echo $osmxml;
 }
@@ -95,7 +97,7 @@ catch (Exception $e)
 	if(DEBUG_MODE) print_r($e->getTrace());
 }
 
-function XapiQueryToXml($refs,$bbox,&$db)
+function XapiQueryToXml($refs,$bbox)
 {
 	//Extract needed elements from database
 	$els = array();
@@ -104,7 +106,8 @@ function XapiQueryToXml($refs,$bbox,&$db)
 		$elIdStrExp = explode("-",$elidstr);
 		$type = $elIdStrExp[0];
 		$id = (int)$elIdStrExp[1];
-		$obj = $db->GetElementById($type,$id);
+		$obj = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array($type,$id));
+		
 		if(is_null($obj)) throw new Exception("Could not get element needed to fulfil XAPI query");
 		array_push($els, $obj);
 	}
@@ -130,7 +133,7 @@ function XapiQueryToXml($refs,$bbox,&$db)
 		{
 			//For each referenced nodes,
 			$id = $nd[0];
-			$n = $db->GetElementById("node",(int)$id);
+			$n = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("node",(int)$id));
 			if(!is_object($n) and !$ignoreMissing)
 				throw new Exception("node needed in XAPI way not found, node ".$id);
 			if(is_object($n)) $out = $out.$n->ToXmlString()."\n";
@@ -140,14 +143,14 @@ function XapiQueryToXml($refs,$bbox,&$db)
 		{
 			//For each referenced way,
 			$id = $wy[0];
-			$w = $db->GetElementById("way",(int)$id);
+			$w = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("way",(int)$id));
 			if(!is_object($w)) throw new Exception("way needed in XAPI way not found, way ".$id);
 
 			//Get the child nodes for this way also
 			foreach($w->nodes as $nd)
 			{
 				$id = $nd[0];
-				$n = $db->GetElementById("node",(int)$id);
+				$n = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("node",(int)$id));
 				if(!is_object($n) and !$ignoreMissing) 
 					throw new Exception("node of way needed in XAPI way not found ".$id);
 					
@@ -168,6 +171,6 @@ function XapiQueryToXml($refs,$bbox,&$db)
 	return $out;
 }
 
-
+CallFuncByMessage(Message::SCRIPT_END,Null); 
 
 ?>

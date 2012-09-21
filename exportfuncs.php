@@ -1,8 +1,7 @@
 <?php
 require_once ('querymap.php');
 require_once ('osmtypesstream.php');
-require_once ('messagepump.php');
-require_once ('modelfactory.php');
+require_once ('system.php');
 
 //Classes to handle outputs in plain or compressed forms (this is the strategy pattern)
 class OutPlainText

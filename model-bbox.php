@@ -395,4 +395,35 @@ class BboxIndex extends GenericSqliteTable
 
 }
 
+function ModelBboxEventHandler($eventType, $content, $listenVars)
+{
+	global $xapiGlobal;
+	if($xapiGlobal === Null)
+		$xapiGlobal = new BboxDatabaseSqlite();
+
+	if($eventType === Message::XAPI_QUERY)
+	{
+		return $xapiGlobal->QueryXapi($content[0], $content[1], $content[2], $content[3]);
+	}
+
+	if($eventType === Message::CREATE_ELEMENT)
+	{
+	}
+
+	if($eventType === Message::MODIFY_ELEMENT)
+	{
+	}
+
+	if($eventType === Message::DELETE_ELEMENT)
+	{
+	}
+
+	if($eventType === Message::SCRIPT_END)
+	{
+		unset($xapiGlobal);
+		$xapiGlobal = Null;
+	}
+
+}
+
 ?>

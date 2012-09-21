@@ -25,10 +25,11 @@ if(strcmp(substr($url, -1),"/")!=0)
 <p>
 The license for data is <?php echo LICENSE_HUMAN;?>.
 </p>
+<p>Available PDO drivers:
 <?php
-$db = OsmDatabase();
 print_r(PDO::getAvailableDrivers());
 ?>
+</p>
 </body>
 </html>
 

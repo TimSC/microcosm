@@ -1,8 +1,7 @@
 <?php
-include_once ('modelfactory.php');
 include_once ('querymap.php');
 include_once ('osmtypesstream.php');
-include_once ('messagepump.php');
+include_once ('system.php');
 
 function GetTimeString($sec)
 {
@@ -41,7 +40,7 @@ function ElementExtracted($el,$progress)
 		$lastPrintOutput = microtime(1);
 	}
 	$eltype = $el->GetType();
-	CallFuncByMessage(Message::MODIFY_ELEMENT,array($type,$el->attr['id'],$el));
+	CallFuncByMessage(Message::MODIFY_ELEMENT,array($eltype,$el->attr['id'],$el));
 
 	//print_r($el->attr['changeset']);
 
@@ -65,8 +64,6 @@ function Import($filename, $nukeDatabase = 1, $getlock = 1, $originalFilename = 
 	$xml->callback = 'ElementExtracted';
 
 	//Create destination object
-	global $db;
-	$db = OsmDatabase();
 	if ($getlock) $lock=GetWriteDatabaseLock();
 
 	//Get extracted size

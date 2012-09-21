@@ -1,8 +1,7 @@
 <?php
-require_once('modelfactory.php');
+require_once('system.php');
 
 $lock=GetReadDatabaseLock();
-$db = OsmDatabase();
 
 $pathInfo = GetRequestPath();
 
@@ -97,8 +96,8 @@ if(!is_null($bbox))
 //Query database
 try
 {
-	$refs = $db->QueryXapi($xapiType,$bboxAr,$key,$value);
-	$kml = XapiQueryToKml($refs, $bbox, $db,"en");
+	$refs = CallFuncByMessage(Message::XAPI_QUERY, array($xapiType,$bboxAr,$key,$value));
+	$kml = XapiQueryToKml($refs, $bbox,"en");
 	//header("Content-Type:application/vnd.google-earth.kml+xml");
 	//header("Content-Type:text/plain");
 	header("Content-Type:text/xml");
@@ -113,7 +112,7 @@ catch (Exception $e)
 	if(DEBUG_MODE) print_r($e->getTrace());
 }
 
-function WayListToPointsText($el,$db)
+function WayListToPointsText($el)
 {
 	$out = "";
 	$ignoreMissing = 1;
@@ -122,7 +121,7 @@ function WayListToPointsText($el,$db)
 	{
 		//For each referenced nodes,
 		$id = $nd[0];
-		$n = $db->GetElementById("node",(int)$id);
+		$n = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("node",(int)$id));
 		if(!is_object($n) and !$ignoreMissing)
 			throw new Exception("node needed in XAPI way not found, node ".$id);
 		if(is_object($n))
@@ -139,7 +138,7 @@ function WayListToPointsText($el,$db)
 	return array($out,$centre);	
 }
 
-function WayToKml($el,$db,$outer=1)
+function WayToKml($el,$outer=1)
 {
 	$out = "";
 	$lastNode = array_slice($el->nodes,-1);
@@ -161,7 +160,7 @@ function WayToKml($el,$db,$outer=1)
 		$out .= "<coordinates>";
 	}
 
-	list($points,$centre) = WayListToPointsText($el,$db);
+	list($points,$centre) = WayListToPointsText($el);
 	$out .= $points;
 
 	if($closedWay)
@@ -191,7 +190,7 @@ function TagsToDescription($el)
 	return $out;
 }
 
-function ElementToKml($el,$db,$lang=null)
+function ElementToKml($el,$lang=null)
 {
 	//if(!isset($el->attr['lat']) or !isset($el->attr['lon'])) return "";
 	//print_r($el);
@@ -232,14 +231,14 @@ function ElementToKml($el,$db,$lang=null)
 
 		if($el->GetType() == "way")
 		{
-			list($kml,$centre) = WayToKml($el,$db,1);
+			list($kml,$centre) = WayToKml($el,1);
 			$out .= $kml;
 		}
 
 		foreach($el->ways as $data)
 		{
 			list($wid,$role) = $data;
-			$w = $db->GetElementById("way",(int)$wid);
+			$w = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("way",(int)$wid));
 			if(!is_object($w))
 				throw new Exception("way needed in XAPI way not found, node ".$id);			
 			//print_r($w);
@@ -248,7 +247,7 @@ function ElementToKml($el,$db,$lang=null)
 			if($role == "outer") $outer = 1;
 			if(is_null($outer)) continue; //Role must be inner or outer
 			if(count($w->nodes)==0) continue; //ignore empty ways
-			list($kml,$centre) = WayToKml($w,$db,$outer);
+			list($kml,$centre) = WayToKml($w,$outer);
 			$out .= $kml;		
 		}
 
@@ -266,7 +265,7 @@ function ElementToKml($el,$db,$lang=null)
 	return null;
 }
 
-function XapiQueryToKml($refs,$bbox,&$db,$lang=null)
+function XapiQueryToKml($refs,$bbox,$lang=null)
 {
 	//Extract needed elements from database
 	$els = array();
@@ -281,7 +280,7 @@ function XapiQueryToKml($refs,$bbox,&$db,$lang=null)
               $elIdStrExp = explode("-",$elidstr);
               $type = $elIdStrExp[0];
               $id = (int)$elIdStrExp[1];
-              $obj = $db->GetElementById($type,$id);
+			  $obj = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array($type,$id));
               if(is_null($obj)) throw new Exception("Could not get element needed to fulfil XAPI query");
               array_push($els, $obj);
             }
@@ -303,7 +302,7 @@ function XapiQueryToKml($refs,$bbox,&$db,$lang=null)
 		//Output XAPI matched element
 		if(is_object($el) and !$problemFound)
 		{
-			$kml = ElementToKml($el,$db,$lang);
+			$kml = ElementToKml($el,$lang);
 			$out .= $kml;
 		}
 	}
