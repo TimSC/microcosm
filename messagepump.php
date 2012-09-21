@@ -108,6 +108,5 @@ function CallFuncByMessage($messageType, $content)
 	return $messagePump->Process();
 }
 
-$messagePump = new MessagePump();
 
 ?>

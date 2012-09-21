@@ -93,51 +93,8 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 		return $this->masterDb->Purge();
 	}
 
-	/*function FindModifiedElementsIncParents()
-	{
-		$out = array('node'=>array(),'way'=>array(),'relation'=>array());
-
-		//Add items in changset
-		foreach($this->modifiedEls as $elgroup)
-		foreach($elgroup as $el)
-		{
-			$type = $el->GetType();
-			$id = $el->attr['id'];
-			$out[$type][$id] = $el;
-		}
-
-		//Get parent ways
-		$parents = $this->GetParentWaysOfNodes($out['node']);
-		foreach($parents as $el)
-		{
-			$type = $el->GetType();
-			$id = $el->attr['id'];
-			$out[$type][$id] = $el;		
-		}
-
-		//Get parent relations
-		//TODO should relations be done recursively?
-		$parents = $this->GetParentRelations($out['node']);
-		foreach($parents as $el) {$type = $el->GetType();$id = $el->attr['id'];$out[$type][$id] = $el;}	
-		$parents = $this->GetParentRelations($out['way']);
-		foreach($parents as $el) {$type = $el->GetType();$id = $el->attr['id'];$out[$type][$id] = $el;}	
-		$parents = $this->GetParentRelations($out['relation']);
-		foreach($parents as $el) {$type = $el->GetType();$id = $el->attr['id'];$out[$type][$id] = $el;}
-	
-		//print_r($out);
-		return $out;
-	}*/
-
-	function QueryXapi($type=null,$bbox=null,$key,$value=null)
-	{
-		//Get ids of matching elements
-		//$refs = $this->bboxDb->QueryXapi($type,$bbox,$key,$value);
-		//return $refs;
-	}
-
 	function Dump($callback)
 	{
-		//return OsmDatabaseMysql::Dump($callback);
 		return $this->masterDb->Dump($callback);
 	}
 

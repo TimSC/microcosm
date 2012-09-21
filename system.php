@@ -4,6 +4,8 @@ require_once('messagepump.php');
 require_once('model-bbox.php');
 require_once('modelfactory.php');
 
+$messagePump = new MessagePump();
+
 $messagePump->AddListener(Message::MAP_QUERY, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_OBJECT_BY_ID, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_FULL_HISTORY, "MapDatabaseEventHandler", Null);
@@ -34,9 +36,11 @@ $messagePump->AddListener(Message::GET_CHANGESET_CLOSE_TIME, "ChangesetDatabaseE
 $messagePump->AddListener(Message::SCRIPT_END, "ChangesetDatabaseEventHandler", Null);
 
 $messagePump->AddListener(Message::XAPI_QUERY, "ModelBboxEventHandler", Null);
-$messagePump->AddListener(Message::CREATE_ELEMENT, "ModelBboxEventHandler", Null);
-$messagePump->AddListener(Message::MODIFY_ELEMENT, "ModelBboxEventHandler", Null);
-$messagePump->AddListener(Message::DELETE_ELEMENT, "ModelBboxEventHandler", Null);
 $messagePump->AddListener(Message::SCRIPT_END, "ModelBboxEventHandler", Null);
+
+$messagePump->AddListener(Message::CREATE_ELEMENT, "RichEditEventHandler", Null);
+$messagePump->AddListener(Message::MODIFY_ELEMENT, "RichEditEventHandler", Null);
+$messagePump->AddListener(Message::DELETE_ELEMENT, "RichEditEventHandler", Null);
+$messagePump->AddListener(Message::SCRIPT_END, "RichEditEventHandler", Null);
 
 ?>

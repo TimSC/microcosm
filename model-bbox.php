@@ -426,4 +426,86 @@ function ModelBboxEventHandler($eventType, $content, $listenVars)
 
 }
 
+//************************************************************
+//Functions to determine parents affected by edits
+
+class RichEditProcessor
+{
+	function __construct()
+	{
+
+	}
+
+	function __destruct()
+	{
+
+	}
+
+	function HandleEvent($eventType, $content, $listenVars)
+	{
+		if($eventType === Message::CREATE_ELEMENT or 
+			$eventType === Message::MODIFY_ELEMENT or 
+			$eventType === Message::DELETE_ELEMENT)
+		{
+			
+		}
+
+	}
+
+	function FindModifiedElementsIncParents()
+	{
+		$out = array('node'=>array(),'way'=>array(),'relation'=>array());
+
+		//Add items in changset
+		foreach($this->modifiedEls as $elgroup)
+		foreach($elgroup as $el)
+		{
+			$type = $el->GetType();
+			$id = $el->attr['id'];
+			$out[$type][$id] = $el;
+		}
+
+		//Get parent ways
+		$parents = $this->GetParentWaysOfNodes($out['node']);
+		foreach($parents as $el)
+		{
+			$type = $el->GetType();
+			$id = $el->attr['id'];
+			$out[$type][$id] = $el;		
+		}
+
+		//Get parent relations
+		//TODO should relations be done recursively?
+		$parents = $this->GetParentRelations($out['node']);
+		foreach($parents as $el) {$type = $el->GetType();$id = $el->attr['id'];$out[$type][$id] = $el;}	
+		$parents = $this->GetParentRelations($out['way']);
+		foreach($parents as $el) {$type = $el->GetType();$id = $el->attr['id'];$out[$type][$id] = $el;}	
+		$parents = $this->GetParentRelations($out['relation']);
+		foreach($parents as $el) {$type = $el->GetType();$id = $el->attr['id'];$out[$type][$id] = $el;}
+	
+		//print_r($out);
+		return $out;
+	}
+
+}
+
+$richGlobal=Null;
+function RichEditEventHandler($eventType, $content, $listenVars)
+{
+	global $richGlobal;
+	if($richGlobal === Null)
+		$richGlobal = new RichEditProcessor();
+
+
+	if($eventType === Message::SCRIPT_END)
+	{
+		unset($richGlobal);
+		$richGlobal = Null;
+	}
+	else
+	{
+		$richGlobal->HandleEvent($eventType, $content, $listenVars);
+	}
+}
+
 ?>
