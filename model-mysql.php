@@ -23,7 +23,8 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		} catch (PDOException $e) {
 		    throw new Exception ('Connection failed: ' . $e->getMessage());
 		}
-
+                $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                
 		$this->InitialiseSchema();
 	}
 
@@ -43,23 +44,25 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 
 	function InitialiseSchema()
 	{
-		$sql = "CREATE TABLE IF NOT EXISTS meta (intid BIGINT PRIMARY KEY AUTO_INCREMENT, type INTEGER, id BIGINT, ver BIGINT, changeset BIGINT, user TEXT, uid BIGINT, timestamp INTEGER, visible INTEGER, INDEX(id,ver)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
+          //mysql_select_db
+
+		$sql = "CREATE TABLE IF NOT EXISTS ".MYSQL_DB_NAME.".meta (intid BIGINT PRIMARY KEY AUTO_INCREMENT, type INTEGER, id BIGINT, ver BIGINT, changeset BIGINT, user TEXT, uid BIGINT, timestamp INTEGER, visible INTEGER, INDEX(id,ver)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		$ret = $this->dbh->exec($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
-		$sql = "CREATE TABLE IF NOT EXISTS geom (intid BIGINT PRIMARY KEY, g GEOMETRY NOT NULL, SPATIAL INDEX(g), type INTEGER, id BIGINT, ver BIGINT, INDEX(id,ver)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
+		$sql = "CREATE TABLE IF NOT EXISTS ".MYSQL_DB_NAME.".geom (intid BIGINT PRIMARY KEY, g GEOMETRY NOT NULL, SPATIAL INDEX(g), type INTEGER, id BIGINT, ver BIGINT, INDEX(id,ver)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		$ret = $this->dbh->exec($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
-		$sql = "CREATE TABLE IF NOT EXISTS tags (intid BIGINT PRIMARY KEY, type INTEGER, id BIGINT, ver BIGINT, tags BLOB, INDEX(id,ver)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
+		$sql = "CREATE TABLE IF NOT EXISTS ".MYSQL_DB_NAME.".tags (intid BIGINT PRIMARY KEY, type INTEGER, id BIGINT, ver BIGINT, tags BLOB, INDEX(id,ver)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		$ret = $this->dbh->exec($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
-		$sql = "CREATE TABLE IF NOT EXISTS members (linkid BIGINT PRIMARY KEY AUTO_INCREMENT, ptype INTEGER, pid BIGINT, pver BIGINT, ctype INTEGER, cid BIGINT, role TEXT, ord INTEGER, INDEX(pid,pver), INDEX(cid)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
+		$sql = "CREATE TABLE IF NOT EXISTS ".MYSQL_DB_NAME.".members (linkid BIGINT PRIMARY KEY AUTO_INCREMENT, ptype INTEGER, pid BIGINT, pver BIGINT, ctype INTEGER, cid BIGINT, role TEXT, ord INTEGER, INDEX(pid,pver), INDEX(cid)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		$ret = $this->dbh->exec($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
-		$sql = "CREATE TABLE IF NOT EXISTS current (rowid BIGINT PRIMARY KEY AUTO_INCREMENT, type INTEGER, id BIGINT, currentver BIGINT, visible INTEGER, intid BIGINT, INDEX(id,type)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
+		$sql = "CREATE TABLE IF NOT EXISTS ".MYSQL_DB_NAME.".current (rowid BIGINT PRIMARY KEY AUTO_INCREMENT, type INTEGER, id BIGINT, currentver BIGINT, visible INTEGER, intid BIGINT, INDEX(id,type)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		$ret = $this->dbh->exec($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 	}
