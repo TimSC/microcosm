@@ -23,18 +23,18 @@ function ChangesetOpen($userInfo,$putData)
 	$userId = $userInfo['userId'];
 
 	$lock=GetWriteDatabaseLock();
-	$csd = ChangesetDatabase();
 
 	$data = ParseOsmXmlChangeset($putData);
 	if(is_null($data)) return array(0,Null,"bad-input");
 
 	$cid = ReadAndIncrementFileNum("nextchangesetid.txt");
 	$data->attr['id'] = $cid;
-
-	if($csd->IsOpen($cid)!=-1)
+	
+	if(CallFuncByMessage(Message::CHANGESET_IS_OPEN, $cid) !== -1)
 		return array(0,Null,"changeset-already-exists");
 
-	return array(1,array("Content-Type:text/plain"),$csd->Open($cid,$data,$displayName,$userId,time()));
+	return array(1,array("Content-Type:text/plain"), CallFuncByMessage(Message::OPEN_CHANGESET, 
+		array($cid,$data,$displayName,$userId,time())));
 }
 
 function ChangesetUpdate($userInfo, $args)
@@ -45,23 +45,22 @@ function ChangesetUpdate($userInfo, $args)
 	$cid = (int)$urlExp[3];
 
 	$lock=GetWriteDatabaseLock();
-	$csd = ChangesetDatabase();
 
 	$data = ParseOsmXmlChangeset($putData);
 	if(is_null($data)) return array(0,Null,"bad-input");
 
 	//Check user is correct
 	$xmlcid = $data->attr['id'];
-	$cUser = $csd->GetUid($cid);
+	$cUser = CallFuncByMessage(Message::GET_CHANGESET_UID, $cid);
 	if(is_null($cUser)) return array(0,Null,"not-found");
 	if($userId != $cUser) return array(0,Null,"user-mismatch",$userId,$cUser);
 	if($cid != $xmlcid) return array(0,Null,"conflict");
 
-	if($csd->IsOpen($cid)!=1)
+	if(CallFuncByMessage(Message::CHANGESET_IS_OPEN, $cid)!=1)
 		return array(0,Null,"conflict");
 
-	$ret = $csd->Update($cid,$data,$displayName,$userId);
-	return GetChangesetMetadataLowLevel($csd,$cid);
+	$ret = CallFuncByMessage(Message::UPDATE_CHANGESET, array($cid,$data,$displayName,$userId));
+	return GetChangesetMetadataLowLevel($cid);
 }
 
 function ChangesetClose($userInfo,$argExp)
@@ -71,15 +70,14 @@ function ChangesetClose($userInfo,$argExp)
 	$cid = (int)$argExp[3];
 
 	$lock=GetWriteDatabaseLock();
-	$csd = ChangesetDatabase();
 
 	//Validate user has rights
-	$cUser = $csd->GetUid($cid);
+	$cUser = CallFuncByMessage(Message::GET_CHANGESET_UID, $cid);
 	if(is_null($cUser)) return array(0,Null,"not-found");
 	if($userId != $cUser) return array(0,Null,"conflict");
 	
 	//Do close	
-	$csd->Close($cid);
+	CallFuncByMessage(Message::CLOSE_CHANGESET, $cid);
 	return array(1,array("Content-Type:text/plain"),"");
 }
 
@@ -89,7 +87,7 @@ function ChangesetClose($userInfo,$argExp)
 
 //<osmChange version='0.6' generator='JOSM'><delete><way id='171' action='delete' timestamp='2010-10-14T08:41:57Z' uid='6809' user='TimSC' visible='true' version='1' changeset='209'/>  <node id='681' action='delete' timestamp='2010-10-14T08:41:57Z' uid='6809' user='TimSC' visible='true' version='1' changeset='209' lat='51.26718186473299' lon='-0.5552857742301459'/></delete></osmChange>
 
-function CheckChildrenExist(&$children, &$createdEls,$map)
+function CheckChildrenExist(&$children, &$createdEls)
 {
 	foreach($children as $child)
 	{
@@ -98,7 +96,7 @@ function CheckChildrenExist(&$children, &$createdEls,$map)
 		if($id>0)
 		{
 			//Check the element exists (in a non deleted state)
-			$exists = $map->CheckElementExists($childType,$id);
+			$exists = CallFuncByMessage(Message::CHECK_ELEMENT_EXISTS,array($childType,$id));
 			if($exists!=true) return 0;
 		}
 		if($id<0 and !isset($createdEls[$childType.$id]))
@@ -115,7 +113,7 @@ function CheckElementInList(&$li, $type, $id)
 	return isset($li[$type.$id]);
 }
 
-function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChanged)
+function CheckCitationsIfDeleted($type, $el, &$deletedEls, &$recentlyChanged)
 {
 	$id = $el->attr['id'];
 	$type = $el->GetType();
@@ -124,7 +122,8 @@ function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChang
 	if(strcmp($type,"node")==0)
 	{
 
-		$citingWays = $map->GetCitingWaysOfNode($id);
+		$citingWays = CallFuncByMessage(Message::GET_WAYS_FOR_NODE,(int)$id);
+
 		//All citing ways must already be on the "to delete list"
 		foreach($citingWays as $wayId)
 		{
@@ -157,7 +156,8 @@ function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChang
 	}
 
 	//Check relations would be ok
-	$citingRels = $map->GetCitingRelations($type,$id);
+	$citingRels = CallFuncByMessage(Message::GET_RELATIONS_FOR_ELEMENT,array($type,$id));
+
 	//All citing relations must already be on the "to delete list"
 	foreach($citingRels as $relId)
 	{
@@ -195,12 +195,11 @@ function CheckCitationsIfDeleted($type, $el, $map, &$deletedEls, &$recentlyChang
 
 $requiredAttributes = array('id','changeset');
 
-function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
+function ValidateOsmChange($osmchange,$cid,$displayName,$userId)
 {
 	$createdEls = array();
 	$deletedEls = array();
 	$recentlyChanged = array();
-	$csd = ChangesetDatabase();
 
 	//Check API version
 	$ver = $osmchange->version;
@@ -250,15 +249,15 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 
 		//Check if changeset is open
 		$cid = $el->attr['changeset'];
-		if(!$csd->IsOpen($cid)) throw new Exception("Changeset is not open");
+		if(!CallFuncByMessage(Message::CHANGESET_IS_OPEN, $cid)) throw new Exception("Changeset is not open");
 
 		//Check if user has permission to add to this changeset
-		$ciduser = $csd->GetUid($cid);
+		$ciduser = CallFuncByMessage(Message::GET_CHANGESET_UID, $cid);
 		if($ciduser != $userId) 
 			throw new Exception("Changeset belongs to a different user ".$ciduser.", not ".$userId);
 
 		//Check we don't exceed number of max elements
-		$cidsize = $csd->GetSize($cid);
+		$cidsize = CallFuncByMessage(Message::GET_CHANGESET_SIZE, $cid);
 		if(is_null($cidsize)) throw new Exception("Changeset size could not be determined ".$cid);
 		if($cidsize + 1 > MAX_CHANGESET_SIZE)
 			throw new Exception("Max changeset size exceeded");
@@ -289,7 +288,8 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 		//Object versions
 		if($id >= 0)
 		{
-			$currentVer = $map->GetCurentVerOfElement($type,$id);
+			$currentVer = CallFuncByMessage(Message::GET_CURRENT_ELEMENT_VER,array($type,$id));
+
 			if($currentVer===-1)
 				return array(0,null,"not-found",$type,$id);
 			if($currentVer===-2)
@@ -319,13 +319,13 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map)
 
 
 		//Check if referenced elements actual exist
-		$ret = CheckChildrenExist($el->members, $createdEls, $map);
+		$ret = CheckChildrenExist($el->members, $createdEls);
 		if($ret==0) return array(0,null,"object-not-found",$type,$id);
 	
 		//Check if deleting stuff will break ways
 		if(strcmp($action,"delete")==0)
 		{
-		$ret = CheckCitationsIfDeleted($type, $el, $map, $deletedEls, $recentlyChanged);
+		$ret = CheckCitationsIfDeleted($type, $el, $deletedEls, $recentlyChanged);
 		if($ret!=1) return $ret;
 		}
 
@@ -454,7 +454,7 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 	return $changes;
 }
 
-function GetBboxOfReferencedElements($osmchange,&$map)
+function GetBboxOfReferencedElements($osmchange)
 {
 	//For each element
 	$bbox= null;
@@ -465,7 +465,7 @@ function GetBboxOfReferencedElements($osmchange,&$map)
 		foreach($els as $el)
 		{
 			//echo $method." ".$el->GetType()." ".$el->attr['id']."\n";
-			$elBbox = $map->GetBboxOfElement($el->GetType(),(int)$el->attr['id']);
+			$elBbox = CallFuncByMessage(Message::GET_ELEMENT_BBOX,array($el->GetType(),(int)$el->attr['id']));
 			//print_r($elBbox);
 			UpdateBbox($bbox, $elBbox);
 		}
@@ -476,15 +476,13 @@ function GetBboxOfReferencedElements($osmchange,&$map)
 function ExpandChangesetBbox($cid,$bbox)
 {
 	if(!is_array($bbox)) return 0;
-	$csd = ChangesetDatabase();
 	//print_r($bbox);
-	$csd->ExpandBbox($cid,$bbox);
+	CallFuncByMessage(Message::EXPAND_BBOX, array($cid,$bbox));
 	return 1;
 }
 
-function ApplyChangeToDatabase(&$osmchange,&$map)
+function ApplyChangeToDatabase(&$osmchange)
 {
-	$csd = ChangesetDatabase();
 
 	//For each element
 	foreach($osmchange->data as $data)
@@ -497,10 +495,10 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 			$el->attr['visible'] = "true";
 
 			//Create in main db
-			$map->CreateElement($type,$el->attr['id'],$el);
+			CallFuncByMessage(Message::CREATE_ELEMENT,array($type,$el->attr['id'],$el));
 
 			//Also store in changeset
-			$csd->AppendElement($el->attr['changeset'], $method, $el);
+			CallFuncByMessage(Message::CHANGESET_APPEND_ELEMENT,array($el->attr['changeset'], $method, $el));
 		}
 
 		if(strcmp($method,"modify")==0)
@@ -510,10 +508,10 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 			$el->attr['visible'] = "true";
 
 			//Modify element in main db
-			$map->ModifyElement($type,$el->attr['id'],$el);
+			CallFuncByMessage(Message::MODIFY_ELEMENT,array($type,$el->attr['id'],$el));
 
 			//Also store in changeset
-			$csd->AppendElement($el->attr['changeset'], $method, $el);
+			CallFuncByMessage(Message::CHANGESET_APPEND_ELEMENT,array($el->attr['changeset'], $method, $el));
 		}
 
 		if(strcmp($method,"delete")==0)
@@ -524,10 +522,10 @@ function ApplyChangeToDatabase(&$osmchange,&$map)
 			$el->attr['visible'] = "false";
 
 			//Delete object in main db
-			$map->DeleteElement($type,$el->attr['id'],$el);
+			CallFuncByMessage(Message::DELETE_ELEMENT,array($type,$el->attr['id'],$el));
 
 			//Also store in changeset
-			$csd->AppendElement($el->attr['changeset'], $method, $el);
+			CallFuncByMessage(Message::CHANGESET_APPEND_ELEMENT,array($el->attr['changeset'], $method, $el));
 		}
 
 	}
@@ -539,12 +537,11 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 	$lock=GetWriteDatabaseLock();
 
 	//Load database
-	$map = OsmDatabase();
 
 	//Validate change
 	try
 	{
-	$valret = ValidateOsmChange($osmchange,$cid,$displayName,$userId,$map);
+	$valret = ValidateOsmChange($osmchange,$cid,$displayName,$userId);
 	if($valret != 1)
 		return $valret;
 	}
@@ -558,19 +555,18 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 
 	//Bbox for elements before change is applied
 	//TODO relations should be handled differently
-	$bbox = GetBboxOfReferencedElements($osmchange,$map);
+	$bbox = GetBboxOfReferencedElements($osmchange);
 	ExpandChangesetBbox($cid,$bbox);
 
 	//Apply changes to database
-	ApplyChangeToDatabase($osmchange,$map);
+	ApplyChangeToDatabase($osmchange);
 
 	//Bbox for elements after change is applied
-	$bbox = GetBboxOfReferencedElements($osmchange,$map);
+	$bbox = GetBboxOfReferencedElements($osmchange);
 	ExpandChangesetBbox($cid,$bbox);
 
 	//Cause the destructor of the map and bbox databases object to run
 	unset($bboxdb);
-	unset($map); 
 
 	return array(1,$changes);
 }
@@ -655,10 +651,9 @@ function ChangesetExpandBbox($userInfo, $args)
 
 	//Open database	
 	$lock = GetWriteDatabaseLock();
-	$csd = ChangesetDatabase();
 
 	//Validate
-	if($userId != $csd->GetUid($cid))
+	if($userId != CallFuncByMessage(Message::GET_CHANGESET_UID, $cid))
 		return array(0,null,"forbidden");
 	$xml = ParseOsmXml($putDataStr);	
 
@@ -671,17 +666,16 @@ function ChangesetExpandBbox($userInfo, $args)
 				$el->attr['lon'],$el->attr['lat']));
 	}
 
-	if(is_array($bbox)) $csd->ExpandBbox($cid,$bbox);
+	if(is_array($bbox)) CallFuncByMessage(Message::EXPAND_BBOX, array($cid,$bbox));
 
 	//Return changeset
-	return GetChangesetMetadataLowLevel($csd,$cid);
+	return GetChangesetMetadataLowLevel($cid);
 }
 
 function GetChangesets($userInfo,$query)
 {
 
 	$lock=GetReadDatabaseLock();
-	$csd = ChangesetDatabase();
 
 	$user = null;
 	if(isset($query['user'])) $user = (int)$query['user'];
@@ -689,7 +683,7 @@ function GetChangesets($userInfo,$query)
 	if(isset($query['open'])) $open = (strcmp($query['open'],"true")==0);
 	$timerange = null; //TODO implement this and other arguments
 
-	$csids = $csd->Query($user,$open,$timerange);
+	$csids = CallFuncByMessage(Message::GET_CHANGESET_QUERY, array($user,$open,$timerange));
 	//print_r($csids);
 	
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
@@ -697,18 +691,18 @@ function GetChangesets($userInfo,$query)
 
 	foreach($csids as $cid)
 	{ 
-		if(isset($query['user']) and $query['user'] != $csd->GetUid($cid)) continue;
+		if(isset($query['user']) and $query['user'] != CallFuncByMessage(Message::GET_CHANGESET_UID, $cid)) continue;
 		#$out = $out.ChangesetToXml($cid);
-		$out = $out.$csd->GetMetadata($cid)->ToXmlString();
+		$out = $out.CallFuncByMessage(Message::GET_CHANGESET_METADATA, $cid)->ToXmlString();
 	}
 	
 	$out = $out.'</osm>'."\n";
 	return array(1,array("Content-Type:text/xml"),$out);
 }
 
-function GetChangesetMetadataLowLevel(&$csd,$cid)
+function GetChangesetMetadataLowLevel($cid)
 {
-	$data = $csd->GetMetadata($cid);
+	$data = CallFuncByMessage(Message::GET_CHANGESET_METADATA, $cid);
 	if(is_null($data)) return array(0,Null,"not-found");
 	return array(1,array("Content-Type:text/xml"),
 		'<osm version="0.6" generator="'.SERVER_NAME.'">'.$data->ToXmlString().'</osm>');
@@ -719,15 +713,13 @@ function GetChangesetMetadata($userInfo, $urlExp)
 	$cid = (int)$urlExp[3];
 
 	$lock=GetReadDatabaseLock();
-	$csd = ChangesetDatabase();
-	return GetChangesetMetadataLowLevel($csd,$cid);
+	return GetChangesetMetadataLowLevel($cid);
 }
 
 function GetChangesetUid($cid)
 {
 	$lock=GetReadDatabaseLock();
-	$csd = ChangesetDatabase();
-	return $csd->GetUid($cid);
+	return CallFuncByMessage(Message::GET_CHANGESET_UID, $cid);
 }
 
 function GetChangesetContents($userInfo, $urlExp) //Download changeset URL
@@ -735,9 +727,8 @@ function GetChangesetContents($userInfo, $urlExp) //Download changeset URL
 	$cid = (int)$urlExp[3];
 
 	$lock=GetReadDatabaseLock();
-	$csd = ChangesetDatabase();
 
-	$changeset = $csd->GetContentObject($cid);
+	$changeset = CallFuncByMessage(Message::GET_CHANGESET_CONTENT, $cid);
 	if(is_null($changeset)) return array(0,Null,"not-found");
 
 	return array(1,array("Content-Type:text/xml"),$changeset->ToXmlString());
@@ -747,8 +738,7 @@ function GetChangesetContents($userInfo, $urlExp) //Download changeset URL
 function GetChangesetClosedTime($cid)
 {
 	$lock=GetReadDatabaseLock();
-	$csd = ChangesetDatabase();
-	return $csd->GetClosedTime($cid);
+	return CallFuncByMessage(Message::GET_CHANGESET_CLOSE_TIME, $cid);
 }
 
 ?>
