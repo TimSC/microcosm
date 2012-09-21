@@ -49,7 +49,11 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 
 	function __construct()
 	{
-		$this->masterDb = new OsmDatabaseMysql();
+		if(BACKEND_DATABASE == "mysql")
+			$this->masterDb = new OsmDatabaseMysql();
+		if(BACKEND_DATABASE == "sqlite")
+			$this->masterDb = new OsmDatabaseSqliteOpt();
+		
 		$this->events = fopen("events.txt","wt");
 	}
 
@@ -200,8 +204,15 @@ function MapDatabaseEventHandler($eventType, $content, $listenVars)
 		return $dbGlobal->DeleteElement($content[0], $content[1], $content[2]);
 
 	if($eventType === Message::DUMP)
-	{
 		return $dbGlobal->Dump($content);
+
+	if($eventType === Message::PURGE_MAP)
+		return $dbGlobal->Purge();
+
+	if($eventType === Message::SCRIPT_END)
+	{
+		unset($dbGlobal);
+		$dbGlobal = Null;
 	}
 }
 
@@ -248,6 +259,12 @@ function ChangesetDatabaseEventHandler($eventType, $content, $listenVars)
 	if($eventType === Message::GET_CHANGESET_CLOSE_TIME)
 		return $changesetGlobal->GetClosedTime($content);
 
+	if($eventType === Message::SCRIPT_END)
+	{
+		unset($changesetGlobal);
+		$changesetGlobal = Null;
+	}
+
 }
 
 $messagePump->AddListener(Message::MAP_QUERY, "MapDatabaseEventHandler", Null);
@@ -262,6 +279,8 @@ $messagePump->AddListener(Message::CREATE_ELEMENT, "MapDatabaseEventHandler", Nu
 $messagePump->AddListener(Message::MODIFY_ELEMENT, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::DELETE_ELEMENT, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::DUMP, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::PURGE_MAP, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::SCRIPT_END, "MapDatabaseEventHandler", Null);
 
 $messagePump->AddListener(Message::CHANGESET_IS_OPEN, "ChangesetDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::OPEN_CHANGESET, "ChangesetDatabaseEventHandler", Null);
@@ -275,6 +294,6 @@ $messagePump->AddListener(Message::CHANGESET_APPEND_ELEMENT, "ChangesetDatabaseE
 $messagePump->AddListener(Message::CHANGESET_QUERY, "ChangesetDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_CHANGESET_CONTENT, "ChangesetDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_CHANGESET_CLOSE_TIME, "ChangesetDatabaseEventHandler", Null);
-
+$messagePump->AddListener(Message::SCRIPT_END, "ChangesetDatabaseEventHandler", Null);
 
 ?>

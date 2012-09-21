@@ -15,6 +15,7 @@ class Message
 	const MODIFY_ELEMENT = 9;
 	const DELETE_ELEMENT = 10;
 	const DUMP = 11;
+	const PURGE_MAP = 12;
 
 	//Changeset messages
 	const CHANGESET_IS_OPEN = 100;
@@ -29,6 +30,11 @@ class Message
 	const CHANGESET_QUERY = 109;
 	const GET_CHANGESET_CONTENT = 110;
 	const GET_CHANGESET_CLOSE_TIME = 111;
+
+	//Execution events
+	const SCRIPT_START = 200;
+	const SCRIPT_END = 201;
+	
 	
 	function __construct($type, $content)
 	{

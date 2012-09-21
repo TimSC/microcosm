@@ -4,6 +4,9 @@ include_once('importfuncs.php');
 //print_r($_SERVER);
 if(isset($_SERVER['TERM']))
 {
+	CallFuncByMessage(Message::SCRIPT_START,Null); 
+
+	//Allow no time limit for large imports
 	set_time_limit(0);
 
 	$nukeDatabase = 1;
@@ -35,6 +38,9 @@ if(isset($_SERVER['TERM']))
 	//echo $filename,$nukeDatabase,$lockDatabase;
 
 	Import($filename,$nukeDatabase,$lockDatabase);
+
+	//Trigger destructors acts better, rather than letting database handle going out of scope
+	CallFuncByMessage(Message::SCRIPT_END,Null); 
 }
 
 ?>

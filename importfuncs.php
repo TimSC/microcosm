@@ -2,6 +2,7 @@
 include_once ('modelfactory.php');
 include_once ('querymap.php');
 include_once ('osmtypesstream.php');
+include_once ('messagepump.php');
 
 function GetTimeString($sec)
 {
@@ -39,13 +40,10 @@ function ElementExtracted($el,$progress)
 		echo "\n";
 		$lastPrintOutput = microtime(1);
 	}
-	global $db;
 	$eltype = $el->GetType();
-	$db->ModifyElement($eltype, $el->attr['id'], $el);
+	CallFuncByMessage(Message::MODIFY_ELEMENT,array($type,$el->attr['id'],$el));
 
 	//print_r($el->attr['changeset']);
-	//Get element back to test
-	//$obj = $db->GetElementById($el->GetType(), $el->attr['id'], $el->attr['version']);
 
 	$count = $count + 1;
 	if($eltype == "node" and $el->attr['id'] > $maxidnode) $maxidnode = $el->attr['id'];
@@ -91,7 +89,7 @@ function Import($filename, $nukeDatabase = 1, $getlock = 1, $originalFilename = 
 	if($nukeDatabase)
 	{
 		//Nuke the database
-		$db->Purge();
+		CallFuncByMessage(Message::PURGE_MAP,Null);
 	}
 
 	//Do extraction
@@ -117,7 +115,6 @@ function Import($filename, $nukeDatabase = 1, $getlock = 1, $originalFilename = 
 	if(!is_null($maxidchangeset) and $maxidchangeset > ReadFileNum("nextchangesetid.txt")) 
 		SetFileNum("nextchangesetid.txt",$maxidchangeset+1);
 
-	unset($db); //Destructor acts better with unset, rather than letting it go out of scope
 	echo"\n";
 }
 ?>
