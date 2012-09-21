@@ -5,8 +5,16 @@ $lock=GetReadDatabaseLock();
 $db = OsmDatabase();
 
 $pathInfo = GetRequestPath();
+
+if (isset($pathInfo))
+  {
+    print "Path info:". $pathInfo. "\n";
+  } else   {
+    print "no pathInfo";
+  }
 $urlExp = explode("/",$pathInfo);
 $xapiArg = $urlExp[2];
+print "xapiArg: " . $xapiArg ."\n";
 $xapiArgs = explode("[",$xapiArg);
 
 //Split predicates
@@ -14,14 +22,24 @@ $xapiType = $xapiArgs[0];
 $predicates = array();
 for($i=1;$i<count($xapiArgs);$i++)
 {
-	$temp = explode("]",$xapiArgs[$i]);
-	array_push($predicates, $temp[0]);
+  print "Check:" . $i . "=" . $xapiArgs[$i] . "\n";
+  print_r($xapiArgs[$i]);
+  $temp = explode("]",$xapiArgs[$i]);
+
+  print ("\nExplode]:\n");
+
+  print ("\ntemp:\n");
+  print_r ($temp);
+
+  array_push($predicates, $temp[0]);
+
+#  print ("\npredicates:\n"); print_r ($predicates);
 }
 
 if($xapiType != "*" and $xapiType != "node" and $xapiType != "way" and $xapiType != "relation")
 {
 	header("Content-Type:text/plain");
-	echo "Type ".$xapiType." is not supported.\n";
+	echo "Type ".$xapiType." is not supported, use node,way or relation.\n";
 }
 
 //TODO Handle non-predicate bbox
@@ -38,6 +56,8 @@ foreach ($predicates as $pred)
 		//continue;
 		header("Content-Type:text/plain");
 		echo "Predicate not supported in this implementation.\n";
+                print "Count is not 2:". count($temp);
+                print_r($temp);
 		exit(0);
 	}
 	$k = $temp[0];
@@ -250,15 +270,24 @@ function XapiQueryToKml($refs,$bbox,&$db,$lang=null)
 {
 	//Extract needed elements from database
 	$els = array();
-	foreach($refs as $elidstr)
-	{
-		$elIdStrExp = explode("-",$elidstr);
-		$type = $elIdStrExp[0];
-		$id = (int)$elIdStrExp[1];
-		$obj = $db->GetElementById($type,$id);
-		if(is_null($obj)) throw new Exception("Could not get element needed to fulfil XAPI query");
-		array_push($els, $obj);
-	}
+
+        if (isset($refs)) {
+          print( "\nRefs:");
+          print_r($refs);
+          print( "\n");
+          
+          foreach($refs as $elidstr)          
+            {
+              $elIdStrExp = explode("-",$elidstr);
+              $type = $elIdStrExp[0];
+              $id = (int)$elIdStrExp[1];
+              $obj = $db->GetElementById($type,$id);
+              if(is_null($obj)) throw new Exception("Could not get element needed to fulfil XAPI query");
+              array_push($els, $obj);
+            }
+        } else {
+          print( "\nRefs undefined");
+        }
 
 	//Return result
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n";

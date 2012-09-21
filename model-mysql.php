@@ -15,10 +15,10 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 	{
 		$this->inTransaction = false;
 		try {
-                  print_r(
-                          'CONNECT :mysql:dbname='.MYSQL_DB_NAME.';host='.
-                          MYSQL_SERVER.';' . MYSQL_USER . MYSQL_PASSWORD);
-
+                  /* print_r( */
+                  /*         'mysql CONNECT :mysql:dbname='.MYSQL_DB_NAME.';host='. */
+                  /*         MYSQL_SERVER.';' . MYSQL_USER . MYSQL_PASSWORD . "\n"); */
+                  
 		$this->dbh = new PDO('mysql://dbname='.MYSQL_DB_NAME.';host='.MYSQL_SERVER.';', MYSQL_USER, MYSQL_PASSWORD);
 		} catch (PDOException $e) {
 		    throw new Exception ('Connection failed: ' . $e->getMessage());
