@@ -6,7 +6,11 @@ require_once ('model-mysql.php');
 require_once ('model-sqlite-opt.php');
 require_once ('model-changesets-sqlite.php');
 require_once ("model-bbox.php");
+require_once ("messagepump.php");
 require_once ("config.php");
+
+$dbGlobal = Null;
+$changesetGlobal = Null;
 
 //The backend database is implemented using a strategy software pattern. This makes
 //them nice and modular. The specific strategy to use is determined in this factory.
@@ -17,11 +21,11 @@ function OsmDatabase()
 	//$db = new OsmDatabaseByFileTree();
 	//$db = new OsmDatabaseSqlite();
 	//$db = new OsmDatabaseSqliteOpt();
-	//$db = new OsmDatabaseMultiplexer();
-	if(BACKEND_DATABASE == "mysql")
-		$db = new OsmDatabaseMysql();
-	if(BACKEND_DATABASE == "sqlite")
-		$db = new OsmDatabaseSqliteOpt();
+	$db = new OsmDatabaseMultiplexer();
+	//if(BACKEND_DATABASE == "mysql")
+	//	$db = new OsmDatabaseMysql();
+	//if(BACKEND_DATABASE == "sqlite")
+	//	$db = new OsmDatabaseSqliteOpt();
 
 	$checkPermissions = $db->CheckPermissions();
 	if($checkPermissions != 1)
@@ -39,86 +43,52 @@ function ChangesetDatabase()
 	//return new ChangesetDatabaseOsmXml();
 	return new ChangesetDatabaseSqlite();
 }
-/*
-class OsmDatabaseMultiplexer extends OsmDatabaseMysql
+
+class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 {
-	var $bboxDb;
-	var $modifiedEls = array();
-	var $maxBufferSize = 1000;
 
 	function __construct()
 	{
-		$this->modifiedEls['node'] = array();
-		$this->modifiedEls['way'] = array();
-		$this->modifiedEls['relation'] = array();
-
-		//OsmDatabaseSqliteOpt::__construct();
-		OsmDatabaseMysql::__construct();
-		$this->bboxDb = FactoryBboxDatabase();
+		$this->masterDb = new OsmDatabaseMysql();
+		$this->events = fopen("events.txt","wt");
 	}
 
 	function __destruct()
 	{
-
-		//Update bboxes of all modified elements, and their parents
-		$modified = $this->FindModifiedElementsIncParents();
-		$this->bboxDb->Update($modified,$this);
-
-		unset($this->bboxDb);
-		//OsmDatabaseSqliteOpt::__destruct();
-		OsmDatabaseMysql::__destruct();
+		unset($this->masterDb);
+		fclose($this->events);
 	}
 
-	public function CheckModifiedQueue()
+	function GetElementById($type,$id,$version=null)
 	{
-		$totalMod = count($this->modifiedEls['node']) +
-			count($this->modifiedEls['way']) + 
-			count($this->modifiedEls['relation']);
-		//Check if buffer is full
-		if($totalMod>$this->maxBufferSize)
-		{
-			//Flush buffer
-			$modified = $this->FindModifiedElementsIncParents();
-			$this->bboxDb->Update($modified,$this);
-
-			//Clear buffer
-			$this->modifiedEls['node'] = array();
-			$this->modifiedEls['way'] = array();
-			$this->modifiedEls['relation'] = array();
-		}
+		return $this->masterDb->GetElementById($type, $id, $version);
 	}
 
 	public function CreateElement($type,$id,$el)
 	{
-		$this->modifiedEls[$type][$id] = $el;
-		$ret = OsmDatabaseMysql::CreateElement($type,$id,$el);
-		$this->CheckModifiedQueue();
-		return $ret;
+		fwrite($this->events, "Create ".$type." ".$id."\n");
+		return $this->masterDb->CreateElement($type,$id,$el);
 	}
 
 	public function ModifyElement($type,$id,$el)
 	{
-		$this->modifiedEls[$type][$id] = $el;
-		$ret = OsmDatabaseMysql::ModifyElement($type,$id,$el);
-		$this->CheckModifiedQueue();
-		return $ret;
+		fwrite($this->events, "Modify ".$type." ".$id."\n");
+		return $this->masterDb->ModifyElement($type,$id,$el);
 	}
 
 	public function DeleteElement($type,$id,$el)
 	{
-		$this->modifiedEls[$type][$id] = $el;
-		$ret = OsmDatabaseMysql::DeleteElement($type,$id,$el);
-		$this->CheckModifiedQueue();
-		return $ret;
+		fwrite($this->events, "Delete ".$type." ".$id."\n");
+		return $this->masterDb->DeleteElement($type,$id,$el);
 	}
 
 	public function Purge()
 	{
-		$this->bboxDb->Purge();
-		return OsmDatabaseMysql::Purge();
-	}	
+		fwrite($this->events, "Purge\n");
+		return $this->masterDb->Purge();
+	}
 
-	function FindModifiedElementsIncParents()
+	/*function FindModifiedElementsIncParents()
 	{
 		$out = array('node'=>array(),'way'=>array(),'relation'=>array());
 
@@ -151,20 +121,160 @@ class OsmDatabaseMultiplexer extends OsmDatabaseMysql
 	
 		//print_r($out);
 		return $out;
-	}
+	}*/
 
 	function QueryXapi($type=null,$bbox=null,$key,$value=null)
 	{
 		//Get ids of matching elements
-		$refs = $this->bboxDb->QueryXapi($type,$bbox,$key,$value);
-		return $refs;
+		//$refs = $this->bboxDb->QueryXapi($type,$bbox,$key,$value);
+		//return $refs;
 	}
 
 	function Dump($callback)
 	{
-		return OsmDatabaseMysql::Dump($callback);
+		//return OsmDatabaseMysql::Dump($callback);
+		return $this->masterDb->Dump($callback);
 	}
 
-}*/
+	function CheckPermissions()
+	{
+		return $this->masterDb->CheckPermissions();
+	}
+
+	function GetNodesInBbox($bbox)
+	{
+		return $this->masterDb->GetNodesInBbox($bbox);
+	}
+
+	function GetParentWaysOfNodes(&$nodes)
+	{
+		return $this->masterDb->GetParentWaysOfNodes($nodes);
+	}
+
+	function GetParentRelations(&$els)
+	{
+		return $this->masterDb->GetParentRelations($els);
+	}
+
+}
+
+
+
+function MapDatabaseEventHandler($eventType, $content, $listenVars)
+{
+	global $dbGlobal;
+	if($dbGlobal === Null)
+		$dbGlobal = OsmDatabase();
+
+	if($eventType === Message::MAP_QUERY)
+		return $dbGlobal->MapQuery($content);
+
+	if($eventType === Message::GET_OBJECT_BY_ID)
+		return $dbGlobal->GetElementById($content[0],$content[1],$content[2]);
+
+	if($eventType === Message::GET_FULL_HISTORY)
+		return $dbGlobal->GetElementFullHistory($content[0], $content[1]);
+
+	if($eventType === Message::GET_RELATIONS_FOR_ELEMENT)
+		return $dbGlobal->GetCitingRelations($content[0], $content[1]);
+
+	if($eventType === Message::GET_WAYS_FOR_NODE)
+		return $dbGlobal->GetCitingWaysOfNode($content);
+
+	if($eventType === Message::CHECK_ELEMENT_EXISTS)
+		return $dbGlobal->CheckElementExists($content[0], $content[1]);
+
+	if($eventType === Message::GET_CURRENT_ELEMENT_VER)
+		return $dbGlobal->GetCurentVerOfElement($content[0], $content[1]);
+
+	if($eventType === Message::GET_ELEMENT_BBOX)
+		return $dbGlobal->GetBboxOfElement($content[0], $content[1]);
+
+	if($eventType === Message::CREATE_ELEMENT)
+		return $dbGlobal->CreateElement($content[0], $content[1], $content[2]);
+
+	if($eventType === Message::MODIFY_ELEMENT)
+		return $dbGlobal->ModifyElement($content[0], $content[1], $content[2]);
+
+	if($eventType === Message::DELETE_ELEMENT)
+		return $dbGlobal->DeleteElement($content[0], $content[1], $content[2]);
+
+	if($eventType === Message::DUMP)
+	{
+		return $dbGlobal->Dump($content);
+	}
+}
+
+function ChangesetDatabaseEventHandler($eventType, $content, $listenVars)
+{
+
+	global $changesetGlobal;
+	if($changesetGlobal === Null)
+		$changesetGlobal = ChangesetDatabase();
+
+	if($eventType === Message::CHANGESET_IS_OPEN)
+		return $changesetGlobal->IsOpen($content);
+
+	if($eventType === Message::OPEN_CHANGESET)
+		return $changesetGlobal->Open($content[0], $content[1], $content[2], $content[3], $content[4]);
+
+	if($eventType === Message::UPDATE_CHANGESET)
+		return $changesetGlobal->Update($content[0], $content[1], $content[2], $content[3]);
+
+	if($eventType === Message::CLOSE_CHANGESET)
+		return $changesetGlobal->Close($content);
+
+	if($eventType === Message::GET_CHANGESET_UID)
+		return $changesetGlobal->GetUid($content);
+
+	if($eventType === Message::GET_CHANGESET_METADATA)
+		return $changesetGlobal->GetMetadata($content);
+
+	if($eventType === Message::GET_CHANGESET_SIZE)
+		return $changesetGlobal->GetSize($content);
+
+	if($eventType === Message::EXPAND_BBOX)
+		return $changesetGlobal->ExpandBbox($content[0], $content[1]);
+
+	if($eventType === Message::CHANGESET_APPEND_ELEMENT)
+		return $changesetGlobal->AppendElement($content[0], $content[1], $content[2]);
+
+	if($eventType === Message::CHANGESET_QUERY)
+		return $changesetGlobal->Query($content[0], $content[1], $content[2]);
+
+	if($eventType === Message::GET_CHANGESET_CONTENT)
+		return $changesetGlobal->GetContentObject($content);
+
+	if($eventType === Message::GET_CHANGESET_CLOSE_TIME)
+		return $changesetGlobal->GetClosedTime($content);
+
+}
+
+$messagePump->AddListener(Message::MAP_QUERY, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_OBJECT_BY_ID, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_FULL_HISTORY, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_RELATIONS_FOR_ELEMENT, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_WAYS_FOR_NODE, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::CHECK_ELEMENT_EXISTS, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_CURRENT_ELEMENT_VER, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_ELEMENT_BBOX, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::CREATE_ELEMENT, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::MODIFY_ELEMENT, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::DELETE_ELEMENT, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::DUMP, "MapDatabaseEventHandler", Null);
+
+$messagePump->AddListener(Message::CHANGESET_IS_OPEN, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::OPEN_CHANGESET, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::UPDATE_CHANGESET, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::CLOSE_CHANGESET, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_CHANGESET_UID, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_CHANGESET_METADATA, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_CHANGESET_SIZE, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::EXPAND_BBOX, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::CHANGESET_APPEND_ELEMENT, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::CHANGESET_QUERY, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_CHANGESET_CONTENT, "ChangesetDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_CHANGESET_CLOSE_TIME, "ChangesetDatabaseEventHandler", Null);
+
 
 ?>

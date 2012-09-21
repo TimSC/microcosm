@@ -1,6 +1,7 @@
 <?php
 require_once ('querymap.php');
 require_once ('osmtypesstream.php');
+require_once ('messagepump.php');
 require_once ('modelfactory.php');
 
 //Classes to handle outputs in plain or compressed forms (this is the strategy pattern)
@@ -79,9 +80,7 @@ function Export($out)
 	$out->Write("<?xml version='1.0' encoding='UTF-8'?>\n");
 	$out->Write("<osm version='0.6' generator='".SERVER_NAME."'>\n");
 	//Connect to database
-	$db = OsmDatabase();
 	//$lock=GetWriteDatabaseLock(); //Can we avoid locking?
-
 
 	//Specify callback function to handle returned objects
 	function SaveToFile($el)
@@ -91,10 +90,9 @@ function Export($out)
 	}
 
 	//Dump database to file
-
-	$db->Dump("SaveToFile");
+	CallFuncByMessage(Message::DUMP,"SaveToFile");
 
 	$out->Write("</osm>\n");
-	unset($db); //Destructor acts better with unset, rather than letting it go out of scope
+
 }
 ?>

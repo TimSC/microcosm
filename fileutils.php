@@ -228,8 +228,17 @@ function GetRequestPath()
 	if(!isset($pathInfo))
 	{
 		//print_r($_SERVER);
-		die("Could not determine URL path.");
+          $options = getopt("p:");
+          if(!isset($options["p"]))
+            {
+              die("Could not determine URL path, no -p option on the command line. :pathInfo\no" );
+            }
+          else
+            {
+              $pathInfo= $options["p"];
+            }
 	}
+
 	return $pathInfo;
 }
 
