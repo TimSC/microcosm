@@ -408,7 +408,7 @@ function ModelBboxEventHandler($eventType, $content, $listenVars)
 
 	if($eventType === Message::ELEMENT_UPDATE_PARENTS)
 	{
-		echo 'x';
+		//echo 'x';
 	}
 
 	if($eventType === Message::SCRIPT_END)
