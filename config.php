@@ -6,7 +6,7 @@ define("SERVER_NAME","Microcosm");
 define("DEBUG_MODE",false);
 define("VERSION_VALIDATION",true);
 define("LICENSE_HUMAN","TBC");
-define("INSTALL_FOLDER_DEPTH",1);
+define("INSTALL_FOLDER_DEPTH",2);
 set_time_limit(60);
 
 define("BACKEND_DATABASE","sqlite");
@@ -30,6 +30,7 @@ define("MAX_USER_PERFS",150);
 define("MAX_GPX_FIELD_LENGTH",255);
 define("TRACE_PAGE_SIZE",1000);
 define("MAX_XAPI_ELEMENTS",10000000);
+define("ENABLE_XAPI",true);
 
 define("MAX_WAY_NODES",2000);
 define("MAX_CHANGESET_SIZE",50000);

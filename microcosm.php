@@ -179,6 +179,7 @@ if(!$processed)
 {
 	header ('HTTP/1.1 404 Not Found');
 	echo "URL not found.";
+	//print_r($pathInfo);
 }
 
 //Trigger destructors acts better, rather than letting database handle going out of scope
