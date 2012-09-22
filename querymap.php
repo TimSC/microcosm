@@ -6,10 +6,12 @@ function MapQuery($userInfo,$bboxStr)
 {
 	//echo gettype($bboxStr);
   if (!isset($bboxStr))   {
-      throw new Exception("missing bboxStr array in MapQuery");
+    debug_print_backtrace();
+    throw new Exception("missing bboxStr array in MapQuery");
   }
   if (count($bboxStr) <1 )   {
-      throw new Exception("bboxStr array is empty in MapQuery");
+    debug_print_backtrace();    
+    throw new Exception("bboxStr array is empty in MapQuery");
   }
   echo "bboxStr:" . print_r($bboxStr) . "\n";
 
