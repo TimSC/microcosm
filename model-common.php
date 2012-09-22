@@ -66,6 +66,7 @@ abstract class OsmDatabaseCommon
 		$out = '<osm version="0.6" generator="'.SERVER_NAME.'">'."\n";
 
 		//Specify bounds
+		$bbox = ValidateBbox($bbox);
 		$out=$out.'<bounds minlat="'.$bbox[1].'" minlon="'.$bbox[0];
 		$out=$out.'" maxlat="'.$bbox[3].'" maxlon="'.$bbox[2].'"/>'."\n";
 

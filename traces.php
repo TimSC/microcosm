@@ -19,7 +19,7 @@ function GetTracesInBbox($userInfo,$get)
 
 	//Validate BBOX
 	$ret = ValidateBbox($bbox);
-	if($ret != 1) return array(0,Null,$ret);
+	if(!is_array($ret)) return array(0,Null,$ret);
 
 	//Open DB
 	$lock=GetReadDatabaseLock();

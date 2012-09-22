@@ -484,6 +484,7 @@ class ElementTableOpt extends ElementTable
 
 		if(!$this->latlon) throw new Exception("Position was not enabled for this object.");
 		$timers = array();
+		$bbox = ValidateBbox($bbox);
 
 		//Use internal rtree to quickly find nodes
 		//print_r($bbox);

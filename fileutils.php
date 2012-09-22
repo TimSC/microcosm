@@ -187,6 +187,8 @@ function isValidEmail($email){
 
 function ValidateBbox($bbox)
 {
+	if(!is_array($bbox) or count($bbox) != 4) return "invalid-bbox";
+
 	if($bbox[0] > $bbox[2])
 	{
 		// swap em!
@@ -214,7 +216,7 @@ function ValidateBbox($bbox)
 		return "bbox-too-large";
 	}
 
-	return 1;
+	return $bbox;
 }
 
 function UpdateBbox(&$original,$new)
