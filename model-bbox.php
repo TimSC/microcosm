@@ -103,8 +103,8 @@ class BboxDatabaseSqlite
 		$out = array();
 		foreach($this->tables as $table)
 		{
-			if(substr($table,-5) == "_data") continue;
-			array_push($out, substr($table,0,-4));
+			if(substr($table,-7) == "%95data") continue;
+			array_push($out, substr($table,0,-6));
 		}
 		return $out;
 	}
@@ -393,7 +393,7 @@ class BboxDatabaseSqlite
 
 		$sth = $this->dbh->prepare($query);
 		if($sth===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
-		$ret = $sth->execute($query);
+		$ret = $sth->execute($sqlVals);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 
 		$out = array();

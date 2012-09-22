@@ -141,7 +141,10 @@ function MapDatabaseEventHandler($eventType, $content, $listenVars)
 		return $dbGlobal->MapQuery($content);
 
 	if($eventType === Message::GET_OBJECT_BY_ID)
+	{
+		//if(count($content)<3) {var_dump(debug_backtrace()); die();}
 		return $dbGlobal->GetElementById($content[0],$content[1],$content[2]);
+	}
 
 	if($eventType === Message::GET_FULL_HISTORY)
 		return $dbGlobal->GetElementFullHistory($content[0], $content[1]);

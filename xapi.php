@@ -106,7 +106,7 @@ function XapiQueryToXml($refs,$bbox)
 		$elIdStrExp = explode("-",$elidstr);
 		$type = $elIdStrExp[0];
 		$id = (int)$elIdStrExp[1];
-		$obj = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array($type,$id));
+		$obj = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array($type,$id,Null));
 		
 		if(is_null($obj)) throw new Exception("Could not get element needed to fulfil XAPI query");
 		array_push($els, $obj);
@@ -129,28 +129,30 @@ function XapiQueryToXml($refs,$bbox)
 		$problemFound = 0;
 
 		//Also get the elements associated nodes and ways
-		foreach($el->nodes as $nd)
+		foreach($el->members as $mem)
+		{
+		if($mem[0] == "node")
 		{
 			//For each referenced nodes,
-			$id = $nd[0];
-			$n = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("node",(int)$id));
+			$id = $mem[1];
+			$n = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("node",(int)$id, Null));
 			if(!is_object($n) and !$ignoreMissing)
 				throw new Exception("node needed in XAPI way not found, node ".$id);
 			if(is_object($n)) $out = $out.$n->ToXmlString()."\n";
 			else $problemFound = 1;
 		}
-		foreach($el->ways as $wy)
+		if($mem[0] == "way")
 		{
 			//For each referenced way,
-			$id = $wy[0];
-			$w = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("way",(int)$id));
+			$id = $mem[1];
+			$w = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("way",(int)$id, Null));
 			if(!is_object($w)) throw new Exception("way needed in XAPI way not found, way ".$id);
 
 			//Get the child nodes for this way also
 			foreach($w->nodes as $nd)
 			{
 				$id = $nd[0];
-				$n = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("node",(int)$id));
+				$n = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("node",(int)$id, Null));
 				if(!is_object($n) and !$ignoreMissing) 
 					throw new Exception("node of way needed in XAPI way not found ".$id);
 					
@@ -160,6 +162,7 @@ function XapiQueryToXml($refs,$bbox)
 
 			if(is_object($w) and !$problemFound) 
 				$out = $out.$w->ToXmlString()."\n";
+		}
 		}
 
 		//Output XAPI matched element
