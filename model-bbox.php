@@ -43,6 +43,13 @@ class BboxDatabaseSqlite
 		return $key;
 	}
 
+	function SanitizeTableName($tableName)
+	{
+		$tableName = rawurlencode($tableName);
+		$tableName = str_replace("_","%95",$tableName);//Encode underscores	
+		return $tableName;
+	}
+
 	function InitialiseSchemaForKey($key)
 	{		
 		$posTableName = $key."_pos";
@@ -52,19 +59,19 @@ class BboxDatabaseSqlite
 		if(!in_array($posTableName,$this->tables))
 		{
 		//echo "Creating table ".$posTableName."\n";
-		$sql="CREATE VIRTUAL TABLE [".$this->dbh->quote($posTableName);
+		$sql="CREATE VIRTUAL TABLE [".$this->SanitizeTableName($posTableName);
 		$sql.="] USING rtree(rowid,minLat,maxLat,minLon,maxLon);";
-		SqliteCheckTableExistsOtherwiseCreate($this->dbh,$posTableName,$sql);
+		SqliteCheckTableExistsOtherwiseCreate($this->dbh,$this->SanitizeTableName($posTableName),$sql);
 		//echo "Done.\n";
 		$tablesChanged = 1;
 		}
 		if(!in_array($dataTableName,$this->tables))
 		{
 		//echo "Creating table ".$dataTableName."\n";
-		$sql="CREATE TABLE [".$this->dbh->quote($dataTableName);
+		$sql="CREATE TABLE [".$this->SanitizeTableName($dataTableName);
 		$sql.="] (rowid INTEGER PRIMARY KEY,elementid STRING UNIQUE, value STRING, ";
 		$sql.="type INTEGER, hasNodes INTEGER, hasWays INTEGER);";
-		SqliteCheckTableExistsOtherwiseCreate($this->dbh,$dataTableName,$sql);
+		SqliteCheckTableExistsOtherwiseCreate($this->dbh,$this->SanitizeTableName($dataTableName),$sql);
 		//echo "Done.\n";
 		$tablesChanged = 1;
 		}
@@ -118,7 +125,7 @@ class BboxDatabaseSqlite
 		$out = array();
 		foreach($this->tables as $table)
 		{
-			$query = "SELECT count(*) FROM [".$this->dbh->quote($table)."];";
+			$query = "SELECT count(*) FROM [".$this->SanitizeTableName($table)."];";
 			$ret = $this->dbh->query($query);
 			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 
@@ -152,6 +159,17 @@ class BboxDatabaseSqlite
 		}
 	}
 
+	function CountMemberNodesAndWays($el)
+	{
+		$nodes = 0; $ways = 0;
+		foreach($el->members as $el)
+		{
+			if($el[0] == "node") $nodes ++;
+			if($el[0] == "way") $ways ++;
+		}
+		return array($nodes, $ways);
+	}
+
 	function InsertRecord($key,$el,$bbox,$value)
 	{
 		$type = $el->GetType();
@@ -166,18 +184,12 @@ class BboxDatabaseSqlite
 		if($type=="relation") $typeInt = 3;
 		if(is_null($typeInt)) throw new Exception("Unknown type, can't convert to int");
 
-		if($type=="node")
-		{
-			$hasNodes = 0;
-			$hasWays = 0;
-		}
-		else
-		{
-			$hasNodes = (int)(count($el->nodes)>0);
-			$hasWays = (int)(count($el->ways)>0);
-		}
+		//print_r($el->members);
+		list($countNodes, $countWays) = $this->CountMemberNodesAndWays($el);
+		$hasNodes = ($countNodes > 0);
+		$hasWays = ($countWays > 0);
 
-		$sql = "INSERT INTO [".$this->dbh->quote($dataTableName)."] ";
+		$sql = "INSERT INTO [".$this->SanitizeTableName($dataTableName)."] ";
 		$sql .= "(rowid,elementid,value,type,hasNodes,hasWays) VALUES (null,?,?,?";
 		$sql .= ",?";//hasNodes
 		$sql .= ",?";//hasWays
@@ -190,7 +202,7 @@ class BboxDatabaseSqlite
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		$rowid = $this->dbh->lastInsertId();
 
-		$sql = "INSERT INTO [".$this->dbh->quote($posTableName)."] (rowid,minLat,maxLat,minLon,maxLon) VALUES (";
+		$sql = "INSERT INTO [".$this->SanitizeTableName($posTableName)."] (rowid,minLat,maxLat,minLon,maxLon) VALUES (";
 		$sql .= $rowid.",".$bbox[1].','.$bbox[3].','.$bbox[0].','.$bbox[2].");";
 		$ret = $this->dbh->exec($sql);
 		//echo $sql."\n";
@@ -199,10 +211,10 @@ class BboxDatabaseSqlite
 
 	function GetRowIdOfTable($table,$elementid)
 	{
-		$query = "SELECT rowid FROM [".$this->dbh->quote($table)."] WHERE elementid=?;";
+		$query = "SELECT rowid FROM [".$table."] WHERE elementid=?;";
 		$sqlVals = array($elementid);
 
-		$sth = $this->dbh->query($query);
+		$sth = $this->dbh->prepare($query);
 		if($sth===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 		$ret = $sth->execute($sqlVals);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
@@ -228,17 +240,19 @@ class BboxDatabaseSqlite
 		//Go through tables and remove element
 		foreach($keys as $key)
 		{
-			$posTableName = $key."_pos";
-			$dataTableName = $key."_data";
+			$this->InitialiseSchemaForKey($key);
+
+			$posTableName = $this->SanitizeTableName($key."_pos");
+			$dataTableName = $this->SanitizeTableName($key."_data");
 
 			$row = $this->GetRowIdOfTable($dataTableName, $elementidStr);
 			if(is_null($row)) continue;
 
-			$sql = "DELETE FROM [".$this->dbh->quote($posTableName)."] WHERE rowid=".$row.";";
+			$sql = "DELETE FROM [".$posTableName."] WHERE rowid=".$row.";";
 			$ret = $this->dbh->exec($sql);
 			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
-			$sql = "DELETE FROM [".$this->dbh->quote($dataTableName)."] WHERE rowid=".$row.";";
+			$sql = "DELETE FROM [".$dataTableName."] WHERE rowid=".$row.";";
 			$ret = $this->dbh->exec($sql);
 			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		}
@@ -268,7 +282,7 @@ class BboxDatabaseSqlite
 
 			//Get bbox
 			if($type!="node")
-				$bbox = $map->GetBboxOfElement($type,$id);
+				$bbox = CallFuncByMessage(Message::GET_ELEMENT_BBOX, array($type,$id));
 			else
 			{
 				//Don't bother computing for node's, its the same as the node position
@@ -345,10 +359,10 @@ class BboxDatabaseSqlite
 		$dataTableName = $keySanitized."_data";
 		if(is_null($bbox)) $bbox = array(-180,-90,180,90);
 
-		$query = "SELECT elementid,value FROM [".$this->dbh->quote($posTableName);
-		$query .= "] INNER JOIN [".$this->dbh->quote($dataTableName);
-		$query .= "] ON [".$this->dbh->quote($posTableName);
-		$query .= "].rowid=[".$this->dbh->quote($dataTableName)."].rowid";
+		$query = "SELECT elementid,value FROM [".$this->SanitizeTableName($posTableName);
+		$query .= "] INNER JOIN [".$this->SanitizeTableName($dataTableName);
+		$query .= "] ON [".$this->SanitizeTableName($posTableName);
+		$query .= "].rowid=[".$this->SanitizeTableName($dataTableName)."].rowid";
 		$query .= " WHERE minLat > ?";
 		$query .= " and maxLat < ?";
 		$query .= " and maxLon < ? and minLon > ?";
@@ -405,7 +419,7 @@ class BboxDatabaseSqlite
 
 	function FlushModifyBuffer()
 	{
-		$this->Update($this->modifyBuffer, 1);
+		$this->Update($this->modifyBuffer, 0);
 		$this->modifyBuffer = array();
 	}
 	
@@ -429,6 +443,11 @@ function ModelBboxEventHandler($eventType, $content, $listenVars)
 	if($eventType === Message::XAPI_QUERY)
 	{
 		return $xapiGlobal->QueryXapi($content[0], $content[1], $content[2], $content[3]);
+	}
+
+	if($eventType === Message::PURGE_MAP)
+	{
+		return $xapiGlobal->Purge();
 	}
 
 	if($eventType === Message::ELEMENT_UPDATE_PARENTS)

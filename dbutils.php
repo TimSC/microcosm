@@ -17,19 +17,26 @@ function SqliteGetTables(&$dbh)
 function SqliteCheckTableExists(&$dbh,$name)
 {
 	//Check if table exists
-	$sql = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='".$name."';";
+	$sql = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=".$dbh->quote($name).";";
+	//echo $sql."\n";
 	$ret = $dbh->query($sql);
 	if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 	$tableExists = 0;
 	foreach($ret as $row)
+	{
+		//print_r($row);
 		$tableExists = ($row[0] > 0);
+	}
 	return $tableExists;
 }
 
 function SqliteCheckTableExistsOtherwiseCreate(&$dbh,$name,$createSql)
 {
 	//If node table doesn't exist, create it
-	if(SqliteCheckTableExists($dbh,$name)) return;
+	$exists = SqliteCheckTableExists($dbh,$name);
+	//echo $name." ".$exists."\n";
+	if($exists) return;
+	//echo $createSql."\n";
 
 	$ret = $dbh->exec($createSql);
 	if($ret===false) {$err= $dbh->errorInfo();throw new Exception($createSql.",".$err[2]);}
@@ -324,11 +331,13 @@ class GenericSqliteTable implements ArrayAccess
 		if($this->useTransactions)
 			$this->BeginTransactionIfNotAlready();
 
-		$sql = "DELETE FROM [".$this->dbh->quote($this->tablename)."] WHERE ".$key."=".$this->ValueToSql($keyVal,$this->keys[$key]).";";
+		$sql = "DELETE FROM [".$this->dbh->quote($this->tablename)."] WHERE ".$key."=?;";
 
 		//Execute SQL
 		//echo $sql."\n";
-		$ret = $this->dbh->exec($sql);
+		$sth = $this->dbh->prepare($sql);
+		if($sth===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+		$ret = $sth->execute(array($key));
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		return $ret;
 	}
