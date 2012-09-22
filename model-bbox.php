@@ -415,6 +415,12 @@ class BboxDatabaseSqlite
 	{
 		//echo count($elArray)."\n";
 		$this->modifyBuffer = array_merge($this->modifyBuffer, $elArray);
+
+		//Flush buffer to prevent buffer getting too large
+		if(count($this->modifyBuffer) > MAX_XAPI_ELEMENTS)
+		{
+			$this->FlushModifyBuffer();
+		}
 	}
 
 	function FlushModifyBuffer()

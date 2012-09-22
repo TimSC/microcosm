@@ -216,8 +216,10 @@ function UpdateBbox(&$original,$new)
 function GetRequestPath()
 {
 	//Convert path to internally usable format
-	if(isset($_SERVER['PATH_INFO'])) 
+	if(isset($_SERVER['PATH_INFO']))
+	{
 		$pathInfo = $_SERVER['PATH_INFO'];
+	}
 	if(!isset($pathInfo) and isset($_SERVER['REDIRECT_URL'])) 
 	{
 		$pathInfo = $_SERVER['REDIRECT_URL'];
@@ -228,15 +230,15 @@ function GetRequestPath()
 	if(!isset($pathInfo))
 	{
 		//print_r($_SERVER);
-          $options = getopt("p:");
-          if(!isset($options["p"]))
-            {
-              die("Could not determine URL path, no -p option on the command line. :pathInfo\no" );
-            }
-          else
-            {
-              $pathInfo= $options["p"];
-            }
+        $options = getopt("p:");
+        if(!isset($options["p"]))
+        {
+			die("Could not determine URL path, no -p option on the command line. :pathInfo\no" );
+        }
+        else
+        {
+			$pathInfo= $options["p"];
+        }
 	}
 
 	return $pathInfo;
