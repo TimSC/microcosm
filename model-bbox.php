@@ -23,6 +23,7 @@ class BboxDatabaseSqlite
 		$this->UpdateTablesList();
 		$this->transactionOpen = 0;
 		$this->bboxindex = new BboxIndex();
+		$this->modifyBuffer = array();
 	}
 
 	function __destruct()
@@ -165,12 +166,23 @@ class BboxDatabaseSqlite
 		if($type=="relation") $typeInt = 3;
 		if(is_null($typeInt)) throw new Exception("Unknown type, can't convert to int");
 
+		if($type=="node")
+		{
+			$hasNodes = 0;
+			$hasWays = 0;
+		}
+		else
+		{
+			$hasNodes = (int)(count($el->nodes)>0);
+			$hasWays = (int)(count($el->ways)>0);
+		}
+
 		$sql = "INSERT INTO [".$this->dbh->quote($dataTableName)."] ";
 		$sql .= "(rowid,elementid,value,type,hasNodes,hasWays) VALUES (null,?,?,?";
 		$sql .= ",?";//hasNodes
 		$sql .= ",?";//hasWays
 		$sql.= ");";
-		$sqlVals = array($elementidStr, $value, $typeInt, (int)(count($el->nodes)>0), (int)(count($el->ways)>0));
+		$sqlVals = array($elementidStr, $value, $typeInt, $hasNodes, $hasWays);
 
 		$sth = $this->dbh->prepare($sql);
 		if($sth===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
@@ -235,7 +247,7 @@ class BboxDatabaseSqlite
 		unset($this->bboxindex[$elementidStr]);
 	}
 
-	function Update($bboxModifiedEls,&$map,$verbose=0)
+	function Update($bboxModifiedEls,$verbose=0)
 	{
 		if($verbose>=1) echo "Updating bboxes...\n";
 		$startTime = microtime(1);
@@ -243,7 +255,7 @@ class BboxDatabaseSqlite
 		$this->BeginTransactionIfNotAlready();
 		$countInserts = 0;
 
-		foreach($bboxModifiedEls as $t => $els) foreach($els as $el)
+		foreach($bboxModifiedEls as $el)
 		{
 			$type = $el->GetType();
 			$id = $el->attr['id'];
@@ -385,6 +397,19 @@ class BboxDatabaseSqlite
 		return $out;
 	}
 
+	function AddElementsToBuffer($elArray)
+	{
+		//echo count($elArray)."\n";
+		$this->modifyBuffer = array_merge($this->modifyBuffer, $elArray);
+	}
+
+	function FlushModifyBuffer()
+	{
+		$this->Update($this->modifyBuffer, 1);
+		$this->modifyBuffer = array();
+	}
+	
+
 }
 
 class BboxIndex extends GenericSqliteTable
@@ -408,11 +433,14 @@ function ModelBboxEventHandler($eventType, $content, $listenVars)
 
 	if($eventType === Message::ELEMENT_UPDATE_PARENTS)
 	{
-		//echo 'x';
+		list($type, $eid, $obj, $parents) = $content;
+		$xapiGlobal->AddElementsToBuffer(array($obj));
+		$xapiGlobal->AddElementsToBuffer($parents);
 	}
 
 	if($eventType === Message::SCRIPT_END)
 	{
+		$xapiGlobal->FlushModifyBuffer();
 		unset($xapiGlobal);
 		$xapiGlobal = Null;
 	}
