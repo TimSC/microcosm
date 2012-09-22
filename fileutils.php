@@ -218,8 +218,15 @@ function GetRequestPath()
 	//Convert path to internally usable format
 	if(isset($_SERVER['PATH_INFO']))
 	{
-		echo $_SERVER['PATH_INFO'];
 		$pathInfo = $_SERVER['PATH_INFO'];
+
+		//Remove the "API" part of URL
+		$pathInfoExp = explode("/",$pathInfo);
+		if($pathInfoExp[count($pathInfoExp)-3] == "api")
+		{
+			$pathInfo = $pathInfo = "/".implode("/",array_slice($pathInfoExp,count($pathInfoExp)-2));
+		}
+
 	}
 	if(!isset($pathInfo) and isset($_SERVER['REDIRECT_URL'])) 
 	{
