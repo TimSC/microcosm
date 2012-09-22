@@ -101,10 +101,12 @@ class ChangesetDatabaseSqlite extends GenericSqliteTable
 	{
 		$ids = $this->GetKeys();
 		$out = array();
+
 		//TODO This steps through the entire database, which is very slow for big databases
 		//TODO implement time range and other queries
 		foreach($ids as $cid)
 		{
+			//print_r($this[$cid]);
 			$c = $this[$cid];
 			if(get_class($c['data'])!='OsmChangeset')
 				throw new Exception ("Expecting changeset, but database returned a ".get_class($c['data']));
@@ -118,6 +120,9 @@ class ChangesetDatabaseSqlite extends GenericSqliteTable
 
 	function ExpandBbox($cid, $bbox)
 	{
+		if($cid === Null)
+			throw new Exception("Null changeset id");
+
 		//Input order min_lon,min_lat,max_lon,max_lat
 		if(!is_array($bbox)) throw new Exception("Input bbox must be array");
 
