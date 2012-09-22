@@ -5,6 +5,16 @@ require_once('messagepump.php');
 function MapQuery($userInfo,$bboxStr)
 {
 	//echo gettype($bboxStr);
+  if (!isset($bboxStr))   {
+    debug_print_backtrace();
+    throw new Exception("missing bboxStr array in MapQuery");
+  }
+  if (count($bboxStr) <1 )   {
+    debug_print_backtrace();    
+    throw new Exception("bboxStr array is empty in MapQuery");
+  }
+  echo "bboxStr:" . print_r($bboxStr) . "\n";
+
 	$bbox = explode(",",$bboxStr['bbox']);
 	$bbox = array_map('floatval', $bbox);
 

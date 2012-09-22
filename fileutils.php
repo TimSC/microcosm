@@ -183,10 +183,31 @@ function isValidEmail($email){
 
 function ValidateBbox($bbox)
 {
-	if($bbox[0] > $bbox[2])
-		return "invalid-bbox";
-	if($bbox[1] > $bbox[3])
-		return "invalid-bbox";
+  print "ValidateBbox:";
+  print_r($bbox);
+  print "\n";
+  if($bbox[0] > $bbox[2]){
+
+
+    // swap em!
+    $tmp = $bbox[0];
+    $bbox[2]=$bbox[0];
+    $bbox[0]=$tmp;
+    
+    //print "Invalid:" . $diff . " : " . $bbox[0] . ">". $bbox[2]. "\n";
+    //return "invalid-bbox";
+
+
+  }
+
+  if($bbox[1] > $bbox[3])    {
+    //return "invalid-bbox";
+    // swap em!
+    $tmp = $bbox[1];
+    $bbox[3]=$bbox[1];
+    $bbox[1]=$tmp;
+    
+  }
 
 	if($bbox[0] < -180.0 or $bbox[0] > 180.0) return "invalid-bbox";
 	if($bbox[2] < -180.0 or $bbox[2] > 180.0) return "invalid-bbox";
@@ -196,7 +217,7 @@ function ValidateBbox($bbox)
 	$area = abs((float)$bbox[2] - (float)$bbox[0]) * ((float)$bbox[3] - (float)$bbox[1]);
 	if($area > MAX_QUERY_AREA)
 	{
-		return "bbox-too-large";
+          //return "bbox-too-large";
 	}
 
 	return 1;
@@ -226,19 +247,6 @@ function GetRequestPath()
 		$pathInfoExp = explode("/",$pathInfo);
 		//TODO is there a better way then using INSTALL_FOLDER_DEPTH?
 		$pathInfo = "/".implode("/",array_slice($pathInfoExp,INSTALL_FOLDER_DEPTH));
-	}
-	if(!isset($pathInfo))
-	{
-		//print_r($_SERVER);
-        $options = getopt("p:");
-        if(!isset($options["p"]))
-        {
-			die("Could not determine URL path, no -p option on the command line. :pathInfo\no" );
-        }
-        else
-        {
-			$pathInfo= $options["p"];
-        }
 	}
 
 	return $pathInfo;
