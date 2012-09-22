@@ -218,6 +218,7 @@ function GetRequestPath()
 	//Convert path to internally usable format
 	if(isset($_SERVER['PATH_INFO']))
 	{
+		echo $_SERVER['PATH_INFO'];
 		$pathInfo = $_SERVER['PATH_INFO'];
 	}
 	if(!isset($pathInfo) and isset($_SERVER['REDIRECT_URL'])) 
