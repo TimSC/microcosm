@@ -140,7 +140,7 @@ function WayListToPointsText($el)
 	$totalLat = 0.0; $totalLon = 0.0; $totalCount = 0;
 	foreach($el->members as $mem)
 	{
-		if($mem!="node") continue;
+		if($mem[0]!="node") continue;
 		//For each referenced nodes,
 		$id = $mem[1];
 		$n = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("node",(int)$id,Null));
@@ -149,12 +149,13 @@ function WayListToPointsText($el)
 		if(is_object($n))
 		{
 			$out = $out.$n->attr['lon'].",".$n->attr['lat']."\n";
+
+			//TODO: This type of average calculation is not really numerically stable
 			$totalLon += $n->attr['lon'];
 			$totalLat += $n->attr['lat'];
 			$totalCount ++;
 		}
 	}
-
 	$centre = null;
 	if($totalCount>0) $centre = array($totalLon/$totalCount,$totalLat/$totalCount);
 	return array($out,$centre);	
