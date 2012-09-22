@@ -160,8 +160,9 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		$ret = $this->dbh->query($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 		foreach ($ret as $row) {
-			//print_r($row);
-			$out->tags = json_decode($row['tags']);
+			$out->tags = array();
+			foreach(json_decode($row['tags']) as $t => $v)
+				$out->tags[$t] = $v;
 		}
 
 		//Get members

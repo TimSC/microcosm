@@ -5,7 +5,7 @@ $lock=GetReadDatabaseLock();
 
 $pathInfo = GetRequestPath();
 
-if (isset($pathInfo))
+/*if (isset($pathInfo))
   {
     print "Path info:". $pathInfo. "\n";
   } else   {
@@ -39,7 +39,28 @@ if($xapiType != "*" and $xapiType != "node" and $xapiType != "way" and $xapiType
 {
 	header("Content-Type:text/plain");
 	echo "Type ".$xapiType." is not supported, use node,way or relation.\n";
+}*/
+
+$pathInfo = GetRequestPath();
+$urlExp = explode("/",$pathInfo);
+$xapiArg = $urlExp[2];
+$xapiArgs = explode("[",$xapiArg);
+
+//Split predicates
+$xapiType = $xapiArgs[0];
+$predicates = array();
+for($i=1;$i<count($xapiArgs);$i++)
+{
+	$temp = explode("]",$xapiArgs[$i]);
+	array_push($predicates, $temp[0]);
 }
+
+if($xapiType != "*" and $xapiType != "node" and $xapiType != "way" and $xapiType != "relation")
+{
+	header("Content-Type:text/plain");
+	echo "Type ".$xapiType." is not supported.\n";
+}
+
 
 //TODO Handle non-predicate bbox
 
@@ -117,11 +138,12 @@ function WayListToPointsText($el)
 	$out = "";
 	$ignoreMissing = 1;
 	$totalLat = 0.0; $totalLon = 0.0; $totalCount = 0;
-	foreach($el->nodes as $nd)
+	foreach($el->members as $mem)
 	{
+		if($mem!="node") continue;
 		//For each referenced nodes,
-		$id = $nd[0];
-		$n = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("node",(int)$id));
+		$id = $mem[1];
+		$n = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("node",(int)$id,Null));
 		if(!is_object($n) and !$ignoreMissing)
 			throw new Exception("node needed in XAPI way not found, node ".$id);
 		if(is_object($n))
@@ -141,8 +163,12 @@ function WayListToPointsText($el)
 function WayToKml($el,$outer=1)
 {
 	$out = "";
-	$lastNode = array_slice($el->nodes,-1);
-	$closedWay = ($el->nodes[0][0]==$lastNode[0][0]);
+
+	$closedWay = 0;
+	$firstNode = array_slice($el->members,0,1);
+	$lastNode = array_slice($el->members,-1,1);
+	if($firstNode!==Null and $lastNode!=Null)
+		$closedWay = ($firstNode[0][1]==$lastNode[0][1]);
 
 	if($closedWay)
 	{
@@ -198,6 +224,7 @@ function ElementToKml($el,$lang=null)
 
 	$name = null;
 	$out = "";
+	//print_r($el->tags);
 	if(!is_null($lang) and is_null($name) and isset($el->tags['name:'.$lang])) 
 		$name = $el->tags['name:'.$lang];
 	if(is_null($name) and isset($el->tags['name'])) $name = $el->tags['name'];
@@ -235,10 +262,13 @@ function ElementToKml($el,$lang=null)
 			$out .= $kml;
 		}
 
-		foreach($el->ways as $data)
+		foreach($el->members as $mem)
 		{
-			list($wid,$role) = $data;
-			$w = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("way",(int)$wid));
+			if($mem[0]!="way") continue;
+			$wid = $mem[1];
+			$role = $mem[2];
+
+			$w = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("way",(int)$wid,Null));
 			if(!is_object($w))
 				throw new Exception("way needed in XAPI way not found, node ".$id);			
 			//print_r($w);
@@ -269,8 +299,17 @@ function XapiQueryToKml($refs,$bbox,$lang=null)
 {
 	//Extract needed elements from database
 	$els = array();
+	foreach($refs as $elidstr)
+	{
+		$elIdStrExp = explode("-",$elidstr);
+		$type = $elIdStrExp[0];
+		$id = (int)$elIdStrExp[1];
+		$obj = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array($type,$id,Null));
+		if(is_null($obj)) throw new Exception("Could not get element needed to fulfil XAPI query");
+		array_push($els, $obj);
+	}
 
-        if (isset($refs)) {
+    /*if (isset($refs)) {
           print( "\nRefs:");
           print_r($refs);
           print( "\n");
@@ -280,13 +319,13 @@ function XapiQueryToKml($refs,$bbox,$lang=null)
               $elIdStrExp = explode("-",$elidstr);
               $type = $elIdStrExp[0];
               $id = (int)$elIdStrExp[1];
-			  $obj = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array($type,$id));
+			  $obj = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array($type,$id,Null));
               if(is_null($obj)) throw new Exception("Could not get element needed to fulfil XAPI query");
               array_push($els, $obj);
             }
         } else {
           print( "\nRefs undefined");
-        }
+        }*/
 
 	//Return result
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
@@ -302,6 +341,7 @@ function XapiQueryToKml($refs,$bbox,$lang=null)
 		//Output XAPI matched element
 		if(is_object($el) and !$problemFound)
 		{
+			//print_r($el);
 			$kml = ElementToKml($el,$lang);
 			$out .= $kml;
 		}
