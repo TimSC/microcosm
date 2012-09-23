@@ -12,11 +12,7 @@ if(isset($_SERVER['TERM']))
 	$nukeDatabase = 1;
 	$lockDatabase = 1;
 
-	$longopts  = array(
-	    "dontnuke",     // Required value
-	    "dontlock");
-
-	$options = getopt("i:",$longopts);
+	$options = getopt(PROG_ARG_STRING,PROG_ARG_LONG);
 	//var_dump($options);
 
 	if(!isset($options["i"]))
@@ -27,14 +23,9 @@ if(isset($_SERVER['TERM']))
 	$filename = $options["i"];
 
 	if(isset($options["dontnuke"]))
-	{
 		$nukeDatabase = 0;
-	}
-
 	if(isset($options["dontlock"]))
-	{
 		$lockDatabase = 0;
-	}
 	//echo $filename,$nukeDatabase,$lockDatabase;
 
 	Import($filename,$nukeDatabase,$lockDatabase);

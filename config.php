@@ -36,7 +36,9 @@ define("MAX_WAY_NODES",2000);
 define("MAX_CHANGESET_SIZE",50000);
 define("MAX_QUERY_AREA",0.25);
 
-define("PROG_ARG_STRING","p:m:g:");
+define("PROG_ARG_STRING","p:m:g:i:");
+$PROG_ARG_LONG = array("big-query","dont-nuke","dont-lock");
+
 //Function to report server capabilities to the client
 function GetCapabilities()
 {

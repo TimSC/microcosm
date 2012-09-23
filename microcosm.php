@@ -14,7 +14,7 @@ require_once('system.php');
 CallFuncByMessage(Message::SCRIPT_START,Null); 
 
 //Allow GET args to be set by command line
-$options = getopt(PROG_ARG_STRING);
+$options = getopt(PROG_ARG_STRING, $PROG_ARG_LONG);
 if(isset($options["g"]))
 {
 	$get= $options["g"];

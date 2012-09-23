@@ -16,8 +16,9 @@ function CheckPermissions()
 }
 
 function GetServerRequestMethod()
-{
-	$options = getopt(PROG_ARG_STRING);
+{	
+	global $PROG_ARG_LONG;
+	$options = getopt(PROG_ARG_STRING, $PROG_ARG_LONG);
 	$out = "GET";
 	if(isset($options["m"]))
 		$out = $options["m"];
@@ -211,7 +212,9 @@ function ValidateBbox($bbox)
 	if($bbox[3] < -90.0 or $bbox[3] > 90.0) return "invalid-bbox";
 
 	$area = abs((float)$bbox[2] - (float)$bbox[0]) * ((float)$bbox[3] - (float)$bbox[1]);
-	if($area > MAX_QUERY_AREA)
+	global $PROG_ARG_LONG;
+	$options = getopt(PROG_ARG_STRING, $PROG_ARG_LONG);
+	if($area > MAX_QUERY_AREA and !isset($options['big-query']))
 	{
 		return "bbox-too-large";
 	}
@@ -245,15 +248,16 @@ function GetRequestPath()
 		$pathInfo = "/".implode("/",array_slice($pathInfoExp,INSTALL_FOLDER_DEPTH));
 	}
 
+	global $PROG_ARG_LONG;
+	$options = getopt(PROG_ARG_STRING, $PROG_ARG_LONG);
 	if(!isset($pathInfo))
 	{
-		$options = getopt("p:");
 		$pathInfo= $options["p"];
 	}
 
 	if(!isset($pathInfo))
 	{
-		//print_r($_SERVER);		
+		//print_r($_SERVER);
 		die("Could not determine URL path, no -p option on the command line.\n" );
 	}
 
