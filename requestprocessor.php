@@ -278,4 +278,24 @@ function RequireAuth()
 	return array($displayName, $userId);
 }
 
+function GetUserDetails($userInfo)
+{
+	return CallFuncByMessage(Message::GET_USER_INFO,$userInfo);
+}
+
+function GetUserPreferences($userInfo)
+{
+	return CallFuncByMessage(Message::GET_USER_PERFERENCES,$userInfo);
+}
+
+function SetUserPreferences($userInfo)
+{
+	return CallFuncByMessage(Message::SET_USER_PERFERENCES,array($userInfo,$data));
+}
+
+function SetUserPreferencesSingle($userInfo)
+{
+	return CallFuncByMessage(Message::SET_USER_PERFERENCES_SINGLE,array($userInfo,$data));
+}
+
 ?>

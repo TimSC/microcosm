@@ -49,6 +49,10 @@ $messagePump->AddListener(Message::SCRIPT_END, "RichEditEventHandler", Null);
 
 $messagePump->AddListener(Message::CHECK_LOGIN, "UserDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::USER_ADD, "UserDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_USER_INFO, "UserDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_USER_PERFERENCES, "UserDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::SET_USER_PERFERENCES, "UserDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::SET_USER_PERFERENCES_SINGLE, "UserDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::SCRIPT_END, "UserDatabaseEventHandler", Null);
 
 ?>

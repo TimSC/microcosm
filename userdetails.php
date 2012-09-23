@@ -37,7 +37,7 @@ function AddUser($displayName, $email, $password, $uid = NULL)
 	return $db->AddUser($displayName, $email, $password, $uid, $admin);
 }
 
-function GetUserDetails($userInfo)
+function GetUserDetailsBackend($userInfo)
 {
 	$uid = $userInfo['userId'];
 
@@ -78,7 +78,7 @@ function GetUserDetails($userInfo)
 
 }
 
-function GetUserPreferences($userInfo)
+function GetUserPreferencesBackend($userInfo)
 {
 	$uid = $userInfo['userId'];
 
@@ -117,7 +117,7 @@ function GetUserPreferences($userInfo)
 
 }
 
-function SetUserPreferences($userInfo,$data)
+function SetUserPreferencesBackend($userInfo,$data)
 {
 	$userId = $userInfo['userId'];
 
@@ -133,7 +133,7 @@ function SetUserPreferences($userInfo,$data)
 	return array(1,array("Content-Type:text/plain"),"");
 }
 
-function SetUserPreferencesSingle($userInfo,$vars)
+function SetUserPreferencesSingleBackend($userInfo,$vars)
 {
 	$key = $vars[0][4];
 	$value = $vars[1];
@@ -398,15 +398,23 @@ function UserDatabaseEventHandler($eventType, $content, $listenVars)
 		$userDbGlobal = ChangesetDatabase();
 
 	if($eventType === Message::CHECK_LOGIN)
-	{
 		return CheckLogin($content[0], $content[1]);
-	}
 
 	if($eventType === Message::USER_ADD)
-	{
 		return AddUser($content[0], $content[1], $content[2], $content[3]);
-	}
 
+	if($eventType === Message::GET_USER_INFO)
+		return GetUserDetailsBackend($content);
+
+	if($eventType === Message::GET_USER_PERFERENCES)
+		return GetUserPreferencesBackend($content);
+
+	if($eventType === Message::SET_USER_PERFERENCES)
+		return SetUserPreferencesBackend($content[0], $content[1]);
+
+	if($eventType === Message::SET_USER_PERFERENCES_SINGLE)
+		return SetUserPreferencesSingleBackend($content[0], $content[1]);
+	
 	if($eventType === Message::SCRIPT_END)
 	{
 		unset($userDbGlobal);

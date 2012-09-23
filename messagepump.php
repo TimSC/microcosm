@@ -43,6 +43,10 @@ class Message
 	//User Events
 	const CHECK_LOGIN = 400;
 	const USER_ADD = 401;
+	const GET_USER_INFO = 402;
+	const GET_USER_PERFERENCES = 403;
+	const SET_USER_PERFERENCES = 404;
+	const SET_USER_PERFERENCES_SINGLE = 405;
 
 	//Trace events
 	//TODO
