@@ -49,7 +49,11 @@ class Message
 	const SET_USER_PERFERENCES_SINGLE = 405;
 
 	//Trace events
-	//TODO
+	const GET_TRACES_IN_BBOX = 500;
+	const GET_TRACE_FOR_USER = 501;
+	const INSERT_TRACE_INTO_DB = 502;
+	const GET_TRACE_DETAILS = 503;
+	const GET_TRACE_DATA = 504;
 	
 	function __construct($type, $content)
 	{

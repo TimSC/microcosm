@@ -298,4 +298,29 @@ function SetUserPreferencesSingle($userInfo)
 	return CallFuncByMessage(Message::SET_USER_PERFERENCES_SINGLE,array($userInfo,$data));
 }
 
+function GetTracesInBbox($userInfo,$get)
+{
+	return CallFuncByMessage(Message::GET_TRACES_IN_BBOX,array($userInfo,$get));
+}
+
+function GetTraceForUser($userInfo)
+{
+	return CallFuncByMessage(Message::GET_TRACE_FOR_USER,array($userInfo));
+}
+
+function InsertTraceIntoDb($userInfo, $args)
+{
+	return CallFuncByMessage(Message::INSERT_TRACE_INTO_DB,array($userInfo,$args));
+}
+
+function GetTraceDetails($userInfo,$urlExp)
+{
+	return CallFuncByMessage(Message::GET_TRACE_DETAILS,array($userInfo,$urlExp));
+}
+
+function GetTraceData($userInfo,$urlExp)
+{
+	return CallFuncByMessage(Message::GET_TRACE_DATA,array($userInfo,$urlExp));
+}
+
 ?>

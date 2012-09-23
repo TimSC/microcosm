@@ -392,10 +392,11 @@ class UserPrefsDbSqlite extends GenericSqliteTable
 $userDbGlobal = Null;
 function UserDatabaseEventHandler($eventType, $content, $listenVars)
 {
-	
-	global $userDbGlobal;
-	if($userDbGlobal === Null)
-		$userDbGlobal = ChangesetDatabase();
+	//This probably should be a reused object to prevent multiple open and closing of database
+	//Currently disabled but might be useful in future...
+	//global $userDbGlobal;
+	//if($userDbGlobal === Null)
+	//	$userDbGlobal = ChangesetDatabase();
 
 	if($eventType === Message::CHECK_LOGIN)
 		return CheckLogin($content[0], $content[1]);
@@ -415,11 +416,11 @@ function UserDatabaseEventHandler($eventType, $content, $listenVars)
 	if($eventType === Message::SET_USER_PERFERENCES_SINGLE)
 		return SetUserPreferencesSingleBackend($content[0], $content[1]);
 	
-	if($eventType === Message::SCRIPT_END)
-	{
-		unset($userDbGlobal);
-		$userDbGlobal = Null;
-	}
+	//if($eventType === Message::SCRIPT_END)
+	//{
+	//	unset($userDbGlobal);
+	//	$userDbGlobal = Null;
+	//}
 }
 
 ?>
