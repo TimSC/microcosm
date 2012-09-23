@@ -16,6 +16,7 @@ class RequestProcessor
 
 	function DoesUrlMatchPattern($url, $pattern)
 	{
+		//echo $url." ".$pattern."\n";
 		if (strcmp($url, $pattern)==0) return 1;
 		$urlExp = explode("/",$url);
 		$patternExp = explode("/",$pattern);

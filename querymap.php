@@ -5,7 +5,7 @@ require_once('dprint.php');
 
 function MapQuery($userInfo,$bboxStr)
 {
-	//echo gettype($bboxStr);
+
   if (!isset($bboxStr))   {
     debug_print_backtrace();
     throw new Exception("missing bboxStr array in MapQuery");
@@ -17,12 +17,13 @@ function MapQuery($userInfo,$bboxStr)
   
   dprint("bboxStr:",$bboxStr);
 
+
 	$bbox = explode(",",$bboxStr['bbox']);
 	$bbox = array_map('floatval', $bbox);
 
 	//Validate bbox
 	$ret = ValidateBbox($bbox);
-	if($ret != 1) return array(0,Null,$ret);
+	if(!is_array($ret)) return array(0,Null,$ret);
 
 	$lock=GetReadDatabaseLock();
 

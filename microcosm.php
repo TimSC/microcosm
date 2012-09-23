@@ -14,7 +14,6 @@ require_once('dprint.php');
 //Start up functions and logging
 //******************************
 
-
 ////-------------------------
 dprint("$_SERVER",$_SERVER);
 
@@ -155,6 +154,23 @@ dprint("$_SERVER",$_SERVER);
 
 CallFuncByMessage(Message::SCRIPT_START,Null); 
 
+//Allow GET args to be set by command line
+$options = getopt(PROG_ARG_STRING);
+if(isset($options["g"]))
+{
+	$get= $options["g"];
+	if(!is_array($get)) $get = array($get);
+	foreach ($get as &$value)
+	{
+		$kv = explode("=",$value);
+		if (isset($kv[1]))
+			$_GET[$kv[0]]=$kv[1];
+		else
+			$_GET[$kv[0]]="";
+	}
+}
+
+//print_r($_SERVER);
 
 CheckPermissions();
 
@@ -171,7 +187,7 @@ fwrite($fi,GetServerRequestMethod());
 fwrite($fi,"\t");
 fwrite($fi,$pathInfo);
 fwrite($fi,"\t");
-fwrite($fi,$_SERVER['QUERY_STRING']);
+if(isset($_SERVER['QUERY_STRING'])) fwrite($fi,$_SERVER['QUERY_STRING']);
 
 ob_start();
 var_export($_SERVER);
@@ -218,7 +234,9 @@ if (isset($_SERVER['PHP_AUTH_USER']))
 
 //Only allow GET method or else request authentication
 if(strcmp(GetServerRequestMethod(),"GET")!=0)
+{
 	list ($displayName, $userId) = RequireAuth();
+}
 else
 {
 	$displayName = null;
@@ -234,14 +252,14 @@ else
 $requestProcessor = new RequestProcessor();
 $requestProcessor->AddMethod("/capabilities", "GET", 'GetCapabilities', 0);
 $requestProcessor->AddMethod("/0.6/capabilities", "GET", 'GetCapabilities', 0);
-$requestProcessor->AddMethod("/0.6/map", "GET", 'MapQuery', 0, $MYGET);
+$requestProcessor->AddMethod("/0.6/map", "GET", 'MapQuery', 0, $_GET);
 $requestProcessor->AddMethod("/0.6/user/details", "GET", 'GetUserDetails', 1);
 $requestProcessor->AddMethod("/0.6/user/preferences", "GET", 'GetUserPreferences', 1);
 $requestProcessor->AddMethod("/0.6/user/preferences", "SET", 'SetUserPreferences', 1);
 $requestProcessor->AddMethod("/0.6/user/preferences/STR", "SET", 'SetUserPreferencesSingle', 1, 
 	array($urlExp, $putDataStr));
 
-$requestProcessor->AddMethod("/0.6/changesets", "GET", 'GetChangesets', 0, $MYGET);
+$requestProcessor->AddMethod("/0.6/changesets", "GET", 'GetChangesets', 0, $_GET);
 $requestProcessor->AddMethod("/0.6/changeset/create", "PUT", 'ChangesetOpen', 1, $putDataStr);
 $requestProcessor->AddMethod("/0.6/changeset/NUM", "GET", 'GetChangesetMetadata', 0, $urlExp);
 $requestProcessor->AddMethod("/0.6/changeset/NUM", "PUT", 'ChangesetUpdate', 1, array($urlExp, $putDataStr));
@@ -264,9 +282,9 @@ $requestProcessor->AddMethod("/0.6/ELEMENT/NUM/history", "GET", 'MapObjectFullHi
 $requestProcessor->AddMethod("/0.6/ELEMENT/NUM/full", "GET", 'GetFullDetailsOfElement', 0, $urlExp);
 $requestProcessor->AddMethod("/0.6/ELEMENT/NUM/relations", "GET", 'GetRelationsForElement', 0, $urlExp);
 $requestProcessor->AddMethod("/0.6/node/NUM/ways", "GET", 'GetWaysForNode', 0, $urlExp);
-$requestProcessor->AddMethod("/0.6/ELEMENTS", "GET", 'MultiFetch', 0, array($urlExp,$MYGET));
+$requestProcessor->AddMethod("/0.6/ELEMENTS", "GET", 'MultiFetch', 0, array($urlExp,$_GET));
 
-$requestProcessor->AddMethod("/0.6/trackpoints", "GET", 'GetTracesInBbox', 0, $MYGET);
+$requestProcessor->AddMethod("/0.6/trackpoints", "GET", 'GetTracesInBbox', 0, $_GET);
 $requestProcessor->AddMethod("/0.6/user/gpx_files", "GET", 'GetTraceForUser', 1);
 
 $requestProcessor->AddMethod("/0.6/gpx/create", "POST", 'InsertTraceIntoDb', 1, array($_FILES,$_POST));

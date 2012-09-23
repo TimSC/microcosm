@@ -475,6 +475,7 @@ function GetBboxOfReferencedElements($osmchange)
 function ExpandChangesetBbox($cid,$bbox)
 {
 	if(!is_array($bbox)) return 0;
+	if($cid === Null) throw new Exception("Null changeset id");
 	//print_r($bbox);
 	CallFuncByMessage(Message::EXPAND_BBOX, array($cid,$bbox));
 	return 1;
@@ -562,10 +563,9 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 
 	//Bbox for elements after change is applied
 	$bbox = GetBboxOfReferencedElements($osmchange);
-	ExpandChangesetBbox($cid,$bbox);
 
-	//Cause the destructor of the map and bbox databases object to run
-	unset($bboxdb);
+	if($cid !== Null) //A Null cid can be used for importing data
+		ExpandChangesetBbox($cid,$bbox);
 
 	return array(1,$changes);
 }
@@ -682,8 +682,7 @@ function GetChangesets($userInfo,$query)
 	if(isset($query['open'])) $open = (strcmp($query['open'],"true")==0);
 	$timerange = null; //TODO implement this and other arguments
 
-	$csids = CallFuncByMessage(Message::GET_CHANGESET_QUERY, array($user,$open,$timerange));
-	//print_r($csids);
+	$csids = CallFuncByMessage(Message::CHANGESET_QUERY, array($user,$open,$timerange));
 	
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 	$out = $out.'<osm version="0.6" generator="'.SERVER_NAME.'">'."\n";
