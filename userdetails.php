@@ -386,6 +386,32 @@ class UserPrefsDbSqlite extends GenericSqliteTable
 
 }
 
+//****************************************
+//Event Handler
 
+$userDbGlobal = Null;
+function UserDatabaseEventHandler($eventType, $content, $listenVars)
+{
+	
+	global $userDbGlobal;
+	if($userDbGlobal === Null)
+		$userDbGlobal = ChangesetDatabase();
+
+	if($eventType === Message::CHECK_LOGIN)
+	{
+		return CheckLogin($content[0], $content[1]);
+	}
+
+	if($eventType === Message::USER_ADD)
+	{
+		return AddUser($content[0], $content[1], $content[2], $content[3]);
+	}
+
+	if($eventType === Message::SCRIPT_END)
+	{
+		unset($userDbGlobal);
+		$userDbGlobal = Null;
+	}
+}
 
 ?>

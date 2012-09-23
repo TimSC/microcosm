@@ -3,7 +3,7 @@
 class Message
 {
 	//Map data messages
-    const MAP_QUERY = 0;
+	const MAP_QUERY = 0;
 	const GET_OBJECT_BY_ID = 1;
 	const GET_FULL_HISTORY = 2;
 	const GET_RELATIONS_FOR_ELEMENT = 3;
@@ -37,8 +37,15 @@ class Message
 	const SCRIPT_START = 200;
 	const SCRIPT_END = 201;
 
-	//eXtended API, XAPI
+	//XAPI (eXtended API)
 	const XAPI_QUERY = 300;
+
+	//User Events
+	const CHECK_LOGIN = 400;
+	const USER_ADD = 401;
+
+	//Trace events
+	//TODO
 	
 	function __construct($type, $content)
 	{
@@ -80,8 +87,9 @@ class MessagePump
 		$ret = Null;
 		foreach($this->listeners[$event->type] as $li)
 		{
-			//echo $event->type." ".$liFunc."\n";
 			$liFunc = $li[0];
+			//echo $event->type." ".$liFunc."\n";
+			//print_r($event->content);
 			$ret = $liFunc($event->type, $event->content, $li[1]);
 		}
 		return $ret;

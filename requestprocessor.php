@@ -271,7 +271,7 @@ function RequireAuth()
 
 	$login = $_SERVER['PHP_AUTH_USER'];
 
-	$ret = CheckLogin($login, $_SERVER['PHP_AUTH_PW']);
+	$ret = CallFuncByMessage(Message::CHECK_LOGIN,array($login, $_SERVER['PHP_AUTH_PW']));
 	if($ret===-1) RequestAuthFromUser();
 	if($ret===0) RequestAuthFromUser();
 	if(is_array($ret)) list($displayName, $userId) = $ret;

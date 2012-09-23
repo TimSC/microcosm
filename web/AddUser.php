@@ -1,5 +1,5 @@
 <?php
-require_once('../userdetails.php');
+require_once('../system.php');
 define("ALLOW_USER_ID_SPECIFY",false);
 
 if(isset($_POST['commit']))
@@ -8,7 +8,7 @@ if(isset($_POST['commit']))
 	if(isset($_POST['uid']) and is_numeric($_POST['uid']) and ALLOW_USER_ID_SPECIFY) 
 		$uid = $_POST['uid'];
 	//print_r($uid);
-	$ret = AddUser($_POST['displayName'],$_POST['email'],$_POST['password'],$uid);
+	$ret = CallFuncByMessage(Message::USER_ADD,array($_POST['displayName'],$_POST['email'],$_POST['password'],$uid));
 	if ($ret === true)
 		echo "Done";
 	else

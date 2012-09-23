@@ -3,6 +3,7 @@ require_once("config.php");
 require_once('messagepump.php');
 require_once('model-bbox.php');
 require_once('modelfactory.php');
+require_once('userdetails.php');
 
 $messagePump = new MessagePump();
 
@@ -45,5 +46,9 @@ $messagePump->AddListener(Message::SCRIPT_END, "ModelBboxEventHandler", Null);
 
 $messagePump->AddListener(Message::ELEMENT_UPDATE_DONE, "RichEditEventHandler", Null);
 $messagePump->AddListener(Message::SCRIPT_END, "RichEditEventHandler", Null);
+
+$messagePump->AddListener(Message::CHECK_LOGIN, "UserDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::USER_ADD, "UserDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::SCRIPT_END, "UserDatabaseEventHandler", Null);
 
 ?>
