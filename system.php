@@ -56,6 +56,7 @@ $messagePump->AddListener(Message::GET_USER_INFO, "UserDatabaseEventHandler", Nu
 $messagePump->AddListener(Message::GET_USER_PERFERENCES, "UserDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::SET_USER_PERFERENCES, "UserDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::SET_USER_PERFERENCES_SINGLE, "UserDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_USER_PERMISSIONS, "UserDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::SCRIPT_END, "UserDatabaseEventHandler", Null);
 
 $messagePump->AddListener(Message::GET_TRACES_IN_BBOX, "TraceDatabaseEventHandler", Null);

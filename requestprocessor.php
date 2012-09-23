@@ -272,6 +272,13 @@ function SetUserPreferencesSingle($userInfo)
 	return CallFuncByMessage(Message::SET_USER_PERFERENCES_SINGLE,array($userInfo,$data));
 }
 
+function GetUserPermissions($userInfo)
+{
+	return CallFuncByMessage(Message::GET_USER_PERMISSIONS,$userInfo);
+}
+
+//*************************************
+
 function GetTracesInBbox($userInfo,$get)
 {
 	return CallFuncByMessage(Message::GET_TRACES_IN_BBOX,array($userInfo,$get));
@@ -366,6 +373,7 @@ function ApiEventHandler($eventType, $content, $listenVars)
 	$requestProcessor->AddMethod("/0.6/user/preferences", "SET", 'SetUserPreferences', 1);
 	$requestProcessor->AddMethod("/0.6/user/preferences/STR", "SET", 'SetUserPreferencesSingle', 1, 
 		array($urlExp, $putDataStr));
+	$requestProcessor->AddMethod("/0.6/user/permissions", "GET", 'GetUserPermissions', 1);
 
 	$requestProcessor->AddMethod("/0.6/changesets", "GET", 'GetChangesets', 0, $getData);
 	$requestProcessor->AddMethod("/0.6/changeset/create", "PUT", 'ChangesetOpen', 1, $putDataStr);

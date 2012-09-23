@@ -47,6 +47,7 @@ class Message
 	const GET_USER_PERFERENCES = 403;
 	const SET_USER_PERFERENCES = 404;
 	const SET_USER_PERFERENCES_SINGLE = 405;
+	const GET_USER_PERMISSIONS = 406;
 
 	//Trace events
 	const GET_TRACES_IN_BBOX = 500;

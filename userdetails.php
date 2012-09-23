@@ -415,6 +415,9 @@ function UserDatabaseEventHandler($eventType, $content, $listenVars)
 
 	if($eventType === Message::SET_USER_PERFERENCES_SINGLE)
 		return SetUserPreferencesSingleBackend($content[0], $content[1]);
+
+	if($eventType === Message::GET_USER_PERMISSIONS)
+		throw new Exception("Function not implemented");
 	
 	//if($eventType === Message::SCRIPT_END)
 	//{
