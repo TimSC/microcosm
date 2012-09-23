@@ -4,6 +4,7 @@ require_once('messagepump.php');
 require_once('model-bbox.php');
 require_once('modelfactory.php');
 require_once('userdetails.php');
+require_once('traces.php');
 
 $messagePump = new MessagePump();
 

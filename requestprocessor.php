@@ -1,5 +1,4 @@
 <?php
-require_once('userdetails.php');
 
 class RequestProcessor
 {
