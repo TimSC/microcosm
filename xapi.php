@@ -1,6 +1,6 @@
 <?php
 require_once('system.php');
-
+require_once('dprint.php');
 CallFuncByMessage(Message::SCRIPT_START,Null); 
 
 $lock=GetReadDatabaseLock();
@@ -94,7 +94,7 @@ catch (Exception $e)
 	header('HTTP/1.1 500 Internal Server Error');
 	header("Content-Type:text/plain");
 	echo "Internal server error: ".$e->getMessage()."\n";
-	if(DEBUG_MODE) print_r($e->getTrace());
+        dprint("getTrace",$e->getTrace());
 }
 
 function XapiQueryToXml($refs,$bbox)

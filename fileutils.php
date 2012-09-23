@@ -1,5 +1,6 @@
 <?php
 require_once("config.php");
+require_once('dprint.php');
 
 function CheckPermissions()
 {
@@ -17,10 +18,17 @@ function CheckPermissions()
 
 function GetServerRequestMethod()
 {
-	$out = $_SERVER['REQUEST_METHOD'];
+  if (isset($_SERVER['REQUEST_METHOD']))
+    {
+      $out = $_SERVER['REQUEST_METHOD'];
 	if(isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']))
 		$out = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
 	return $out;
+    }
+  else
+    {
+      return "GET"; //default
+    }
 }
 
 
@@ -183,9 +191,8 @@ function isValidEmail($email){
 
 function ValidateBbox($bbox)
 {
-  print "ValidateBbox:";
-  print_r($bbox);
-  print "\n";
+  dprint( "ValidateBbox:",$bbox);
+
   if($bbox[0] > $bbox[2]){
 
 

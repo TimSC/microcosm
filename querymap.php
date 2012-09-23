@@ -1,6 +1,7 @@
 <?php
 require_once('fileutils.php');
 require_once('messagepump.php');
+require_once('dprint.php');
 
 function MapQuery($userInfo,$bboxStr)
 {
@@ -13,7 +14,8 @@ function MapQuery($userInfo,$bboxStr)
     debug_print_backtrace();    
     throw new Exception("bboxStr array is empty in MapQuery");
   }
-  echo "bboxStr:" . print_r($bboxStr) . "\n";
+  
+  dprint("bboxStr:",$bboxStr);
 
 	$bbox = explode(",",$bboxStr['bbox']);
 	$bbox = array_map('floatval', $bbox);

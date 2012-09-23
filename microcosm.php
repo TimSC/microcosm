@@ -7,60 +7,162 @@ require_once('traces.php');
 require_once('userdetails.php');
 require_once('requestprocessor.php');
 require_once('system.php');
+require_once('dprint.php');
+
 
 //******************************
 //Start up functions and logging
 //******************************
-$options = getopt("p:g:");
 
-if ($_GET) {
-  $MYGET=$_GET;
-} else  {
-  $MYGET=array();
 
-  //  print "args:"
-  //print_r($options) ;
-  //  print "end of args \n";
+////-------------------------
+dprint("$_SERVER",$_SERVER);
 
-  if(!isset($options["g"]))    {    
-    die("Could not determine get args, no -g option on the command line. :GET\n" );
-  } else         {
-    $get= $options["g"];
+/*     [DOCUMENT_ROOT] => /home/mdupont/experiments/fosm/microcosm/ */
+/*     [GATEWAY_INTERFACE] => CGI/1.1 */
+/*     [HTTP_ACCEPT] => text/html,application/xhtml+xml,application/xml;q=0.9,*\/\*;q=0.8 */
+/*     [HTTP_ACCEPT_CHARSET] => ISO-8859-1,utf-8;q=0.7,*;q=0.3 */
+/*     [HTTP_ACCEPT_ENCODING] => gzip,deflate,sdch */
+/*     [HTTP_ACCEPT_LANGUAGE] => en-US,en;q=0.8,sq;q=0.6,de;q=0.4 */
+/*     [HTTP_CACHE_CONTROL] => max-age=0 */
+/*     [HTTP_CONNECTION] => keep-alive */
+/*     [HTTP_HOST] => localhost */
+/*     [HTTP_USER_AGENT] => Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.19 (KHTML, like Gecko) Ubuntu/12.04 Chromium/18.0.1025.168 Chrome/18.0.1025.168 Safari/535.19 */
+/*     [PATH] => /usr/local/bin:/usr/bin:/bin */
+/*     [PHP_SELF] => /microcosm.php */
+/*     [QUERY_STRING] => bbox=80,80,90,90 */
+/*     [REDIRECT_QUERY_STRING] => bbox=80,80,90,90 */
+/*     [REDIRECT_STATUS] => 200 */
+/*     [REDIRECT_URL] => /0.6/map */
+/*     [REMOTE_ADDR] => 127.0.0.1 */
+/*     [REMOTE_PORT] => 52878 */
+/*     [REQUEST_METHOD] => GET */
+/*     [REQUEST_TIME] => 1348380992 */
+/*     [REQUEST_URI] => /0.6/map?bbox=80,80,90,90 */
+/*     [SCRIPT_FILENAME] => /home/mdupont/experiments/fosm/microcosm/microcosm.php */
+/*     [SCRIPT_NAME] => /microcosm.php */
+/*     [SERVER_ADDR] => 127.0.0.1 */
+/*     [SERVER_ADMIN] => [no address given] */
+/*     [SERVER_NAME] => localhost */
+/*     [SERVER_PORT] => 80 */
+/*     [SERVER_PROTOCOL] => HTTP/1.1 */
+/*     [SERVER_SIGNATURE] => <address>Apache/2.2.22 (Ubuntu) Server at ....</address> */
+/*     [SERVER_SOFTWARE] => Apache/2.2.22 (Ubuntu) */
 
-    foreach ($get as &$value) {
-      $kv = explode("=",$value);
 
-      if (isset($kv[1]))     {
-        $MYGET[$kv[0]]=$kv[1];
-      }  else {
-        $MYGET[$kv[0]]="";
+  $options = getopt("p:g:q:");
+  
+
+  if(!isset($options["g"]))
+    {    
+      if (isset($_GET) ) {
+        if (count($_GET) < 1) {
+          //      dprint("_GET:",$_GET);
+          //      print "_get set";
+          //      die("omg");
+          $MYGET=array();
+        }
+        $MYGET=$_GET;
       }
+    }  
+  else  
+    {
+      $MYGET=array();    
+      dprint("args:",$options);    
+      if(!isset($options["g"]))    {    
+        die("Could not determine get args, no -g option on the command line. :GET\n" );
+      } else         {
+        $get= $options["g"];
+        if (count($get) > 0)
+          {
 
+            if (is_array($get)) {
+              foreach ($get as &$value) {
+                $kv = explode("=",$value);
+                if (count($kv) > 0)
+                  {
+                    if (isset($kv[1]))     {
+                    $MYGET[$kv[0]]=$kv[1];
+                    }  else {
+                      $MYGET[$kv[0]]="";
+                  }
+                  }
+                else
+                  {
+                    $MYGET[$value]="";
+                  }
+                
+              }
+            }
+            else
+              {
+                dprint("GET",$get);                
+                $kv = explode("=",$get);
+                if (count($kv) > 0)
+                  {
+                    if (isset($kv[1]))     {
+                      $MYGET[$kv[0]]=$kv[1];
+                    }  else {
+                      $MYGET[$kv[0]]="";
+                    }
+                  }
+                else
+                  {
+                    $MYGET[$value]="";
+                  }
+                
+              }
+          }
+        else
+          {
+            dprint("GET",$get);
+          }
+      }
+    }
+  
+  // ---------
+  if(!isset($_SERVER['PATH_INFO']))  {
+
+    if(!isset($options["p"]))
+      {
+        //die("Could not determine URL path, no -p option on the command line. :pathInfo\n" );
+        $request = explode("?",$_SERVER['REQUEST_URI']);
+        if (count($request) > 0) {
+          $_SERVER['PATH_INFO']= $request[0];
+        } else  {
+          $_SERVER['PATH_INFO']= $_SERVER['REQUEST_URI'];
+            }         
+      } else {
+      $_SERVER['PATH_INFO']= $options["p"];
+    }
+
+  } else {
+    dprint("PATH_INFO:",$_SERVER['PATH_INFO']);
+  }
+
+  if(!isset($_SERVER['QUERY_STRING']))  {
+     if(!isset($options["q"]))
+      {
+        $_SERVER['QUERY_STRING']= "";
+
+      }  else    {
+       $_SERVER['QUERY_STRING']= $options["q"];
     }
   }
-}
+/////////////----------------
 
-// ---------
-if(!isset($_SERVER['PATH_INFO']))  {
-  if(!isset($options["p"]))
-    {
-      die("Could not determine URL path, no -p option on the command line. :pathInfo\n" );
-    }  else    {
-    $_SERVER['PATH_INFO']= $options["p"];
-  }
-}
 
 
 CallFuncByMessage(Message::SCRIPT_START,Null); 
 
-//print_r($_SERVER);
+
 CheckPermissions();
 
 //Split URL for processing
 $pathInfo = GetRequestPath();
 $urlExp = explode("/",$pathInfo);
 
-//print_r($pathInfo);
+dprint("pathinfo",$pathInfo);
 
 //Log the request
 $fi = fopen("log.txt","at");
@@ -123,8 +225,6 @@ else
 	$userId = null;
 }
 
-//print_r( $_SERVER);
-//print_r( $pathInfo);
 
 //*****************************
 //URL Request Processor
@@ -179,7 +279,7 @@ if(!$processed)
 {
 	header ('HTTP/1.1 404 Not Found');
 	echo "URL not found.";
-	//print_r($pathInfo);
+
 }
 
 //Trigger destructors acts better, rather than letting database handle going out of scope
