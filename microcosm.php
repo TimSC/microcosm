@@ -127,7 +127,7 @@ else
 //print_r( $pathInfo);
 
 //This function determines with function to call based on the URL and, if it can, responds to the client.
-$processed = CallFuncByMessage(Message::API_EVENT,array($pathInfo,$urlExp,$putDataStr));
+$processed = CallFuncByMessage(Message::API_EVENT,array($pathInfo,$urlExp,$putDataStr,$_GET,$_POST,$_FILES));
 if(!$processed)
 {
 	header ('HTTP/1.1 404 Not Found');

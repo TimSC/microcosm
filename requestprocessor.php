@@ -353,18 +353,21 @@ function ApiEventHandler($eventType, $content, $listenVars)
 	$url = $content[0];
 	$urlExp = $content[1];
 	$putDataStr = $content[2];
+	$getData = $content[3];
+	$postData = $content[4];
+	$filesData = $content[5];
 
 	$requestProcessor->methods = array();
 	$requestProcessor->AddMethod("/capabilities", "GET", 'GetCapabilities', 0);
 	$requestProcessor->AddMethod("/0.6/capabilities", "GET", 'GetCapabilities', 0);
-	$requestProcessor->AddMethod("/0.6/map", "GET", 'MapQuery', 0, $_GET);
+	$requestProcessor->AddMethod("/0.6/map", "GET", 'MapQuery', 0, $getData);
 	$requestProcessor->AddMethod("/0.6/user/details", "GET", 'GetUserDetails', 1);
 	$requestProcessor->AddMethod("/0.6/user/preferences", "GET", 'GetUserPreferences', 1);
 	$requestProcessor->AddMethod("/0.6/user/preferences", "SET", 'SetUserPreferences', 1);
 	$requestProcessor->AddMethod("/0.6/user/preferences/STR", "SET", 'SetUserPreferencesSingle', 1, 
 		array($urlExp, $putDataStr));
 
-	$requestProcessor->AddMethod("/0.6/changesets", "GET", 'GetChangesets', 0, $_GET);
+	$requestProcessor->AddMethod("/0.6/changesets", "GET", 'GetChangesets', 0, $getData);
 	$requestProcessor->AddMethod("/0.6/changeset/create", "PUT", 'ChangesetOpen', 1, $putDataStr);
 	$requestProcessor->AddMethod("/0.6/changeset/NUM", "GET", 'GetChangesetMetadata', 0, $urlExp);
 	$requestProcessor->AddMethod("/0.6/changeset/NUM", "PUT", 'ChangesetUpdate', 1, array($urlExp, $putDataStr));
@@ -387,12 +390,12 @@ function ApiEventHandler($eventType, $content, $listenVars)
 	$requestProcessor->AddMethod("/0.6/ELEMENT/NUM/full", "GET", 'GetFullDetailsOfElement', 0, $urlExp);
 	$requestProcessor->AddMethod("/0.6/ELEMENT/NUM/relations", "GET", 'GetRelationsForElement', 0, $urlExp);
 	$requestProcessor->AddMethod("/0.6/node/NUM/ways", "GET", 'GetWaysForNode', 0, $urlExp);
-	$requestProcessor->AddMethod("/0.6/ELEMENTS", "GET", 'MultiFetch', 0, array($urlExp,$_GET));
+	$requestProcessor->AddMethod("/0.6/ELEMENTS", "GET", 'MultiFetch', 0, array($urlExp,$getData));
 
-	$requestProcessor->AddMethod("/0.6/trackpoints", "GET", 'GetTracesInBbox', 0, $_GET);
+	$requestProcessor->AddMethod("/0.6/trackpoints", "GET", 'GetTracesInBbox', 0, $getData);
 	$requestProcessor->AddMethod("/0.6/user/gpx_files", "GET", 'GetTraceForUser', 1);
 
-	$requestProcessor->AddMethod("/0.6/gpx/create", "POST", 'InsertTraceIntoDb', 1, array($_FILES,$_POST));
+	$requestProcessor->AddMethod("/0.6/gpx/create", "POST", 'InsertTraceIntoDb', 1, array($filesData, $postData));
 	$requestProcessor->AddMethod("/0.6/gpx/NUM/details", "GET", 'GetTraceDetails', 0, $urlExp);
 	$requestProcessor->AddMethod("/0.6/gpx/NUM/data", "GET", 'GetTraceData', 0, $urlExp);
 
