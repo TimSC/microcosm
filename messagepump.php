@@ -54,6 +54,18 @@ class Message
 	const INSERT_TRACE_INTO_DB = 502;
 	const GET_TRACE_DETAILS = 503;
 	const GET_TRACE_DATA = 504;
+
+	//OSM API
+	const API_EVENT = 600;
+
+	//Map modification functions
+	const API_CHANGESET_OPEN = 700;
+	const API_CHANGESET_UPDATE = 701;
+	const API_CHANGESET_CLOSE = 702;
+	const API_CHANGESET_UPLOAD = 703;
+	const API_GET_CHANGESET_CONTENTS = 704;
+	const API_PROCESS_SINGLE_OBJECT = 705;
+	const API_CHANGESET_EXPAND = 706;
 	
 	function __construct($type, $content)
 	{

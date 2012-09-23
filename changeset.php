@@ -16,7 +16,7 @@ function GetNewObjectId($type)
 	return null;
 }
 
-function ChangesetOpen($userInfo,$putData)
+function ChangesetOpenBackend($userInfo,$putData)
 {
 	$displayName = $userInfo['displayName'];
 	$userId = $userInfo['userId'];
@@ -36,7 +36,7 @@ function ChangesetOpen($userInfo,$putData)
 		array($cid,$data,$displayName,$userId,time())));
 }
 
-function ChangesetUpdate($userInfo, $args)
+function ChangesetUpdateBackend($userInfo, $args)
 {
 	$displayName = $userInfo['displayName'];
 	$userId = $userInfo['userId'];
@@ -62,7 +62,7 @@ function ChangesetUpdate($userInfo, $args)
 	return GetChangesetMetadataLowLevel($cid);
 }
 
-function ChangesetClose($userInfo,$argExp)
+function ChangesetCloseBackend($userInfo,$argExp)
 {
 	$displayName = $userInfo['displayName'];
 	$userId = $userInfo['userId'];
@@ -570,7 +570,7 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 	return array(1,$changes);
 }
 
-function ProcessSingleObject($userInfo, $args)
+function ProcessSingleObjectBackend($userInfo, $args)
 {
 	list($urlExp,$data,$method) = $args;
 	$displayName = $userInfo['displayName'];
@@ -599,7 +599,7 @@ function ProcessSingleObject($userInfo, $args)
 	return array(1,array("Content-Type:text/xml"),$newversion);
 }
 
-function ChangesetUpload($userInfo, $args)
+function ChangesetUploadBackend($userInfo, $args)
 {
 	$displayName = $userInfo['displayName'];
 	$userId = $userInfo['userId'];
@@ -641,7 +641,7 @@ function ChangesetUpload($userInfo, $args)
 	return array(0,Null,$changes);
 }
 
-function ChangesetExpandBbox($userInfo, $args)
+function ChangesetExpandBboxBackend($userInfo, $args)
 {
 	$displayName = $userInfo['displayName'];
 	$userId = $userInfo['userId'];
@@ -720,7 +720,7 @@ function GetChangesetUid($cid)
 	return CallFuncByMessage(Message::GET_CHANGESET_UID, $cid);
 }
 
-function GetChangesetContents($userInfo, $urlExp) //Download changeset URL
+function GetChangesetContentsBackend($userInfo, $urlExp) //Download changeset URL
 {
 	$cid = (int)$urlExp[3];
 
@@ -739,4 +739,27 @@ function GetChangesetClosedTime($cid)
 	return CallFuncByMessage(Message::GET_CHANGESET_CLOSE_TIME, $cid);
 }
 
+function ChangesetEventHandler($eventType, $content, $listenVars)
+{
+	if($eventType == Message::API_CHANGESET_OPEN)
+		return ChangesetOpenBackend($content[0], $content[1]);
+
+	if($eventType == Message::API_CHANGESET_UPDATE)
+		return ChangesetUpdateBackend($content[0], $content[1]);
+		
+	if($eventType == Message::API_CHANGESET_CLOSE)
+		return ChangesetCloseBackend($content[0], $content[1]);
+
+	if($eventType == Message::API_CHANGESET_UPLOAD)
+		return ChangesetUploadBackend($content[0], $content[1]);
+
+	if($eventType == Message::API_GET_CHANGESET_CONTENTS)
+		return GetChangesetContentsBackend($content[0], $content[1]);
+
+	if($eventType == Message::API_PROCESS_SINGLE_OBJECT)
+		return ProcessSingleObjectBackend($content[0], $content[1]);
+
+	if($eventType == Message::API_CHANGESET_EXPAND)
+		return ChangesetExpandBboxBackend($content[0], $content[1]);
+}
 ?>

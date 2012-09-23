@@ -1,5 +1,7 @@
 <?php
 
+require_once('messagepump.php');
+
 class RequestProcessor
 {
 	var $methods = array();
@@ -47,7 +49,7 @@ class RequestProcessor
 		return 1;
 	}
 
-	function Process($url)
+	function Process($url, $urlExp)
 	{
 		$urlButNotMethodMatched = 0;
 		$urlMatchedAllowedMethod = null;
@@ -250,33 +252,6 @@ function TranslateErrorToHtml(&$response)
 
 }
 
-//*******************
-//User Authentication
-//*******************
-
-function RequestAuthFromUser()
-{
-	header('WWW-Authenticate: Basic realm="'.SERVER_NAME.'"');
-	header('HTTP/1.0 401 Unauthorized');
-	echo 'Authentication Cancelled';
-	exit;
-} 
-
-function RequireAuth()
-{
-	if (!isset($_SERVER['PHP_AUTH_USER'])) {
-		RequestAuthFromUser();
-	}
-
-	$login = $_SERVER['PHP_AUTH_USER'];
-
-	$ret = CallFuncByMessage(Message::CHECK_LOGIN,array($login, $_SERVER['PHP_AUTH_PW']));
-	if($ret===-1) RequestAuthFromUser();
-	if($ret===0) RequestAuthFromUser();
-	if(is_array($ret)) list($displayName, $userId) = $ret;
-	return array($displayName, $userId);
-}
-
 function GetUserDetails($userInfo)
 {
 	return CallFuncByMessage(Message::GET_USER_INFO,$userInfo);
@@ -322,4 +297,108 @@ function GetTraceData($userInfo,$urlExp)
 	return CallFuncByMessage(Message::GET_TRACE_DATA,array($userInfo,$urlExp));
 }
 
+//**************************************
+
+function ChangesetOpen($userInfo,$putData)
+{
+	return CallFuncByMessage(Message::API_CHANGESET_OPEN,array($userInfo,$putData));
+}
+
+function ChangesetUpdate($userInfo, $args)
+{
+	return CallFuncByMessage(Message::API_CHANGESET_UPDATE,array($userInfo,$args));
+}
+
+function ChangesetClose($userInfo,$argExp)
+{
+	return CallFuncByMessage(Message::API_CHANGESET_CLOSE,array($userInfo,$argExp));
+}
+
+function ChangesetUpload($userInfo, $args)
+{
+	return CallFuncByMessage(Message::API_CHANGESET_UPLOAD,array($userInfo,$args));
+}
+
+function GetChangesetContents($userInfo, $urlExp)
+{
+	return CallFuncByMessage(Message::API_GET_CHANGESET_CONTENTS,array($userInfo,$urlExp));
+}
+
+function ProcessSingleObject($userInfo, $args)
+{
+	return CallFuncByMessage(Message::API_PROCESS_SINGLE_OBJECT,array($userInfo,$args));
+}
+
+function ChangesetExpandBbox($userInfo, $args)
+{
+	return CallFuncByMessage(Message::API_CHANGESET_EXPAND,array($userInfo,$args));
+}
+
+//*****************************
+//URL Request Processor
+//*****************************
+
+$requestProcessor = Null;
+function ApiEventHandler($eventType, $content, $listenVars)
+{
+	global $requestProcessor;
+	if($requestProcessor===Null)
+	{
+		//Define allowed API calls
+		$requestProcessor = new RequestProcessor($eventType, $content, $listenVars);
+	}
+
+	if($eventType === Message::API_EVENT)
+	{
+	$url = $content[0];
+	$urlExp = $content[1];
+	$putDataStr = $content[2];
+
+	$requestProcessor->methods = array();
+	$requestProcessor->AddMethod("/capabilities", "GET", 'GetCapabilities', 0);
+	$requestProcessor->AddMethod("/0.6/capabilities", "GET", 'GetCapabilities', 0);
+	$requestProcessor->AddMethod("/0.6/map", "GET", 'MapQuery', 0, $_GET);
+	$requestProcessor->AddMethod("/0.6/user/details", "GET", 'GetUserDetails', 1);
+	$requestProcessor->AddMethod("/0.6/user/preferences", "GET", 'GetUserPreferences', 1);
+	$requestProcessor->AddMethod("/0.6/user/preferences", "SET", 'SetUserPreferences', 1);
+	$requestProcessor->AddMethod("/0.6/user/preferences/STR", "SET", 'SetUserPreferencesSingle', 1, 
+		array($urlExp, $putDataStr));
+
+	$requestProcessor->AddMethod("/0.6/changesets", "GET", 'GetChangesets', 0, $_GET);
+	$requestProcessor->AddMethod("/0.6/changeset/create", "PUT", 'ChangesetOpen', 1, $putDataStr);
+	$requestProcessor->AddMethod("/0.6/changeset/NUM", "GET", 'GetChangesetMetadata', 0, $urlExp);
+	$requestProcessor->AddMethod("/0.6/changeset/NUM", "PUT", 'ChangesetUpdate', 1, array($urlExp, $putDataStr));
+
+	$requestProcessor->AddMethod("/0.6/changeset/NUM/upload", "POST", 'ChangesetUpload', 1, array($urlExp, $putDataStr));
+	$requestProcessor->AddMethod("/0.6/changeset/NUM/expand_bbox", "POST", 'ChangesetExpandBbox', 1, 
+		array($urlExp, $putDataStr));
+	$requestProcessor->AddMethod("/0.6/changeset/NUM/download", "GET", 'GetChangesetContents', 0, $urlExp);
+	$requestProcessor->AddMethod("/0.6/changeset/NUM/close", "PUT", 'ChangesetClose', 1, $urlExp);
+
+	$requestProcessor->AddMethod("/0.6/ELEMENT/NUM", "GET", 'MapObjectQuery', 0, $urlExp);
+	$requestProcessor->AddMethod("/0.6/ELEMENT/NUM", "PUT", 'ProcessSingleObject', 1, 
+		array($urlExp,$putDataStr,"modify"));
+	$requestProcessor->AddMethod("/0.6/ELEMENT/NUM", "DELETE", 'ProcessSingleObject', 1, 
+		array($urlExp,$putDataStr,"delete"));
+	$requestProcessor->AddMethod("/0.6/ELEMENT/create", "PUT", 'ProcessSingleObject', 1, 
+		array($urlExp,$putDataStr,"create"));
+	$requestProcessor->AddMethod("/0.6/ELEMENT/NUM/NUM", "GET", 'MapObjectQuery', 0, $urlExp);
+	$requestProcessor->AddMethod("/0.6/ELEMENT/NUM/history", "GET", 'MapObjectFullHistory', 0, $urlExp);
+	$requestProcessor->AddMethod("/0.6/ELEMENT/NUM/full", "GET", 'GetFullDetailsOfElement', 0, $urlExp);
+	$requestProcessor->AddMethod("/0.6/ELEMENT/NUM/relations", "GET", 'GetRelationsForElement', 0, $urlExp);
+	$requestProcessor->AddMethod("/0.6/node/NUM/ways", "GET", 'GetWaysForNode', 0, $urlExp);
+	$requestProcessor->AddMethod("/0.6/ELEMENTS", "GET", 'MultiFetch', 0, array($urlExp,$_GET));
+
+	$requestProcessor->AddMethod("/0.6/trackpoints", "GET", 'GetTracesInBbox', 0, $_GET);
+	$requestProcessor->AddMethod("/0.6/user/gpx_files", "GET", 'GetTraceForUser', 1);
+
+	$requestProcessor->AddMethod("/0.6/gpx/create", "POST", 'InsertTraceIntoDb', 1, array($_FILES,$_POST));
+	$requestProcessor->AddMethod("/0.6/gpx/NUM/details", "GET", 'GetTraceDetails', 0, $urlExp);
+	$requestProcessor->AddMethod("/0.6/gpx/NUM/data", "GET", 'GetTraceData', 0, $urlExp);
+
+
+	return $requestProcessor->Process($url,$urlExp);
+	}
+
+}
 ?>
