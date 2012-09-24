@@ -3,6 +3,10 @@ require_once("config.php");
 require_once('messagepump.php');
 require_once('model-bbox.php');
 require_once('modelfactory.php');
+require_once('userdetails.php');
+require_once('traces.php');
+require_once('requestprocessor.php');
+require_once('changeset.php');
 
 $messagePump = new MessagePump();
 
@@ -45,5 +49,30 @@ $messagePump->AddListener(Message::SCRIPT_END, "ModelBboxEventHandler", Null);
 
 $messagePump->AddListener(Message::ELEMENT_UPDATE_DONE, "RichEditEventHandler", Null);
 $messagePump->AddListener(Message::SCRIPT_END, "RichEditEventHandler", Null);
+
+$messagePump->AddListener(Message::CHECK_LOGIN, "UserDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::USER_ADD, "UserDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_USER_INFO, "UserDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_USER_PERFERENCES, "UserDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::SET_USER_PERFERENCES, "UserDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::SET_USER_PERFERENCES_SINGLE, "UserDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_USER_PERMISSIONS, "UserDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::SCRIPT_END, "UserDatabaseEventHandler", Null);
+
+$messagePump->AddListener(Message::GET_TRACES_IN_BBOX, "TraceDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_TRACE_FOR_USER, "TraceDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::INSERT_TRACE_INTO_DB, "TraceDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_TRACE_DETAILS, "TraceDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_TRACE_DATA, "TraceDatabaseEventHandler", Null);
+
+$messagePump->AddListener(Message::API_EVENT, "ApiEventHandler", Null);
+
+$messagePump->AddListener(Message::API_CHANGESET_OPEN, "ChangesetEventHandler", Null);
+$messagePump->AddListener(Message::API_CHANGESET_UPDATE, "ChangesetEventHandler", Null);
+$messagePump->AddListener(Message::API_CHANGESET_CLOSE, "ChangesetEventHandler", Null);
+$messagePump->AddListener(Message::API_CHANGESET_UPLOAD, "ChangesetEventHandler", Null);
+$messagePump->AddListener(Message::API_GET_CHANGESET_CONTENTS, "ChangesetEventHandler", Null);
+$messagePump->AddListener(Message::API_PROCESS_SINGLE_OBJECT, "ChangesetEventHandler", Null);
+$messagePump->AddListener(Message::API_CHANGESET_EXPAND, "ChangesetEventHandler", Null);
 
 ?>

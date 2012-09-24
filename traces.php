@@ -11,10 +11,11 @@ class RawTraceTable extends GenericSqliteTable
 	var $tablename="rawtraces";
 }
 
-function GetTracesInBbox($userInfo,$get)
+function GetTracesInBboxBackend($userInfo,$get)
 {
 	$bboxExp = explode(",",$get['bbox']);
 	$bbox = array_map('floatval', $bboxExp);
+	if(!isset($get['page'])) throw new Exception("Page variable not set");
 	$page = (int)$get['page'];
 
 	//Validate BBOX
@@ -98,7 +99,7 @@ function GetTracesInBbox($userInfo,$get)
 
 }
 
-function InsertTraceIntoDb($userInfo, $args)
+function InsertTraceIntoDbBackend($userInfo, $args)
 {
 	list($files,$post) = $args;
 	$name = $files['file']['name'];
@@ -341,7 +342,7 @@ function LowLevelGetTraceMeta($db,$tid)
 	return $data;
 }
 
-function GetTraceDetails($userInfo,$urlExp)
+function GetTraceDetailsDetails($userInfo,$urlExp)
 {
 	$tid = (int)$urlExp[3];
 	$userId = $userInfo['userId'];
@@ -374,7 +375,7 @@ function GetTraceDetails($userInfo,$urlExp)
 	return array(1,array("Content-Type:text/xml"),$out);
 }
 
-function GetTraceData($userInfo,$urlExp)
+function GetTraceDataBackend($userInfo,$urlExp)
 {
 	$tid = (int)$urlExp[3];
 	//Require log in if not public
@@ -405,7 +406,7 @@ function GetTraceData($userInfo,$urlExp)
 	return array(1,array('Content-Type:text/xml'),bzdecompress($trace['gpx']));
 }
 
-function GetTraceForUser($userInfo)
+function GetTraceForUserBackend($userInfo)
 {
 	$uid = $userInfo['userId'];
 
@@ -474,6 +475,25 @@ function DeleteTrace($tid)
 	$rawtracedb = new RawTraceTable();
 	if(isset($rawtracedb[(int)$tid]))
 		unset($rawtracedb[(int)$tid]);
+
+}
+
+function TraceDatabaseEventHandler($eventType, $content, $listenVars)
+{
+	if($eventType === Message::GET_TRACES_IN_BBOX)
+		return GetTracesInBboxBackend($content[0], $content[1]);
+
+	if($eventType === Message::GET_TRACE_FOR_USER)
+		return GetTraceForUserBackend($content);
+
+	if($eventType === Message::INSERT_TRACE_INTO_DB)
+		return InsertTraceIntoDbBackend($content[0], $content[1]);
+
+	if($eventType === Message::GET_TRACE_DETAILS)
+		return GetTraceDetailsBackend($content[0], $content[1]);
+
+	if($eventType === Message::GET_TRACE_DATA)
+		return GetTraceDataBackend($content[0], $content[1]);
 
 }
 

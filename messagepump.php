@@ -3,7 +3,7 @@
 class Message
 {
 	//Map data messages
-    const MAP_QUERY = 0;
+	const MAP_QUERY = 0;
 	const GET_OBJECT_BY_ID = 1;
 	const GET_FULL_HISTORY = 2;
 	const GET_RELATIONS_FOR_ELEMENT = 3;
@@ -37,8 +37,36 @@ class Message
 	const SCRIPT_START = 200;
 	const SCRIPT_END = 201;
 
-	//eXtended API, XAPI
+	//XAPI (eXtended API)
 	const XAPI_QUERY = 300;
+
+	//User Events
+	const CHECK_LOGIN = 400;
+	const USER_ADD = 401;
+	const GET_USER_INFO = 402;
+	const GET_USER_PERFERENCES = 403;
+	const SET_USER_PERFERENCES = 404;
+	const SET_USER_PERFERENCES_SINGLE = 405;
+	const GET_USER_PERMISSIONS = 406;
+
+	//Trace events
+	const GET_TRACES_IN_BBOX = 500;
+	const GET_TRACE_FOR_USER = 501;
+	const INSERT_TRACE_INTO_DB = 502;
+	const GET_TRACE_DETAILS = 503;
+	const GET_TRACE_DATA = 504;
+
+	//OSM API
+	const API_EVENT = 600;
+
+	//Map modification functions
+	const API_CHANGESET_OPEN = 700;
+	const API_CHANGESET_UPDATE = 701;
+	const API_CHANGESET_CLOSE = 702;
+	const API_CHANGESET_UPLOAD = 703;
+	const API_GET_CHANGESET_CONTENTS = 704;
+	const API_PROCESS_SINGLE_OBJECT = 705;
+	const API_CHANGESET_EXPAND = 706;
 	
 	function __construct($type, $content)
 	{
@@ -80,8 +108,9 @@ class MessagePump
 		$ret = Null;
 		foreach($this->listeners[$event->type] as $li)
 		{
-			//echo $event->type." ".$liFunc."\n";
 			$liFunc = $li[0];
+			//echo $event->type." ".$liFunc."\n";
+			//print_r($event->content);
 			$ret = $liFunc($event->type, $event->content, $li[1]);
 		}
 		return $ret;
