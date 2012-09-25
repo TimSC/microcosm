@@ -1,12 +1,17 @@
 <?php
 
 require_once('messagepump.php');
+require_once('auth.php');
 
 class RequestProcessor
 {
 	var $methods = array();
 	var $userId = Null;
 	var $displayName = Null;
+
+	function __construct($eventType, $content, $listenVars) {
+	   /// TODO : 
+	}	 
 
 	function AddMethod($url, $method, $func, $authReq = 0, $arg = Null)
 	{
@@ -100,7 +105,8 @@ class RequestProcessor
 			//Translate error to correct http result
 			if(is_array($response) and $response[0] == 0)
 			{
-				TranslateErrorToHtml($response);
+				$changesetId=0; //TODO : where does this come from?
+				TranslateErrorToHtml($response,$changesetId);
 				return 1;
 			}
 
@@ -124,7 +130,7 @@ class RequestProcessor
 
 // Some stuff to translate errors to the correct HTML headers
 
-function TranslateErrorToHtml(&$response)
+function TranslateErrorToHtml(&$response,$changesetId)
 {
 	header("Content-Type:text/plain");
 
@@ -183,7 +189,7 @@ function TranslateErrorToHtml(&$response)
 
 	if(strcmp($response[2],"no-such-changeset")==0)
 	{	
-		$header('HTTP/1.1 409 Conflict');
+		header('HTTP/1.1 409 Conflict');
 		echo "No such changeset.";
 		return;
 	}
@@ -262,12 +268,12 @@ function GetUserPreferences($userInfo)
 	return CallFuncByMessage(Message::GET_USER_PERFERENCES,$userInfo);
 }
 
-function SetUserPreferences($userInfo)
+function SetUserPreferences($userInfo,$data)
 {
 	return CallFuncByMessage(Message::SET_USER_PERFERENCES,array($userInfo,$data));
 }
 
-function SetUserPreferencesSingle($userInfo)
+function SetUserPreferencesSingle($userInfo,$data)
 {
 	return CallFuncByMessage(Message::SET_USER_PERFERENCES_SINGLE,array($userInfo,$data));
 }

@@ -69,7 +69,7 @@ function CheckForRtree()
 	chdir(dirname(realpath (__FILE__)));
 	$dbh = new PDO('sqlite:rtreetest.db');
 	SqliteDropTableIfExists($dbh, "test");
-	$sql="CREATE VIRTUAL TABLE position USING rtree(id,minLat,maxLat,minLon,maxLon);";
+	$createSql="CREATE VIRTUAL TABLE position USING rtree(id,minLat,maxLat,minLon,maxLon);";
 	$ret = $dbh->exec($createSql);
 	if($ret===false) {$err= $dbh->errorInfo();return ($createSql.",".$err[2]);}
 	return 1;
@@ -200,7 +200,7 @@ class GenericSqliteTable implements ArrayAccess
 		return $sth->rowCount();
 	}
 
-	function CreateRecord($key, $keyVal = null, $data)
+	function CreateRecord($key, $keyVal = null, $data=null)
 	{
 
 		//Get keys to specify separately in SQL
@@ -581,7 +581,7 @@ class TableSpecSqlite
 		if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
 		//Rename table
-		$sql = "ALTER TABLE [".$dbg->quote($this->name)."] RENAME TO migrate_table;";
+		$sql = "ALTER TABLE [".$dbh->quote($this->name)."] RENAME TO migrate_table;";
 		$ret = $dbh->exec($sql);
 		if($ret===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 

@@ -53,8 +53,14 @@ return $out;
 //Map Model Stored in Multiple Files
 //**********************************
 
+function myclearstatcache($filename)
+{
+	clearstatcache();
+}
+
 class OsmDatabaseByFileTree extends OsmDatabaseCommon
 {
+
 	function __construct()
 	{
 	}	
@@ -295,7 +301,7 @@ class OsmDatabaseByFileTree extends OsmDatabaseCommon
 			fwrite($fi,$current);
 		}
 		fwrite($fi,"</osm>\n");
-		clearstatcache($historyName);
+		myclearstatcache($historyName);
 		return 1;
 	}
 
@@ -315,7 +321,7 @@ class OsmDatabaseByFileTree extends OsmDatabaseCommon
 		foreach($history as $item)
 			fwrite($fi,$item->ToXmlString());
 		fwrite($fi,"</osm>\n");
-		clearstatcache($historyName);
+		myclearstatcache($historyName);
 	}
 
 	function DeleteHistoryFile($type,$id)
@@ -323,7 +329,7 @@ class OsmDatabaseByFileTree extends OsmDatabaseCommon
 		$historyName = $this->ElementHistoryFilename($type,$id);		
 		if(file_exists($historyName))
 			unlink($historyName);
-		clearstatcache($historyName);
+		myclearstatcache($historyName);
 	}
 
 	//***********************
@@ -338,7 +344,7 @@ class OsmDatabaseByFileTree extends OsmDatabaseCommon
 		//Delete previous state
 		$filename = $this->ElementFilename($type,$id);
 		if(file_exists($filename)) unlink($filename);
-		clearstatcache($filename);
+		myclearstatcache($filename);
 
 		//Save to current state file
 		$this->ModifyElement($type,$id,$el);
@@ -358,7 +364,7 @@ class OsmDatabaseByFileTree extends OsmDatabaseCommon
 		$fi = fopen($filename, "wt");
 		fwrite($fi, $el->ToXmlString());
 		fclose($fi);
-		clearstatcache($filename);
+		myclearstatcache($filename);
 
 		//Add this state to history
 		if($prevVerExisted)	
@@ -375,7 +381,7 @@ class OsmDatabaseByFileTree extends OsmDatabaseCommon
 		//Delete current state file
 		$filename = $this->ElementFilename($type,$id);
 		unlink($filename);
-		clearstatcache($filename);
+		myclearstatcache($filename);
 	}
 
 	public function Purge()

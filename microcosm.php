@@ -3,34 +3,8 @@ require_once('fileutils.php');
 require_once('querymap.php');
 require_once('system.php');
 require_once('dprint.php');
+require_once('auth.php');
 
-
-//*******************
-//User Authentication
-//*******************
-
-function RequestAuthFromUser()
-{
-	header('WWW-Authenticate: Basic realm="'.SERVER_NAME.'"');
-	header('HTTP/1.0 401 Unauthorized');
-	echo 'Authentication Cancelled';
-	exit;
-} 
-
-function RequireAuth()
-{
-	if (!isset($_SERVER['PHP_AUTH_USER'])) {
-		RequestAuthFromUser();
-	}
-
-	$login = $_SERVER['PHP_AUTH_USER'];
-
-	$ret = CallFuncByMessage(Message::CHECK_LOGIN,array($login, $_SERVER['PHP_AUTH_PW']));
-	if($ret===-1) RequestAuthFromUser();
-	if($ret===0) RequestAuthFromUser();
-	if(is_array($ret)) list($displayName, $userId) = $ret;
-	return array($displayName, $userId);
-}
 
 //******************************
 //Start up functions and logging

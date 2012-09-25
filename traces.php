@@ -3,6 +3,7 @@
 require_once('config.php');
 require_once('dbutils.php');
 require_once('fileutils.php');
+require_once('auth.php');
 
 class RawTraceTable extends GenericSqliteTable
 {
@@ -490,7 +491,7 @@ function TraceDatabaseEventHandler($eventType, $content, $listenVars)
 		return InsertTraceIntoDbBackend($content[0], $content[1]);
 
 	if($eventType === Message::GET_TRACE_DETAILS)
-		return GetTraceDetailsBackend($content[0], $content[1]);
+		return GetTraceDetailsDetails($content[0], $content[1]);
 
 	if($eventType === Message::GET_TRACE_DATA)
 		return GetTraceDataBackend($content[0], $content[1]);

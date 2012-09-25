@@ -121,7 +121,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		$sql = "SELECT * FROM ".MYSQL_DB_NAME.".meta WHERE intid = ".$this->dbh->quote($intid).";";
 		//echo $sql."\n";
 		$ret = $this->dbh->query($sql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		foreach ($ret as $row) {
 			//print_r($row);
 			$out = OsmElementFactory($this->CodeToType($row['type']));
@@ -146,7 +146,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		{
 		$sql = "SELECT AsText(g) FROM ".MYSQL_DB_NAME.".geom WHERE intid = ".$this->dbh->quote($intid).";";
 		$ret = $this->dbh->query($sql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		foreach ($ret as $row) {
 			//print_r($this->PointStrToLatLon($row['AsText(g)']));
 			list($lat,$lon) = $this->PointStrToLatLon($row['AsText(g)']);
@@ -158,7 +158,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		//Get tags
 		$sql = "SELECT tags FROM ".MYSQL_DB_NAME.".tags WHERE intid = ".$this->dbh->quote($intid).";";
 		$ret = $this->dbh->query($sql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		foreach ($ret as $row) {
 			$out->tags = array();
 			foreach(json_decode($row['tags']) as $t => $v)
@@ -170,7 +170,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 			$this->dbh->quote($id)." AND pver = ".$this->dbh->quote($version)." ORDER BY ord;";
 		//echo $sql."\n";
 		$ret = $this->dbh->query($sql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		foreach ($ret as $row) {
 			//print_r($row);
 			$ctype = $this->CodeToType($row['ctype']);
@@ -191,7 +191,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		$sql = "SELECT ver,intid,visible FROM ".MYSQL_DB_NAME.".meta WHERE type = ".$this->dbh->quote($this->TypeToCode($type))." AND id = ".$this->dbh->quote($id).";";
 		//echo $sql."\n";
 		$ret = $this->dbh->query($sql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		foreach ($ret as $row) {
 			//print_r($row);
 			//return array($row['intid'],$row['MAX(ver)'],$row['visible']);
@@ -211,7 +211,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		$sql = "SELECT * FROM ".MYSQL_DB_NAME.".current WHERE id = ".$this->dbh->quote($id)." AND type = ".$this->dbh->quote($this->TypeToCode($type)).";";
 		//echo $sql."\n";
 		$ret = $this->dbh->query($sql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		foreach ($ret as $row) {
 			//print_r($row);
 			return array($row['intid'],$row['currentver'],$row['visible']);
@@ -227,7 +227,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		$sql = "SELECT ver,intid,visible FROM ".MYSQL_DB_NAME.".meta WHERE type = ".$this->dbh->quote($this->TypeToCode($type))." AND id = ".$this->dbh->quote($id).";";
 		//echo $sql."\n";
 		$ret = $this->dbh->query($sql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		foreach ($ret as $row) {
 			//print_r($row);
 			//return array($row['intid'],$row['MAX(ver)'],$row['visible']);
@@ -282,7 +282,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 				" AND cid = ".$this->dbh->quote($id).";";
 			//echo $sql."\n"; die();
 			$ret = $this->dbh->query($sql);
-			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 			foreach ($ret as $row) {
 				//print_r($row);
 				$parentId = $row['pid'];
@@ -421,7 +421,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 			$this->dbh->quote($id)." AND ver = ".$this->dbh->quote($version).";";
 		//echo $sql."\n";
 		$ret = $this->dbh->query($sql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		foreach ($ret as $row) {
 			$intid = $row['intid'];
 		}
@@ -438,7 +438,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		$vers = array();
 		$sql = "SELECT ver FROM ".MYSQL_DB_NAME.".meta WHERE type = ".$this->dbh->quote($this->TypeToCode($type))." AND id = ".$this->dbh->quote($id).";";
 		$ret = $this->dbh->query($sql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		foreach ($ret as $row) {
 			//print_r($row);
 			array_push($vers,$row['ver']);
@@ -464,7 +464,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
 		{
 		$sql = "SELECT * FROM ".MYSQL_DB_NAME.".current WHERE type = ".$this->dbh->quote($this->TypeToCode($ty)).";";
 		$ret = $this->dbh->query($sql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		foreach ($ret as $row) {$obj = $this->IntIdToObj($row['intid']);$callback($obj);}
 		}
 	}

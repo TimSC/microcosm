@@ -118,7 +118,7 @@ function MultiFetch($userInfo, $args)
 	return array(1,array("Content-Type:text/xml"),$out);
 }
 
-function GetRelationsForElement($userInfo,$urlExp)
+function GetRelationsForElement($userInfo,$urlExp,$map)
 {
 	$type = $urlExp[2];
 	$id = (int)$urlExp[3];

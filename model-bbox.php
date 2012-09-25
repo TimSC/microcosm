@@ -327,7 +327,7 @@ class BboxDatabaseSqlite
 		if($verbose>=1) echo "\n";
 	}
 
-	function QueryXapi($type=null, $bbox=null, $key, $value=null, $maxRecords=MAX_XAPI_ELEMENTS)
+	function QueryXapi($type=null, $bbox=null, $key=null, $value=null, $maxRecords=MAX_XAPI_ELEMENTS)
 	{
 		$keyExp = explode("|",$key);
 		$out = array();
@@ -342,7 +342,7 @@ class BboxDatabaseSqlite
 		return $out;
 	}
 
-	function QueryXapiSingle($type=null, $bbox=null, $key, $value=null, $maxRecords=MAX_XAPI_ELEMENTS)
+	function QueryXapiSingle($type=null, $bbox=null, $key=null, $value=null, $maxRecords=MAX_XAPI_ELEMENTS)
 	{
 		$keys = $this->GetStoredKeys();
 		//print_r($keys);
