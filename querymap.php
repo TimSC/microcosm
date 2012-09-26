@@ -1,21 +1,20 @@
 <?php
+require_once('config.php');
 require_once('fileutils.php');
 require_once('messagepump.php');
 
 function MapQuery($userInfo,$bboxStr)
 {
-
-  if (!isset($bboxStr))   {
-    debug_print_backtrace();
-    throw new Exception("missing bboxStr array in MapQuery");
-  }
-  if (count($bboxStr) <1 )   {
-    debug_print_backtrace();    
-    throw new Exception("bboxStr array is empty in MapQuery");
-  }
+	if (!isset($bboxStr))   {
+		if(DEBUG_MODE) debug_print_backtrace();
+		throw new Exception("missing bboxStr array in MapQuery");
+	}
+	if (count($bboxStr) <1 )   {
+		if(DEBUG_MODE) debug_print_backtrace();    
+		throw new Exception("bboxStr array is empty in MapQuery");
+	}
   
-  dprint("bboxStr:",$bboxStr);
-
+	if(DEBUG_MODE) dprint("bboxStr:",$bboxStr);
 
 	$bbox = explode(",",$bboxStr['bbox']);
 	$bbox = array_map('floatval', $bbox);
