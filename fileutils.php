@@ -17,18 +17,16 @@ function CheckPermissions()
 
 function GetServerRequestMethod()
 {
-  if (isset($_SERVER['REQUEST_METHOD']))
-    {
-      $out = $_SERVER['REQUEST_METHOD'];
-
+	global $PROG_ARG_LONG;
+	$options = getopt(PROG_ARG_STRING, $PROG_ARG_LONG);
+	$out = "GET"; //The default
+	if(isset($options["m"]))
+	$out = $options["m"];
+	if(isset($_SERVER['REQUEST_METHOD']))
+	$out = $_SERVER['REQUEST_METHOD'];
 	if(isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']))
-		$out = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
+	$out = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
 	return $out;
-    }
-  else
-    {
-      return "GET"; //default
-    }
 }
 
 function RequireMethod($reqMethod)
