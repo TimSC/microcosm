@@ -6,7 +6,7 @@ require_once("osmtypes.php");
 //***************************************
 //Low level changeset functions
 //***************************************
-function myclearstatcache($filename)
+function myclearstatcache2($filename)
 {
 	clearstatcache();
 }
@@ -40,7 +40,7 @@ function Update($cid,$data,$displayName,$userId)
 	$out = "<osm>".$data->ToXmlString()."</osm>";
 	fwrite($fi,$out);
 	fclose($fi);
-	myclearstatcache($filename);
+	myclearstatcache2($filename);
 
 	return 1;
 }
@@ -114,7 +114,7 @@ function AppendElement($cid, $action, $el)
 	fwrite($fi,$serdata);
 	fflush($fi);
 	fclose($fi);
-	myclearstatcache($filename);
+	myclearstatcache2($filename);
 	//echo filesize($filename).",";
 }
 
