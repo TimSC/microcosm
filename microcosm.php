@@ -31,6 +31,8 @@ if(DEBUG_MODE) dprint("pathinfo",$pathInfo);
 
 //Log the request
 $fi = fopen("log.txt","at");
+if($fi===False)
+	throw new Exception("Failed to open log.txt file for writing: check permission.");
 flock($fi, LOCK_EX);
 fwrite($fi,GetServerRequestMethod());
 fwrite($fi,"\t");
@@ -91,8 +93,7 @@ else
 	$displayName = null;
 	$userId = null;
 }
-
-
+exit(0);
 //This function determines with function to call based on the URL and, if it can, responds to the client.
 $processed = CallFuncByMessage(Message::API_EVENT,array($pathInfo,$urlExp,$putDataStr,$_GET,$_POST,$_FILES));
 if(!$processed)
