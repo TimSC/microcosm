@@ -1,7 +1,6 @@
 <?php
 require_once('fileutils.php');
 require_once('messagepump.php');
-require_once('dprint.php');
 
 function MapQuery($userInfo,$bboxStr)
 {
