@@ -1,6 +1,5 @@
 <?php
 require_once("config.php");
-require_once('dprint.php');
 
 function CheckPermissions()
 {
