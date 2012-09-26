@@ -16,10 +16,18 @@ if(DEBUG_MODE) dprint("$_SERVER",$_SERVER);
 
 global $PROG_ARG_STRING;
 $options = getopt(PROG_ARG_STRING, $PROG_ARG_LONG);
-$_GET = CommandLineOptionsSetVar($options['g'], $_GET);
+if(isset($options['g'])) $_GET = CommandLineOptionsSetVar($options['g'], $_GET);
 
 //print_r($_GET);
 //print_r($_SERVER);
+
+$login = Null;
+if(isset($_SERVER['PHP_AUTH_USER'])) $login = $_SERVER['PHP_AUTH_USER'];
+if(isset($options['user'])) $login = $options['user'];
+
+$pass = Null;
+if(isset($_SERVER['PHP_AUTH_PW'])) $pass = $_SERVER['PHP_AUTH_PW'];
+if(isset($options['password'])) $pass = $options['password'];
 
 CheckPermissions();
 
@@ -80,13 +88,13 @@ if(API_READ_ONLY and strcmp(GetServerRequestMethod(),"GET")!=0)
 //***********************
 
 //Authentication, if there is a server username variable
-if (isset($_SERVER['PHP_AUTH_USER'])) 
-	list ($displayName, $userId) = RequireAuth();
+if ($login !== Null) 
+	list ($displayName, $userId) = RequireAuth($login, $pass);
 
 //Only allow GET method or else request authentication
 if(strcmp(GetServerRequestMethod(),"GET")!=0)
 {
-	list ($displayName, $userId) = RequireAuth();
+	list ($displayName, $userId) = RequireAuth($login, $pass);
 }
 else
 {
@@ -95,7 +103,7 @@ else
 }
 
 //This function determines with function to call based on the URL and, if it can, responds to the client.
-$processed = CallFuncByMessage(Message::API_EVENT,array($pathInfo,$urlExp,$putDataStr,$_GET,$_POST,$_FILES));
+$processed = CallFuncByMessage(Message::API_EVENT,array($pathInfo,$urlExp,$putDataStr,$_GET,$_POST,$_FILES,$login,$pass));
 if(!$processed)
 {
 	header ('HTTP/1.1 404 Not Found');

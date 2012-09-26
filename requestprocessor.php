@@ -54,7 +54,7 @@ class RequestProcessor
 		return 1;
 	}
 
-	function Process($url, $urlExp)
+	function Process($url, $urlExp,$login,$pass)
 	{
 		$urlButNotMethodMatched = 0;
 		$urlMatchedAllowedMethod = null;
@@ -78,7 +78,7 @@ class RequestProcessor
 
 			//Do authentication if required
 			if($this->userId == null and $methodEntry['authReq'])
-				list ($this->displayName, $this->userId) = RequireAuth();
+				list ($this->displayName, $this->userId) = RequireAuth($login,$pass);
 	
 			try
 			{
@@ -369,6 +369,8 @@ function ApiEventHandler($eventType, $content, $listenVars)
 	$getData = $content[3];
 	$postData = $content[4];
 	$filesData = $content[5];
+	$login = $content[6];
+	$pass = $content[7];
 
 	$requestProcessor->methods = array();
 	$requestProcessor->AddMethod("/capabilities", "GET", 'GetCapabilities', 0);
@@ -414,7 +416,7 @@ function ApiEventHandler($eventType, $content, $listenVars)
 	$requestProcessor->AddMethod("/0.6/gpx/NUM/data", "GET", 'GetTraceData', 0, $urlExp);
 
 
-	return $requestProcessor->Process($url,$urlExp);
+	return $requestProcessor->Process($url,$urlExp,$login,$pass);
 	}
 
 }
