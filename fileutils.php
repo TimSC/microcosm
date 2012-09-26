@@ -271,4 +271,25 @@ function dprint($name,$value)
 	error_log("DPRINT:". $name. ":". print_r($value,true) . "\n<",0);
 }
 
+//Allow GET args to be set by command line
+function CommandLineOptionsSetVar($opts, $existVars)
+{
+	if($existVars === Null) $out = array();
+	else $out = $existVars;
+
+	if($opts !== Null)
+	{
+		if(!is_array($opts)) $opts = array($opts);
+		foreach ($opts as &$value)
+		{
+			$kv = explode("=",$value);
+			if (isset($kv[1]))
+				$out[$kv[0]]=$kv[1];
+			else
+				$out[$kv[0]]="";
+		}
+	}
+	return $out;
+}
+
 ?>

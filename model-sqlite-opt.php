@@ -147,8 +147,8 @@ class ElementTableOpt extends ElementTable
 
 		if($sth===false) 
 		{
-		    $err= $this->dbh->errorInfo();
-		    throw new Exception($sql.",".$err[2]);
+			$err= $this->dbh->errorInfo();
+			throw new Exception($sql.",".$err[2]);
 		}
 
 		$ret = $sth->execute(array(serialize($parents)));
@@ -252,8 +252,8 @@ class ElementTableOpt extends ElementTable
 
 		$sth = $this->dbh->prepare($sql);
 		if($sth===false) {
-		    $err= $this->dbh->errorInfo();
-		    throw new Exception($sql.",".$err[2]);}
+			$err= $this->dbh->errorInfo();
+			throw new Exception($sql.",".$err[2]);}
 		$sqlVals = array(serialize($rowids),(int)$id);
 		$ret = $sth->execute($sqlVals);
 		if($ret===false) 
@@ -593,8 +593,8 @@ function CheckElementTableOptAgainstPosition(&$table, &$db)
 	$query = "SELECT * FROM elements;";
 	$ret = $table->dbh->query($query);
 	if($ret===false) {
-	    $err= $table->dbh->errorInfo();
-	    throw new Exception($query.",".$err[2]);}
+		$err= $table->dbh->errorInfo();
+		throw new Exception($query.",".$err[2]);}
 	
 	foreach($ret as $row)
 	{

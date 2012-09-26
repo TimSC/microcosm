@@ -329,6 +329,7 @@ class BboxDatabaseSqlite
 
 	function QueryXapi($type=null, $bbox=null, $key=null, $value=null, $maxRecords=MAX_XAPI_ELEMENTS)
 	{
+		if($key===Null) throw new Exception("Empty key not allowed");
 		$keyExp = explode("|",$key);
 		$out = array();
 		foreach($keyExp as $keySingle)
@@ -344,6 +345,7 @@ class BboxDatabaseSqlite
 
 	function QueryXapiSingle($type=null, $bbox=null, $key=null, $value=null, $maxRecords=MAX_XAPI_ELEMENTS)
 	{
+		if($key===Null) throw new Exception("Empty key not allowed");
 		$keys = $this->GetStoredKeys();
 		//print_r($keys);
 		$keySanitized = $this->SanitizeKey($key);
