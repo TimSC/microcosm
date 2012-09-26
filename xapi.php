@@ -1,6 +1,6 @@
 <?php
 require_once('system.php');
-require_once('dprint.php');
+require_once('fileutils.php');
 CallFuncByMessage(Message::SCRIPT_START,Null); 
 
 $lock=GetReadDatabaseLock();
