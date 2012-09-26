@@ -343,7 +343,7 @@ function LowLevelGetTraceMeta($db,$tid)
 	return $data;
 }
 
-function GetTraceDetailsDetails($userInfo,$urlExp)
+function GetTraceDetailsBackend($userInfo,$urlExp)
 {
 	$tid = (int)$urlExp[3];
 	$userId = $userInfo['userId'];
@@ -491,7 +491,7 @@ function TraceDatabaseEventHandler($eventType, $content, $listenVars)
 		return InsertTraceIntoDbBackend($content[0], $content[1]);
 
 	if($eventType === Message::GET_TRACE_DETAILS)
-		return GetTraceDetailsDetails($content[0], $content[1]);
+		return GetTraceDetailsBackend($content[0], $content[1]);
 
 	if($eventType === Message::GET_TRACE_DATA)
 		return GetTraceDataBackend($content[0], $content[1]);
