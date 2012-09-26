@@ -74,7 +74,9 @@ function ChangesetCloseBackend($userInfo,$argExp)
 	$cUser = CallFuncByMessage(Message::GET_CHANGESET_UID, $cid);
 	if(is_null($cUser)) return array(0,Null,"not-found");
 	if($userId != $cUser) return array(0,Null,"conflict");
-	
+	if(CallFuncByMessage(Message::CHANGESET_IS_OPEN, $cid)!=1)
+		return array(0,Null,"already-closed", $cid);
+
 	//Do close	
 	CallFuncByMessage(Message::CLOSE_CHANGESET, $cid);
 	return array(1,array("Content-Type:text/plain"),"");

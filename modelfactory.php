@@ -42,7 +42,7 @@ function OsmDatabase()
 
 function ChangesetDatabase()
 {
-	//return new ChangesetDatabaseOsmXdml();
+	//return new ChangesetDatabaseOsmXml();
 	return new ChangesetDatabaseSqlite();
 }
 

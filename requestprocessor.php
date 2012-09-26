@@ -105,8 +105,7 @@ class RequestProcessor
 			//Translate error to correct http result
 			if(is_array($response) and $response[0] == 0)
 			{
-				$changesetId=0; //TODO : where does this come from?
-				TranslateErrorToHtml($response,$changesetId);
+				TranslateErrorToHtml($response);
 				return 1;
 			}
 
@@ -130,13 +129,14 @@ class RequestProcessor
 
 // Some stuff to translate errors to the correct HTML headers
 
-function TranslateErrorToHtml(&$response,$changesetId)
+function TranslateErrorToHtml(&$response)
 {
 	header("Content-Type:text/plain");
 
 	if(strcmp($response[2],"already-closed")==0)
-	{	
+	{
 		//Example: "The changeset 5960426 was closed at 2010-10-05 11:18:26 UTC"
+		$changesetId = (int)$response[3];
 		header('HTTP/1.1 409 Conflict');
 		$closedTime = date("c", GetChangesetClosedTime($changesetId)); //ISO 8601
 		$err =  "The changeset ".(int)$changesetId." was closed at ".$closedTime;
