@@ -25,20 +25,14 @@ function MapQuery($userInfo,$bboxStr)
 
 	$lock=GetReadDatabaseLock();
 
-	$queryEvent = new Message(Message::MAP_QUERY, $bbox);
-	global $messagePump;
-	$messagePump->Add($queryEvent);
-	$ret = $messagePump->Process();
+	$ret = CallFuncByMessage(Message::MAP_QUERY, $bbox);
 
 	return array(1,array("Content-Type:text/xml"),$ret);
 }
 
 function GetObjectByIdMessage($type, $id, $version=null)
 {
-	$queryEvent = new Message(Message::GET_OBJECT_BY_ID, array($type,(int)$id,$version));
-	global $messagePump;
-	$messagePump->Add($queryEvent);
-	return $messagePump->Process();
+	return CallFuncByMessage(Message::GET_OBJECT_BY_ID, array($type,(int)$id,$version));
 }
 
 function MapObjectQuery($userInfo,$expUrl)
@@ -71,10 +65,7 @@ function MapObjectFullHistory($userInfo,$expUrl)
 
 	$lock=GetReadDatabaseLock();
 
-	$queryEvent = new Message(Message::GET_FULL_HISTORY, array($type,(int)$id));
-	global $messagePump;
-	$messagePump->Add($queryEvent);
-	$objs = $messagePump->Process();
+	$objs = CallFuncByMessage(Message::GET_FULL_HISTORY, array($type,(int)$id));
 
 	if(!is_array($objs))
 	{
@@ -116,7 +107,7 @@ function MultiFetch($userInfo, $args)
 	return array(1,array("Content-Type:text/xml"),$out);
 }
 
-function GetRelationsForElement($userInfo,$urlExp,$map)
+function GetRelationsForElement($userInfo,$urlExp)
 {
 	$type = $urlExp[2];
 	$id = (int)$urlExp[3];
@@ -124,7 +115,7 @@ function GetRelationsForElement($userInfo,$urlExp,$map)
 	$lock=GetReadDatabaseLock();
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<osm version="0.6" generator="'.SERVER_NAME.'">';
 
-	$rels = $map->GetCitingRelations($type,(int)$id);
+	$rels = CallFuncByMessage(Message::GET_RELATIONS_FOR_ELEMENT, array($type,(int)$id));
 
 	//For each relation found to match	
 	foreach($rels as $id)
@@ -146,10 +137,7 @@ function GetWaysForNode($userInfo,$urlExp)
 	$lock=GetReadDatabaseLock();
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<osm version="0.6" generator="'.SERVER_NAME.'">';
 
-	$queryEvent = new Message(Message::GET_WAYS_FOR_NODE, (int)$id);
-	global $messagePump;
-	$messagePump->Add($queryEvent);
-	$ways = $messagePump->Process();
+	$ways = CallFuncByMessage(Message::GET_WAYS_FOR_NODE, (int)$id);
 
 	//For each relation found to match	
 	foreach($ways as $id)
