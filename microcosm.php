@@ -93,7 +93,7 @@ else
 	$displayName = null;
 	$userId = null;
 }
-exit(0);
+
 //This function determines with function to call based on the URL and, if it can, responds to the client.
 $processed = CallFuncByMessage(Message::API_EVENT,array($pathInfo,$urlExp,$putDataStr,$_GET,$_POST,$_FILES));
 if(!$processed)
