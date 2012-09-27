@@ -48,6 +48,7 @@ $messagePump->AddListener(Message::SCRIPT_END, "ModelBboxEventHandler", Null);
 }
 
 $messagePump->AddListener(Message::ELEMENT_UPDATE_DONE, "RichEditEventHandler", Null);
+$messagePump->AddListener(Message::ELEMENT_UPDATE_PRE_APPLY, "RichEditEventHandler", Null);
 $messagePump->AddListener(Message::SCRIPT_END, "RichEditEventHandler", Null);
 
 $messagePump->AddListener(Message::CHECK_LOGIN, "UserDatabaseEventHandler", Null);

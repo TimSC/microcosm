@@ -72,6 +72,8 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 
 	public function CreateElement($type,$id,$el)
 	{
+		CallFuncByMessage(Message::ELEMENT_UPDATE_PRE_APPLY,array($type,$id,$el));
+
 		//fwrite($this->events, "Create ".$type." ".$id."\n");
 		$ret = $this->masterDb->CreateElement($type,$id,$el);
 		
@@ -81,6 +83,8 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 
 	public function ModifyElement($type,$id,$el)
 	{
+		CallFuncByMessage(Message::ELEMENT_UPDATE_PRE_APPLY,array($type,$id,$el));
+
 		//fwrite($this->events, "Modify ".$type." ".$id."\n");
 		$ret = $this->masterDb->ModifyElement($type,$id,$el);
 
@@ -90,6 +94,8 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 
 	public function DeleteElement($type,$id,$el)
 	{
+		CallFuncByMessage(Message::ELEMENT_UPDATE_PRE_APPLY,array($type,$id,$el));
+
 		//fwrite($this->events, "Delete ".$type." ".$id."\n");
 		$ret = $this->masterDb->DeleteElement($type,$id,$el);
 

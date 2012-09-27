@@ -491,6 +491,22 @@ class RichEditProcessor
 
 	function HandleEvent($eventType, $content, $listenVars)
 	{
+		if($eventType === Message::ELEMENT_UPDATE_PRE_APPLY)
+		{
+			$type = $content[0];
+			$eid = (int)$content[1];
+			$obj = $content[2];
+
+			$fi = fopen("test.txt","wt");
+			fwrite($fi,print_r($type, True));
+			fwrite($fi,"\n");
+			fwrite($fi,print_r($eid, True));
+			fwrite($fi,"\n");
+			fwrite($fi,print_r(type($obj), True));
+			fwrite($fi,"\n");
+			fflush($fi);
+		}
+
 		if($eventType === Message::ELEMENT_UPDATE_DONE)
 		{
 			//Check if any listeners are waiting for this data
