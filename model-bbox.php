@@ -493,6 +493,12 @@ class RichEditProcessor
 	{
 		if($eventType === Message::ELEMENT_UPDATE_DONE)
 		{
+			//Check if any listeners are waiting for this data
+			//if not, skip this
+			global $messagePump;
+			$num = $messagePump->CountListeners(Message::ELEMENT_UPDATE_PARENTS);
+			if($num>0)
+			{
 			$type = $content[0];
 			$eid = (int)$content[1];
 			$obj = $content[2];
@@ -500,6 +506,7 @@ class RichEditProcessor
 			$parents = $this->GetParents($type, $eid, $obj);
 
 			CallFuncByMessage(Message::ELEMENT_UPDATE_PARENTS, array($type, $eid, $obj, $parents));
+			}
 		}
 
 	}

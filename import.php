@@ -12,7 +12,8 @@ if(isset($_SERVER['TERM']))
 	$nukeDatabase = 1;
 	$lockDatabase = 1;
 
-	$options = getopt(PROG_ARG_STRING,PROG_ARG_LONG);
+	global $PROG_ARG_LONG;
+	$options = getopt(PROG_ARG_STRING,$PROG_ARG_LONG);
 	//var_dump($options);
 
 	if(!isset($options["i"]))
