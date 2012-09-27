@@ -186,6 +186,9 @@ function MapDatabaseEventHandler($eventType, $content, $listenVars)
 	if($eventType === Message::PURGE_MAP)
 		return $dbGlobal->Purge();
 
+	if($eventType === Message::GET_ELEMENT_FULL_DATA)
+		return $dbGlobal->GetFullDetailsOfElement($content);
+
 	if($eventType === Message::SCRIPT_END)
 	{
 		unset($dbGlobal);

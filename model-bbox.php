@@ -497,32 +497,24 @@ class RichEditProcessor
 			$eid = (int)$content[1];
 			$obj = $content[2];
 
+			#Get existing version of element
+			$oldobj = CallFuncByMessage(Message::GET_OBJECT_BY_ID, array($type, $eid, Null));
+
 			#Get parents of modified element
 			$parents = $this->GetParents($type, $eid, $obj);
 			
-			#Get full details related to these parents
+			#Get full children details related to these parents
 			$children = array();
 			$parentsAndSelf = array_merge(array($obj), $parents);
 			foreach($parentsAndSelf as $el)
 			{
 				$elchildren = CallFuncByMessage(Message::GET_ELEMENT_FULL_DATA, $el);
-				//echo gettype($elchildren);
-				//print_r($elchildren);
 				$children = array_merge($children, $elchildren);
 			}
 
-			$fi = fopen("test.txt","wt");
-			fwrite($fi,print_r($type, True));
-			fwrite($fi,"\n");
-			fwrite($fi,print_r($eid, True));
-			fwrite($fi,"\n");
-			fwrite($fi,print_r(gettype($obj), True));
-			fwrite($fi,"\n");
-			fwrite($fi,print_r(count($parents), True));
-			fwrite($fi,"\n");
-			fwrite($fi,print_r(count($children), True));
-			fwrite($fi,"\n");
-			fflush($fi);
+			#Send data to message pump
+			CallFuncByMessage(Message::ELEMENT_UPDATE_PRE_APPLY_RICH_DATA, array($type,$eid,$oldobj,$obj,$parents,$children));
+
 		}
 
 		if($eventType === Message::ELEMENT_UPDATE_DONE)

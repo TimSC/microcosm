@@ -216,8 +216,11 @@ abstract class OsmDatabaseCommon
 		{
 			$memtype = $data[0];
 			$memid = $data[1];
-			$obj = $this->GetFullDetailsOfElement($memtype,(int)$memid,$depth+1,$maxDepth);
-			if(!is_object($obj)) throw new Exception("Return type is not object, as expected");
+			$memObj = $this->GetElementById($memtype,(int)$memid, Null);
+			if(!is_object($memObj)) throw new Exception("Return type is not object, as expected");
+
+			$obj = $this->GetFullDetailsOfElement($memObj,$depth,$maxDepth);
+			if(!is_array($obj)) throw new Exception("Return type is not array, as expected");
 			$out = array_merge($out,$obj);
 
 			if(count($out) > 10000) throw new Exception("Buffer too large. Halting to protect data.");
