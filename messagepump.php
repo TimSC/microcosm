@@ -129,6 +129,13 @@ class MessagePump
 		return $ret;
 	}
 
+	function CountListeners($eventType)
+	{
+		if(!isset($this->listeners[$eventType]))
+			return 0;
+		return count($this->listeners[$eventType]);
+	}
+
 }
 
 function CallFuncByMessage($messageType, $content)
