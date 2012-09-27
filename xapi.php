@@ -1,6 +1,14 @@
 <?php
 require_once('system.php');
 require_once('fileutils.php');
+
+if(!ENABLE_XAPI)
+{
+	header ('HTTP/1.1 503 Service Unavailable');
+	echo "XAPI is disabled in config.php.";
+	return;
+}
+
 CallFuncByMessage(Message::SCRIPT_START,Null); 
 
 $lock=GetReadDatabaseLock();
