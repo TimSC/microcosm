@@ -199,6 +199,32 @@ abstract class OsmDatabaseCommon
 		return $bbox;
 	}
 
+	function GetFullDetailsOfElement($firstObj,$depth = 0,$maxDepth=5)
+	{
+		if(!is_object($firstObj)) throw new Exception("Parent object must be defined");
+		//echo $type.$id."\n";
+		//if($depth > $maxDepth) return Null;
+		//$firstObj = $this->GetElementById($type,(int)$id, Null);
+
+		//print_r($firstObj);
+		if($firstObj===null or $firstObj===0) return "not-found";
+		if($firstObj===-2) return "gone";
+
+		//Get members recursively
+		$out = array($firstObj);
+		foreach($firstObj->members as $data)
+		{
+			$memtype = $data[0];
+			$memid = $data[1];
+			$obj = $this->GetFullDetailsOfElement($memtype,(int)$memid,$depth+1,$maxDepth);
+			if(!is_object($obj)) throw new Exception("Return type is not object, as expected");
+			$out = array_merge($out,$obj);
+
+			if(count($out) > 10000) throw new Exception("Buffer too large. Halting to protect data.");
+		}
+		return $out;
+	}
+
 	public abstract function CheckPermissions();
 
 	//***********************

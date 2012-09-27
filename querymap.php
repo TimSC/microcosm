@@ -156,6 +156,8 @@ function GetWaysForNode($userInfo,$urlExp)
 
 function GetFullDetailsOfElement($userInfo,$urlExp)
 {
+	//TODO: This really should be changed to use the GET_ELEMENT_FULL_DATA message...
+
 	$type=$urlExp[2];
 	$id=(int)$urlExp[3];
 

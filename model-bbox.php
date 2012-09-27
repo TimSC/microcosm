@@ -497,12 +497,30 @@ class RichEditProcessor
 			$eid = (int)$content[1];
 			$obj = $content[2];
 
+			#Get parents of modified element
+			$parents = $this->GetParents($type, $eid, $obj);
+			
+			#Get full details related to these parents
+			$children = array();
+			$parentsAndSelf = array_merge(array($obj), $parents);
+			foreach($parentsAndSelf as $el)
+			{
+				$elchildren = CallFuncByMessage(Message::GET_ELEMENT_FULL_DATA, $el);
+				//echo gettype($elchildren);
+				//print_r($elchildren);
+				$children = array_merge($children, $elchildren);
+			}
+
 			$fi = fopen("test.txt","wt");
 			fwrite($fi,print_r($type, True));
 			fwrite($fi,"\n");
 			fwrite($fi,print_r($eid, True));
 			fwrite($fi,"\n");
-			fwrite($fi,print_r(type($obj), True));
+			fwrite($fi,print_r(gettype($obj), True));
+			fwrite($fi,"\n");
+			fwrite($fi,print_r(count($parents), True));
+			fwrite($fi,"\n");
+			fwrite($fi,print_r(count($children), True));
 			fwrite($fi,"\n");
 			fflush($fi);
 		}

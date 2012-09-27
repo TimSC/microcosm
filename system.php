@@ -23,6 +23,7 @@ $messagePump->AddListener(Message::MODIFY_ELEMENT, "MapDatabaseEventHandler", Nu
 $messagePump->AddListener(Message::DELETE_ELEMENT, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::DUMP, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::PURGE_MAP, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_ELEMENT_FULL_DATA, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::SCRIPT_END, "MapDatabaseEventHandler", Null);
 
 $messagePump->AddListener(Message::CHANGESET_IS_OPEN, "ChangesetDatabaseEventHandler", Null);

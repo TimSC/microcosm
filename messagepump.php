@@ -19,6 +19,7 @@ class Message
 	const ELEMENT_UPDATE_PRE_APPLY = 13;
 	const ELEMENT_UPDATE_DONE = 14;
 	const ELEMENT_UPDATE_PARENTS = 15;
+	const GET_ELEMENT_FULL_DATA = 16;
 
 	//Changeset messages
 	const CHANGESET_IS_OPEN = 100;
