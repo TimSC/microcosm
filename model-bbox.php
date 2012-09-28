@@ -502,7 +502,10 @@ class RichEditProcessor
 			$oldobj = CallFuncByMessage(Message::GET_OBJECT_BY_ID, array($type, $eid, Null));
 
 			#Get parents of modified element
-			$parents = $this->GetParents($type, $eid, $oldobj);
+			$parents = $this->GetParents($type, $eid);
+			$fi=fopen("test.xml","wt");
+			fwrite($fi,$type." ".$eid." ".print_r($oldobj,True)." ".print_r($parents,True));
+			fflush($fi);
 			
 			#Get full children details related to these parents
 			$children = array();
@@ -531,7 +534,7 @@ class RichEditProcessor
 			$eid = (int)$content[1];
 			$obj = $content[2];
 
-			$parents = $this->GetParents($type, $eid, $obj);
+			$parents = $this->GetParents($type, $eid);
 
 			CallFuncByMessage(Message::ELEMENT_UPDATE_PARENTS, array($type, $eid, $obj, $parents));
 			}
@@ -539,7 +542,7 @@ class RichEditProcessor
 
 	}
 
-	function GetParents($type, $eid, $obj)
+	function GetParents($type, $eid)
 	{
 		//echo $type.$eid."\n";
 		$out = array();
@@ -547,7 +550,7 @@ class RichEditProcessor
 		//Get parent ways
 		if($type == "node")
 		{
-			$pways = CallFuncByMessage(Message::GET_WAYS_FOR_NODE, $eid);
+			$pways = CallFuncByMessage(Message::GET_WAY_IDS_FOR_NODE, $eid);
 			array_merge($out, $pways);
 		}
 
@@ -580,11 +583,59 @@ function RichEditEventHandler($eventType, $content, $listenVars)
 
 //***********************************************
 
+class ElementSet //Adding elements to a set automatically removes duplicates
+{
+	function __construct()
+	{
+		$this->members = array();
+		$this->count = 0;
+	}
+
+	function __destruct()
+	{
+
+	}
+
+	function Add($el)
+	{
+		$ty = $el->GetType();
+		if(!isset($this->members[$ty])) $this->members[$ty] = array();
+		$id = $el->attr['id'];
+		if(!isset($this->members[$ty][$id])) $this->members[$ty][$id] = array();
+		$version = $el->attr['version'];
+		if(!isset($this->members[$ty][$id][$version]))
+		{	
+			$el->count ++;
+		}
+		$this->members[$ty][$id][$version] = $el;
+	}
+
+	function GetElements()
+	{
+		$out = array();
+		foreach($this->members as $type=>$ids)
+			foreach($ids as $id=>$vers)
+				foreach($vers as $ver=>$obj)
+					array_push($out, $obj);
+		return $out;
+	}
+
+	function ElementIsSet($ty,$id,$version)
+	{
+		return isset($this->members[$ty][$id][$version]);
+	}
+}
+
+//***********************************************
+
 class RichEditLogger
 {
 	function __construct()
 	{
-
+		$this->newSet = new ElementSet();
+		$this->oldSet = new ElementSet();
+		$this->parentsSet = new ElementSet();
+		$this->childrenSet = new ElementSet();
 	}
 
 	function __destruct()
@@ -603,7 +654,15 @@ class RichEditLogger
 			$parents = $content[4];
 			$children = $content[5];
 
-			$fi = fopen("diff.xml","wt");
+			$this->newSet->Add($obj);
+			if(is_object($oldobj)) $this->oldSet->Add($oldobj);
+			foreach($parents as $el)
+				$this->parentsSet->Add($el);
+			foreach($children as $el)
+				$this->childrenSet->Add($el);
+
+
+			$fi = fopen("diff2.xml","wt");
 			fwrite($fi,"<richosm>\n");
 			fwrite($fi,"<new>\n");
 			fwrite($fi, $obj->ToXmlString());
@@ -621,6 +680,36 @@ class RichEditLogger
 			fwrite($fi,"<children>\n");
 			foreach($children as $el)
 				fwrite($fi, $el->ToXmlString());
+			fwrite($fi,"</children>\n");
+			fwrite($fi,"</richosm>\n");
+			fflush($fi);
+		}
+	
+
+		if($eventType === Message::SCRIPT_END)
+		{
+			$fi = fopen("diff.xml","wt");
+			fwrite($fi,"<richosm>\n");
+			fwrite($fi,"<new>\n");
+			foreach($this->newSet->GetElements() as $el)
+				fwrite($fi, $el->ToXmlString());
+			fwrite($fi,"</new>\n");
+
+			fwrite($fi,"<old>\n");
+			foreach($this->oldSet->GetElements() as $el)
+				fwrite($fi, $el->ToXmlString());
+			fwrite($fi,"</old>\n");
+
+			fwrite($fi,"<parents>\n");
+			foreach($this->parentsSet->GetElements() as $el)
+				//if(!$this->newSet->ElementIsSet($el->GetType(),$el->attr['id'],$el->attr['version']))
+					fwrite($fi, $el->ToXmlString());
+			fwrite($fi,"</parents>\n");
+
+			fwrite($fi,"<children>\n");
+			foreach($this->childrenSet->GetElements() as $el)
+				//if(!$this->newSet->ElementIsSet($el->GetType(),$el->attr['id'],$el->attr['version']))
+					fwrite($fi, $el->ToXmlString());
 			fwrite($fi,"</children>\n");
 			fwrite($fi,"</richosm>\n");
 			fflush($fi);

@@ -159,7 +159,7 @@ function MapDatabaseEventHandler($eventType, $content, $listenVars)
 	if($eventType === Message::GET_RELATIONS_FOR_ELEMENT)
 		return $dbGlobal->GetCitingRelations($content[0], $content[1]);
 
-	if($eventType === Message::GET_WAYS_FOR_NODE)
+	if($eventType === Message::GET_WAY_IDS_FOR_NODE)
 		return $dbGlobal->GetCitingWaysOfNode($content);
 
 	if($eventType === Message::CHECK_ELEMENT_EXISTS)

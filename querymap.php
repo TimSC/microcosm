@@ -137,7 +137,7 @@ function GetWaysForNode($userInfo,$urlExp)
 	$lock=GetReadDatabaseLock();
 	$out = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<osm version="0.6" generator="'.SERVER_NAME.'">';
 
-	$ways = CallFuncByMessage(Message::GET_WAYS_FOR_NODE, (int)$id);
+	$ways = CallFuncByMessage(Message::GET_WAY_IDS_FOR_NODE, (int)$id);
 
 	//For each relation found to match	
 	foreach($ways as $id)

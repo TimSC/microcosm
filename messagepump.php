@@ -7,7 +7,7 @@ class Message
 	const GET_OBJECT_BY_ID = 1;
 	const GET_FULL_HISTORY = 2;
 	const GET_RELATIONS_FOR_ELEMENT = 3;
-	const GET_WAYS_FOR_NODE = 4;
+	const GET_WAY_IDS_FOR_NODE = 4;
 	const CHECK_ELEMENT_EXISTS = 5;
 	const GET_CURRENT_ELEMENT_VER = 6;
 	const GET_ELEMENT_BBOX = 7;

@@ -14,7 +14,7 @@ $messagePump->AddListener(Message::MAP_QUERY, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_OBJECT_BY_ID, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_FULL_HISTORY, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_RELATIONS_FOR_ELEMENT, "MapDatabaseEventHandler", Null);
-$messagePump->AddListener(Message::GET_WAYS_FOR_NODE, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_WAY_IDS_FOR_NODE, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::CHECK_ELEMENT_EXISTS, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_CURRENT_ELEMENT_VER, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_ELEMENT_BBOX, "MapDatabaseEventHandler", Null);
