@@ -87,9 +87,10 @@ class RequestProcessor
 			}
 			catch (Exception $e)
 			{
-				header('HTTP/1.1 500 Internal Server Error');
-				header("Content-Type:text/plain");
-				echo "Internal server error: ".$e->getMessage()."\n";
+				$body = "Internal server error: ".$e->getMessage()."\n";
+				CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($body,
+					array('HTTP/1.1 500 Internal Server Error',"Content-Type:text/plain")));
+
 				if(DEBUG_MODE) print_r($e->getTrace());
 				return 1;
 			}
@@ -97,8 +98,9 @@ class RequestProcessor
 			//Return normal response to client
 			if(is_array($response) and $response[0] == 1)
 			{
-				foreach($response[1] as $headerline) header($headerline);
-				echo $response[2];
+				//foreach($response[1] as $headerline) header($headerline);
+				//echo $response[2];
+				CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($response[2], $response[1]));
 				return 1;
 			}
 			
@@ -345,6 +347,26 @@ function ProcessSingleObject($userInfo, $args)
 function ChangesetExpandBbox($userInfo, $args)
 {
 	return CallFuncByMessage(Message::API_CHANGESET_EXPAND,array($userInfo,$args));
+}
+
+//***************************************
+
+function WebResponseEventHandler($eventType, $content, $listenVars)
+{
+	if($eventType === Message::WEB_RESPONSE_TO_CLIENT)
+	{
+		foreach($content[1] as $headerline) header($headerline);
+		echo $content[0];
+
+		if(DEBUG_MODE)
+		{
+		$fi = fopen("webresponse.txt","wt");
+		foreach($content[1] as $headerline) 
+			fwrite($fi, $headerline);
+		fwrite($fi, $content[0]);
+		fclose($fi);
+		}
+	}
 }
 
 //*****************************
