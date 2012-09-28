@@ -496,15 +496,17 @@ class RichEditProcessor
 			$type = $content[0];
 			$eid = (int)$content[1];
 			$obj = $content[2];
+			if(!is_object($obj)) throw new Exception("Input object of wrong type");
 
 			#Get existing version of element
 			$oldobj = CallFuncByMessage(Message::GET_OBJECT_BY_ID, array($type, $eid, Null));
 
 			#Get parents of modified element
-			$parents = $this->GetParents($type, $eid, $obj);
+			$parents = $this->GetParents($type, $eid, $oldobj);
 			
 			#Get full children details related to these parents
 			$children = array();
+			if(is_object($oldobj)) $parentsAndSelf = array_merge(array($oldobj), $parents);
 			$parentsAndSelf = array_merge(array($obj), $parents);
 			foreach($parentsAndSelf as $el)
 			{
@@ -567,15 +569,80 @@ function RichEditEventHandler($eventType, $content, $listenVars)
 	if($richGlobal === Null)
 		$richGlobal = new RichEditProcessor();
 
+	$richGlobal->HandleEvent($eventType, $content, $listenVars);
+
 	if($eventType === Message::SCRIPT_END)
 	{
 		unset($richGlobal);
 		$richGlobal = Null;
 	}
-	else
+}
+
+//***********************************************
+
+class RichEditLogger
+{
+	function __construct()
 	{
-		$richGlobal->HandleEvent($eventType, $content, $listenVars);
+
+	}
+
+	function __destruct()
+	{
+
+	}
+
+	function HandleEvent($eventType, $content, $listenVars)
+	{
+		if($eventType==Message::ELEMENT_UPDATE_PRE_APPLY_RICH_DATA)
+		{
+			$type = $content[0];
+			$eid = $content[1];
+			$oldobj = $content[2];
+			$obj = $content[3];
+			$parents = $content[4];
+			$children = $content[5];
+
+			$fi = fopen("diff.xml","wt");
+			fwrite($fi,"<richosm>\n");
+			fwrite($fi,"<new>\n");
+			fwrite($fi, $obj->ToXmlString());
+			fwrite($fi,"</new>\n");
+			if(is_object($oldobj))
+			{
+				fwrite($fi,"<old>\n");
+				fwrite($fi, $oldobj->ToXmlString());
+				fwrite($fi,"</old>\n");
+			}
+			fwrite($fi,"<parents>\n");
+			foreach($parents as $el)
+				fwrite($fi, $el->ToXmlString());
+			fwrite($fi,"</parents>\n");
+			fwrite($fi,"<children>\n");
+			foreach($children as $el)
+				fwrite($fi, $el->ToXmlString());
+			fwrite($fi,"</children>\n");
+			fwrite($fi,"</richosm>\n");
+			fflush($fi);
+		}
+	}
+
+}
+
+function RichEditLoggerEventHandler($eventType, $content, $listenVars)
+{
+	global $richLogGlobal;
+	if($richLogGlobal === Null)
+		$richLogGlobal = new RichEditLogger();
+
+	$richLogGlobal->HandleEvent($eventType, $content, $listenVars);
+
+	if($eventType === Message::SCRIPT_END)
+	{
+		unset($richLogGlobal);
+		$richLogGlobal = Null;
 	}
 }
+
 
 ?>

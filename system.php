@@ -52,6 +52,9 @@ $messagePump->AddListener(Message::ELEMENT_UPDATE_DONE, "RichEditEventHandler", 
 $messagePump->AddListener(Message::ELEMENT_UPDATE_PRE_APPLY, "RichEditEventHandler", Null);
 $messagePump->AddListener(Message::SCRIPT_END, "RichEditEventHandler", Null);
 
+$messagePump->AddListener(Message::ELEMENT_UPDATE_PRE_APPLY_RICH_DATA, "RichEditLoggerEventHandler", Null);
+$messagePump->AddListener(Message::SCRIPT_END, "RichEditLoggerEventHandler", Null);
+
 $messagePump->AddListener(Message::CHECK_LOGIN, "UserDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::USER_ADD, "UserDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_USER_INFO, "UserDatabaseEventHandler", Null);
