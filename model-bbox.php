@@ -268,6 +268,7 @@ class BboxDatabaseSqlite
 		//Begin transaction
 		$this->BeginTransactionIfNotAlready();
 		$countInserts = 0;
+		if(!is_array($bboxModifiedEls)) throw new Exception("Updated elements should be in array");
 
 		foreach($bboxModifiedEls as $el)
 		{
@@ -548,6 +549,7 @@ class RichEditProcessor
 		$out = array();
 
 		//Get parent ways
+		$pways = array();
 		if($type == "node")
 		{
 			$pways = CallFuncByMessage(Message::GET_WAY_IDS_FOR_NODE, $eid);
@@ -556,11 +558,11 @@ class RichEditProcessor
 
 		//Get parent relations
 		//TODO should relations be done recursively?
-		$prelations = CallFuncByMessage(Message::GET_RELATIONS_FOR_ELEMENT, array($type, $eid));
-		array_merge($out, $prelations);
+		//$prelations = CallFuncByMessage(Message::GET_RELATIONS_FOR_ELEMENT, array($type, $eid));
+		//array_merge($out, $prelations);
 	
 		//print_r($out);
-		return $out;
+		return $pways;
 	}
 
 }
@@ -572,7 +574,7 @@ function RichEditEventHandler($eventType, $content, $listenVars)
 	if($richGlobal === Null)
 		$richGlobal = new RichEditProcessor();
 
-	$richGlobal->HandleEvent($eventType, $content, $listenVars);
+	//$richGlobal->HandleEvent($eventType, $content, $listenVars);
 
 	if($eventType === Message::SCRIPT_END)
 	{
