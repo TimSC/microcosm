@@ -111,9 +111,10 @@ class RequestProcessor
 				return 1;
 			}
 
-			header('HTTP/1.1 500 Internal Server Error');
-			header("Content-Type:text/plain");
-			echo "Internal server error: Function needs to return array result starting with 0 or 1\n";
+			$body = "Internal server error: Function needs to return array result starting with 0 or 1\n";
+			CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($body,
+				array('HTTP/1.1 500 Internal Server Error',"Content-Type:text/plain")));
+
 			return 1;
 		}
 
@@ -252,12 +253,10 @@ function TranslateErrorToHtml(&$response)
 	}
 	
 	//Default error
-	header('HTTP/1.1 500 Internal Server Error');
-	header("Content-Type:text/plain");
-	echo "Internal server error: ".$response[2];
-	for($i=3;$i<count($response);$i++) echo ",".$response[$i];
-	echo "\n";
-
+	$body = "Internal server error: ".$response[2];
+	for($i=3;$i<count($response);$i++) $body .= ",".$response[$i];
+	CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($body,
+			array('HTTP/1.1 500 Internal Server Error',"Content-Type:text/plain")));
 }
 
 function GetUserDetails($userInfo)

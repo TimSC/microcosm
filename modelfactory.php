@@ -189,6 +189,9 @@ function MapDatabaseEventHandler($eventType, $content, $listenVars)
 	if($eventType === Message::GET_ELEMENT_FULL_DATA)
 		return $dbGlobal->GetFullDetailsOfElement($content);
 
+	if($eventType === Message::GET_ELEMENT_FULL_PARENT_DATA)
+		return $dbGlobal->GetFullParentsOfElement($content);
+
 	if($eventType === Message::SCRIPT_END)
 	{
 		unset($dbGlobal);

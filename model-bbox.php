@@ -503,17 +503,18 @@ class RichEditProcessor
 			$oldobj = CallFuncByMessage(Message::GET_OBJECT_BY_ID, array($type, $eid, Null));
 
 			#Get parents of modified element
-			$parents = $this->GetParents($type, $eid);
+			$parents = CallFuncByMessage(Message::GET_ELEMENT_FULL_PARENT_DATA, $obj);
 			$fi=fopen("test.xml","wt");
 			fwrite($fi,$type." ".$eid." ".print_r($oldobj,True)." ".print_r($parents,True));
 			fflush($fi);
 			
 			#Get full children details related to these parents
 			$children = array();
-			if(is_object($oldobj)) $parentsAndSelf = array_merge(array($oldobj), $parents);
+			//if(is_object($oldobj)) $parentsAndSelf = array_merge(array($oldobj), $parents);
 			$parentsAndSelf = array_merge(array($obj), $parents);
 			foreach($parentsAndSelf as $el)
 			{
+				if(!is_object($el)) throw new Exception("Cannot get full details of non-object");
 				$elchildren = CallFuncByMessage(Message::GET_ELEMENT_FULL_DATA, $el);
 				$children = array_merge($children, $elchildren);
 			}
@@ -535,34 +536,12 @@ class RichEditProcessor
 			$eid = (int)$content[1];
 			$obj = $content[2];
 
-			$parents = $this->GetParents($type, $eid);
+			$parents = CallFuncByMessage(Message::GET_ELEMENT_FULL_PARENT_DATA, $obj);
 
 			CallFuncByMessage(Message::ELEMENT_UPDATE_PARENTS, array($type, $eid, $obj, $parents));
 			}
 		}
 
-	}
-
-	function GetParents($type, $eid)
-	{
-		//echo $type.$eid."\n";
-		$out = array();
-
-		//Get parent ways
-		$pways = array();
-		if($type == "node")
-		{
-			$pways = CallFuncByMessage(Message::GET_WAY_IDS_FOR_NODE, $eid);
-			array_merge($out, $pways);
-		}
-
-		//Get parent relations
-		//TODO should relations be done recursively?
-		//$prelations = CallFuncByMessage(Message::GET_RELATIONS_FOR_ELEMENT, array($type, $eid));
-		//array_merge($out, $prelations);
-	
-		//print_r($out);
-		return $pways;
 	}
 
 }
