@@ -113,8 +113,8 @@ catch(Exception $e)
 }
 
 //Save console output to debug file
-$debugLog = fopen("debuglog.txt","wt");
-if($debugLog) {fwrite($debugLog,ob_get_contents());fclose($debugLog);}
+$debugLog = fopen("debuglog.txt","at");
+if($debugLog) {fwrite($debugLog,ob_get_contents());}
 ob_end_clean();
 
 if(!$processed)
@@ -126,7 +126,10 @@ if(!$processed)
 CallFuncByMessage(Message::FLUSH_RESPONSE_TO_CLIENT,Null); 
 
 //Trigger destructors acts better, rather than letting database handle going out of scope
+ob_start();
 CallFuncByMessage(Message::SCRIPT_END,Null); 
+if($debugLog) {fwrite($debugLog,ob_get_contents());fclose($debugLog);}
+ob_end_clean();
 
 //Housekeeping? Process traces?
 

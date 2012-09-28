@@ -568,14 +568,19 @@ class ElementSet //Adding elements to a set automatically removes duplicates
 {
 	function __construct()
 	{
-		$this->members = array();
-		$this->cnt = 0;
-		$this->addCalls = 0;
+		$this->Clear();
 	}
 
 	function __destruct()
 	{
 
+	}
+
+	function Clear()
+	{
+		$this->members = array();
+		$this->cnt = 0;
+		$this->addCalls = 0;
 	}
 
 	function Add($el)
@@ -624,6 +629,43 @@ class RichEditLogger
 
 	function __destruct()
 	{
+		
+	}
+
+	function Flush()
+	{
+		$fi = fopen("diff.xml","wt");
+		fwrite($fi,"<richosm>\n");
+		fwrite($fi,"<new>\n");
+
+		foreach($this->newSet->GetElements() as $el)
+			fwrite($fi, $el->ToXmlString());
+		fwrite($fi,"</new>\n");
+
+		fwrite($fi,"<old>\n");
+		foreach($this->oldSet->GetElements() as $el)
+			fwrite($fi, $el->ToXmlString());
+		fwrite($fi,"</old>\n");
+
+		fwrite($fi,"<parents>\n");
+		foreach($this->parentsSet->GetElements() as $el)
+			if(!$this->newSet->ElementIsSet($el->GetType(),$el->attr['id'],$el->attr['version']))
+				fwrite($fi, $el->ToXmlString());
+		fwrite($fi,"</parents>\n");
+
+		fwrite($fi,"<children>\n");
+		foreach($this->childrenSet->GetElements() as $el)
+			if(!$this->newSet->ElementIsSet($el->GetType(),$el->attr['id'],$el->attr['version'])
+				and !$this->parentsSet->ElementIsSet($el->GetType(),$el->attr['id'],$el->attr['version']))
+					fwrite($fi, $el->ToXmlString());
+		fwrite($fi,"</children>\n");
+		fwrite($fi,"</richosm>\n");
+		fflush($fi);
+
+		$this->newSet->Clear();
+		$this->oldSet->Clear();
+		$this->parentsSet->Clear();
+		$this->childrenSet->Clear();
 
 	}
 
@@ -646,8 +688,7 @@ class RichEditLogger
 			foreach($children as $el)
 				$this->childrenSet->Add($el);
 
-
-			$fi = fopen("diff2.xml","wt");
+			/*$fi = fopen("diff2.xml","wt");
 			fwrite($fi,"<richosm>\n");
 			fwrite($fi,"<new>\n");
 			fwrite($fi, $obj->ToXmlString());
@@ -667,40 +708,16 @@ class RichEditLogger
 				fwrite($fi, $el->ToXmlString());
 			fwrite($fi,"</children>\n");
 			fwrite($fi,"</richosm>\n");
-			fflush($fi);
+			fflush($fi);*/
+
+			$numEls = $this->newSet->cnt + $this->oldSet->cnt + $this->parentsSet->cnt + $this->childrenSet->cnt;
+			if($numEls > 1000)
+				$this->Flush(); //Prevent memory getting filled with changes
 		}
 	
 		if($eventType === Message::SCRIPT_END)
 		{
-			$fi = fopen("diff.xml","wt");
-			fwrite($fi,"<richosm>\n");
-			fwrite($fi,"<new>\n");
-			fwrite($fi,$this->newSet->cnt);
-			fwrite($fi,$this->newSet->addCalls);
-			fwrite($fi,$this->test);
-
-			foreach($this->newSet->GetElements() as $el)
-				fwrite($fi, $el->ToXmlString());
-			fwrite($fi,"</new>\n");
-
-			fwrite($fi,"<old>\n");
-			foreach($this->oldSet->GetElements() as $el)
-				fwrite($fi, $el->ToXmlString());
-			fwrite($fi,"</old>\n");
-
-			fwrite($fi,"<parents>\n");
-			foreach($this->parentsSet->GetElements() as $el)
-				if(!$this->newSet->ElementIsSet($el->GetType(),$el->attr['id'],$el->attr['version']))
-					fwrite($fi, $el->ToXmlString());
-			fwrite($fi,"</parents>\n");
-
-			fwrite($fi,"<children>\n");
-			foreach($this->childrenSet->GetElements() as $el)
-				if(!$this->newSet->ElementIsSet($el->GetType(),$el->attr['id'],$el->attr['version']))
-					fwrite($fi, $el->ToXmlString());
-			fwrite($fi,"</children>\n");
-			fwrite($fi,"</richosm>\n");
-			fflush($fi);
+			if($this->newSet->cnt>0) $this->Flush(); //Don't bother writing empty data
 		}
 	}
 
