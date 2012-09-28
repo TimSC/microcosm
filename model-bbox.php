@@ -570,6 +570,7 @@ class ElementSet //Adding elements to a set automatically removes duplicates
 	{
 		$this->members = array();
 		$this->cnt = 0;
+		$this->addCalls = 0;
 	}
 
 	function __destruct()
@@ -579,6 +580,7 @@ class ElementSet //Adding elements to a set automatically removes duplicates
 
 	function Add($el)
 	{
+		$this->addCalls ++;
 		$ty = $el->GetType();
 		if(!isset($this->members[$ty])) $this->members[$ty] = array();
 		$id = $el->attr['id'];
@@ -617,6 +619,7 @@ class RichEditLogger
 		$this->oldSet = new ElementSet();
 		$this->parentsSet = new ElementSet();
 		$this->childrenSet = new ElementSet();
+		$this->test = 0;
 	}
 
 	function __destruct()
@@ -628,6 +631,7 @@ class RichEditLogger
 	{
 		if($eventType==Message::ELEMENT_UPDATE_PRE_APPLY_RICH_DATA)
 		{
+			$this->test ++;
 			$type = $content[0];
 			$eid = $content[1];
 			$oldobj = $content[2];
@@ -671,6 +675,10 @@ class RichEditLogger
 			$fi = fopen("diff.xml","wt");
 			fwrite($fi,"<richosm>\n");
 			fwrite($fi,"<new>\n");
+			fwrite($fi,$this->newSet->cnt);
+			fwrite($fi,$this->newSet->addCalls);
+			fwrite($fi,$this->test);
+
 			foreach($this->newSet->GetElements() as $el)
 				fwrite($fi, $el->ToXmlString());
 			fwrite($fi,"</new>\n");
@@ -703,12 +711,22 @@ function RichEditLoggerEventHandler($eventType, $content, $listenVars)
 {
 	global $richLogGlobal;
 	if($richLogGlobal === Null)
+	{
+		/*$fi = fopen("test.txt","at");
+		fwrite($fi,"c".time()."\n");
+		fflush($fi);
+		fclose($fi);*/
 		$richLogGlobal = new RichEditLogger();
+	}
 
 	$richLogGlobal->HandleEvent($eventType, $content, $listenVars);
 
 	if($eventType === Message::SCRIPT_END)
 	{
+		/*$fi = fopen("test.txt","at");
+		fwrite($fi,"d".time()."\n");
+		fflush($fi);
+		fclose($fi);*/
 		unset($richLogGlobal);
 		$richLogGlobal = Null;
 	}
