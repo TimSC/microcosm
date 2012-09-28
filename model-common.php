@@ -228,6 +228,34 @@ abstract class OsmDatabaseCommon
 		return $out;
 	}
 
+	function GetFullParentsOfElement($firstObj,$maxHeight=5)
+	{
+		if(!is_object($firstObj)) throw new Exception("Initial object must be defined");
+
+		$id = $firstObj->attr['id'];
+		$type = $firstObj->GetType();
+		$queryObjs = array($firstObj);
+		
+		#If this is a node, get parent ways
+		if($type=="node") 
+		{
+			$queryObjs = array_merge($queryObjs, $this->GetParentWaysOfNodes($queryObjs));
+		}
+
+		$out = $queryObjs;
+
+		#Recursively get relations
+		$height = 0;
+		while(count($queryObjs)>0 and $height < $maxHeight)
+		{
+			$rels = $this->GetParentRelations($queryObjs);
+			$queryObjs = $rels;
+			$out = array_merge($out, $rels);
+			$height++;
+		}
+		return $out;
+	}
+
 	public abstract function CheckPermissions();
 
 	//***********************
