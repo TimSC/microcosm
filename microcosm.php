@@ -86,7 +86,9 @@ if(API_READ_ONLY and strcmp(GetServerRequestMethod(),"GET")!=0)
 //***********************
 //User Authentication
 //***********************
-
+ob_start();
+try
+{
 //Authentication, if there is a server username variable
 if ($login !== Null) 
 	list ($displayName, $userId) = RequireAuth($login, $pass);
@@ -104,12 +106,24 @@ else
 
 //This function determines with function to call based on the URL and, if it can, responds to the client.
 $processed = CallFuncByMessage(Message::API_EVENT,array($pathInfo,$urlExp,$putDataStr,$_GET,$_POST,$_FILES,$login,$pass));
+}
+catch(Exception $e)
+{
+
+}
+
+//Save console output to debug file
+$debugLog = fopen("debuglog.txt","wt");
+if($debugLog) {fwrite($debugLog,ob_get_contents());fclose($debugLog);}
+ob_end_clean();
+
 if(!$processed)
 {
 	header ('HTTP/1.1 404 Not Found');
 	echo "URL not found.";
-
 }
+
+CallFuncByMessage(Message::FLUSH_RESPONSE_TO_CLIENT,Null); 
 
 //Trigger destructors acts better, rather than letting database handle going out of scope
 CallFuncByMessage(Message::SCRIPT_END,Null); 

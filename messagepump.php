@@ -63,6 +63,7 @@ class Message
 	//OSM API
 	const API_EVENT = 600;
 	const WEB_RESPONSE_TO_CLIENT = 601;
+	const FLUSH_RESPONSE_TO_CLIENT = 602;
 
 	//Map modification functions
 	const API_CHANGESET_OPEN = 700;
