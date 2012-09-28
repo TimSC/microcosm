@@ -569,7 +569,7 @@ class ElementSet //Adding elements to a set automatically removes duplicates
 	function __construct()
 	{
 		$this->members = array();
-		$this->count = 0;
+		$this->cnt = 0;
 	}
 
 	function __destruct()
@@ -586,7 +586,7 @@ class ElementSet //Adding elements to a set automatically removes duplicates
 		$version = $el->attr['version'];
 		if(!isset($this->members[$ty][$id][$version]))
 		{	
-			$el->count ++;
+			$this->cnt ++;
 		}
 		$this->members[$ty][$id][$version] = $el;
 	}
@@ -666,7 +666,6 @@ class RichEditLogger
 			fflush($fi);
 		}
 	
-
 		if($eventType === Message::SCRIPT_END)
 		{
 			$fi = fopen("diff.xml","wt");
@@ -683,13 +682,13 @@ class RichEditLogger
 
 			fwrite($fi,"<parents>\n");
 			foreach($this->parentsSet->GetElements() as $el)
-				//if(!$this->newSet->ElementIsSet($el->GetType(),$el->attr['id'],$el->attr['version']))
+				if(!$this->newSet->ElementIsSet($el->GetType(),$el->attr['id'],$el->attr['version']))
 					fwrite($fi, $el->ToXmlString());
 			fwrite($fi,"</parents>\n");
 
 			fwrite($fi,"<children>\n");
 			foreach($this->childrenSet->GetElements() as $el)
-				//if(!$this->newSet->ElementIsSet($el->GetType(),$el->attr['id'],$el->attr['version']))
+				if(!$this->newSet->ElementIsSet($el->GetType(),$el->attr['id'],$el->attr['version']))
 					fwrite($fi, $el->ToXmlString());
 			fwrite($fi,"</children>\n");
 			fwrite($fi,"</richosm>\n");
@@ -699,6 +698,7 @@ class RichEditLogger
 
 }
 
+$richLogGlobal = Null;
 function RichEditLoggerEventHandler($eventType, $content, $listenVars)
 {
 	global $richLogGlobal;
