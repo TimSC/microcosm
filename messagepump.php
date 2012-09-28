@@ -82,11 +82,19 @@ class MessagePump
 	{
 		$this->buffer = array();
 		$this->listeners = array();
+
+		if(DEBUG_MODE)
+		{
+			$this->log = fopen("messagelog.txt","at");
+			if($this->log) fwrite($this->log,"-------\n");
+		}
+		else $this->log = False;
 	}
 
 	function __destruct()
 	{
 		$this->Process();
+		if($this->log) fflush($this->log);
 	}
 
 	function Add($event)
@@ -104,6 +112,7 @@ class MessagePump
 
 	function ProcessSingleEvent($event)
 	{
+		if($this->log) fwrite($this->log, $event->type."\n");
 		//echo $event->type."\n";
 		if(!isset($this->listeners[$event->type])) return Null;
 		$ret = Null;
