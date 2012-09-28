@@ -574,7 +574,7 @@ function RichEditEventHandler($eventType, $content, $listenVars)
 	if($richGlobal === Null)
 		$richGlobal = new RichEditProcessor();
 
-	//$richGlobal->HandleEvent($eventType, $content, $listenVars);
+	$richGlobal->HandleEvent($eventType, $content, $listenVars);
 
 	if($eventType === Message::SCRIPT_END)
 	{

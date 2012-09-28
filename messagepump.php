@@ -86,7 +86,7 @@ class MessagePump
 		$this->buffer = array();
 		$this->listeners = array();
 
-		if(DEBUG_MODE)
+		if(True)
 		{
 			$this->log = fopen("messagelog.txt","at");
 			if($this->log) fwrite($this->log,"-------\n");

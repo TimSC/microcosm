@@ -358,14 +358,11 @@ function WebResponseEventHandler($eventType, $content, $listenVars)
 		foreach($content[1] as $headerline) header($headerline);
 		echo $content[0];
 
-		if(DEBUG_MODE)
-		{
 		$fi = fopen("webresponse.txt","wt");
 		foreach($content[1] as $headerline) 
 			fwrite($fi, $headerline);
 		fwrite($fi, $content[0]);
 		fclose($fi);
-		}
 	}
 }
 
