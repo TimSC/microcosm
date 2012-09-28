@@ -71,6 +71,7 @@ $messagePump->AddListener(Message::GET_TRACE_DETAILS, "TraceDatabaseEventHandler
 $messagePump->AddListener(Message::GET_TRACE_DATA, "TraceDatabaseEventHandler", Null);
 
 $messagePump->AddListener(Message::API_EVENT, "ApiEventHandler", Null);
+$messagePump->AddListener(Message::WEB_RESPONSE_TO_CLIENT, "WebResponseEventHandler", Null);
 
 $messagePump->AddListener(Message::API_CHANGESET_OPEN, "ChangesetEventHandler", Null);
 $messagePump->AddListener(Message::API_CHANGESET_UPDATE, "ChangesetEventHandler", Null);
