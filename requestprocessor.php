@@ -75,7 +75,11 @@ class RequestProcessor
 			}
 
 			//Do authentication if required
-			if($userId == null and $methodEntry['authReq']) RequestAuthFromUser();
+			if($userId == null and $methodEntry['authReq'])
+			{	
+				RequestAuthFromUser();
+				return 1;
+			}
 	
 			try
 			{
