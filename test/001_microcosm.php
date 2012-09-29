@@ -21,6 +21,11 @@ class test  extends PHPUnit_Framework_TestCase
     $userInfo="";
     $a=array(0,0,0,0);
     MapQuery($userInfo,$a);
+
+
+    $a=array(0,0,0,0);
+    MapQuery($userInfo,$a);
+
     return 0;
   }
 
@@ -32,54 +37,71 @@ public function testChangesetClose () {
   $userInfo="";
   $argExp=0;
   $ret = ChangesetClose($userInfo,$argExp); 
+  print_r($ret);
   return $ret; }
+
 // ChangesetExpandBbox
-public function testChangesetExpandBbox () { $ret = ChangesetExpandBbox(); return $ret; }
-// ChangesetOpen
-public function testChangesetOpen () { $ret = ChangesetOpen(); return $ret; }
-// ChangesetUpdate
-public function testChangesetUpdate () { $ret = ChangesetUpdate(); return $ret; }
-// ChangesetUpload
-public function testChangesetUpload () { $ret = ChangesetUpload(); return $ret; }
-// GetChangesetContents
-public function testGetChangesetContents () { $ret = GetChangesetContents(); return $ret; }
-// GetChangesetMetadata
-public function testGetChangesetMetadata () { $ret = GetChangesetMetadata(); return $ret; }
-// GetChangesets
-public function testGetChangesets () { $ret = GetChangesets(); return $ret; }
-// GetFullDetailsOfElement
-public function testGetFullDetailsOfElement () { $ret = GetFullDetailsOfElement(); return $ret; }
-// GetRelationsForElement
-public function testGetRelationsForElement () { $ret = GetRelationsForElement(); return $ret; }
-// GetTraceData
-public function testGetTraceData () { $ret = GetTraceData(); return $ret; }
-// GetTraceDetails
-public function testGetTraceDetails () { $ret = GetTraceDetails(); return $ret; }
-// GetTraceForUser
-public function testGetTraceForUser () { $ret = GetTraceForUser(); return $ret; }
-// GetTracesInBbox
-public function testGetTracesInBbox () { $ret = GetTracesInBbox(); return $ret; }
-// GetUserDetails
-public function testGetUserDetails () { $ret = GetUserDetails(); return $ret; }
-// GetUserPermissions
-public function testGetUserPermissions () { $ret = GetUserPermissions(); return $ret; }
-// GetUserPreferences
-public function testGetUserPreferences () { $ret = GetUserPreferences(); return $ret; }
-// GetWaysForNode
-public function testGetWaysForNode () { $ret = GetWaysForNode(); return $ret; }
-// InsertTraceIntoDb
-public function testInsertTraceIntoDb () { $ret = InsertTraceIntoDb(); return $ret; }
-// MapObjectFullHistory
-public function testMapObjectFullHistory () { $ret = MapObjectFullHistory(); return $ret; }
-// MapObjectQuery
-public function testMapObjectQuery () { $ret = MapObjectQuery(); return $ret; }
-// MultiFetch
-public function testMultiFetch () { $ret = MultiFetch(); return $ret; }
-// ProcessSingleObject
-public function testProcessSingleObject () { $ret = ProcessSingleObject(); return $ret; }
-// SetUserPreferences
-public function testSetUserPreferences () { $ret = SetUserPreferences(); return $ret; }
-// SetUserPreferencesSingle
-public function testSetUserPreferencesSingle () { $ret = SetUserPreferencesSingle(); return $ret; }
+public function testChangesetExpandBbox () { 
+  $userInfo = array(
+                    'displayName' => "Me",
+                    'userId' => 123
+                    );
+  $cid =1234;
+  $putDataStr = "funky";
+  $args  =array(
+                array ('','','',$cid),
+                $putDataStr
+                );  
+  $ret = ChangesetExpandBbox($userInfo,$args); 
+  print_r($ret);
+  return $ret; 
+}
+
+/* // ChangesetOpen */
+/* public function testChangesetOpen () { $ret = ChangesetOpen(); return $ret; } */
+/* // ChangesetUpdate */
+/* public function testChangesetUpdate () { $ret = ChangesetUpdate(); return $ret; } */
+/* // ChangesetUpload */
+/* public function testChangesetUpload () { $ret = ChangesetUpload(); return $ret; } */
+/* // GetChangesetContents */
+/* public function testGetChangesetContents () { $ret = GetChangesetContents(); return $ret; } */
+/* // GetChangesetMetadata */
+/* public function testGetChangesetMetadata () { $ret = GetChangesetMetadata(); return $ret; } */
+/* // GetChangesets */
+/* public function testGetChangesets () { $ret = GetChangesets(); return $ret; } */
+/* // GetFullDetailsOfElement */
+/* public function testGetFullDetailsOfElement () { $ret = GetFullDetailsOfElement(); return $ret; } */
+/* // GetRelationsForElement */
+/* public function testGetRelationsForElement () { $ret = GetRelationsForElement(); return $ret; } */
+/* // GetTraceData */
+/* public function testGetTraceData () { $ret = GetTraceData(); return $ret; } */
+/* // GetTraceDetails */
+/* public function testGetTraceDetails () { $ret = GetTraceDetails(); return $ret; } */
+/* // GetTraceForUser */
+/* public function testGetTraceForUser () { $ret = GetTraceForUser(); return $ret; } */
+/* // GetTracesInBbox */
+/* public function testGetTracesInBbox () { $ret = GetTracesInBbox(); return $ret; } */
+/* // GetUserDetails */
+/* public function testGetUserDetails () { $ret = GetUserDetails(); return $ret; } */
+/* // GetUserPermissions */
+/* public function testGetUserPermissions () { $ret = GetUserPermissions(); return $ret; } */
+/* // GetUserPreferences */
+/* public function testGetUserPreferences () { $ret = GetUserPreferences(); return $ret; } */
+/* // GetWaysForNode */
+/* public function testGetWaysForNode () { $ret = GetWaysForNode(); return $ret; } */
+/* // InsertTraceIntoDb */
+/* public function testInsertTraceIntoDb () { $ret = InsertTraceIntoDb(); return $ret; } */
+/* // MapObjectFullHistory */
+/* public function testMapObjectFullHistory () { $ret = MapObjectFullHistory(); return $ret; } */
+/* // MapObjectQuery */
+/* public function testMapObjectQuery () { $ret = MapObjectQuery(); return $ret; } */
+/* // MultiFetch */
+/* public function testMultiFetch () { $ret = MultiFetch(); return $ret; } */
+/* // ProcessSingleObject */
+/* public function testProcessSingleObject () { $ret = ProcessSingleObject(); return $ret; } */
+/* // SetUserPreferences */
+/* public function testSetUserPreferences () { $ret = SetUserPreferences(); return $ret; } */
+/* // SetUserPreferencesSingle */
+/* public function testSetUserPreferencesSingle () { $ret = SetUserPreferencesSingle(); return $ret; } */
 
 };

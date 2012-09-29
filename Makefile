@@ -1,3 +1,5 @@
+unittest:
+	phpunit test/ test/001_microcosm.php
 
 # compile with hphp
 all :

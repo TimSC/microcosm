@@ -336,6 +336,11 @@ function ProcessSingleObject($userInfo, $args)
 
 function ChangesetExpandBbox($userInfo, $args)
 {
+  // arguements :
+  //	$displayName = $userInfo['displayName'];
+  //	$userId = $userInfo['userId'];
+  //	$cid = (int)$args[0][3];
+  //	$putDataStr = $args[1];
 	return CallFuncByMessage(Message::API_CHANGESET_EXPAND,array($userInfo,$args));
 }
 
