@@ -110,7 +110,7 @@ if(!$authFailed)
 }
 catch(Exception $e)
 {
-
+	echo "Exception: ".$e->getMessage()."\n";
 }
 
 //Save console output to debug file
