@@ -98,7 +98,10 @@ if ($login !== Null or strcmp(GetServerRequestMethod(),"GET")!=0)
 	$authRet = RequireAuth($login, $pass);
 	if($authRet == -1) //If authentication failed
 		$authFailed = True;
-	else list ($displayName, $userId) = $authRet;
+	else
+	{
+		list ($displayName, $userId) = $authRet;
+	}
 }
 
 //This function determines with function to call based on the URL and, if it can, responds to the client.

@@ -132,6 +132,7 @@ class RequestProcessor
 
 function TranslateErrorToHtml(&$response)
 {
+	print_r($response);
 	$body = Null;
 	$head = array("Content-Type:text/plain");
 
@@ -210,7 +211,8 @@ function TranslateErrorToHtml(&$response)
 	if(strcmp($response[2],"gone")==0)
 	{	
 		array_push($head,'HTTP/1.1 410 Gone');
-		#$body = "The ".$response[3]." with the id ".$response[4]." has already been deleted";
+		#$body = "The ".$response[3]." with the id ".$response[4]." has already been deleted"; //Why is this commented out?
+		$body = "";
 	}
 	
 	if(strcmp($response[2],"not-implemented")==0)
@@ -248,9 +250,9 @@ function TranslateErrorToHtml(&$response)
 		//Default error
 		$body = "Internal server error: ".$response[2];
 		for($i=3;$i<count($response);$i++) $body .= ",".$response[$i];
+		array_merge($head,array('HTTP/1.1 500 Internal Server Error',"Content-Type:text/plain"));
 	}
-	CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($body,
-			array('HTTP/1.1 500 Internal Server Error',"Content-Type:text/plain")));
+	CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($body,$head));
 }
 
 function GetUserDetails($userInfo)
@@ -300,7 +302,7 @@ function GetTraceDetails($userInfo,$urlExp)
 	//Check if this trace needs authorisation to access it
 	$tid = (int)$urlExp[3];
 	$isPrivate = CallFuncByMessage(Message::IS_TRACE_PRIVATE,$tid);
-	if($isPrivate and $userInfo['userId'] === Null) return array(0,null,"auth-required");
+	if($isPrivate and $userInfo['userId'] === Null) {return array(0,null,"auth-required");}
 
 	return CallFuncByMessage(Message::GET_TRACE_DETAILS,array($userInfo,$urlExp));
 }
