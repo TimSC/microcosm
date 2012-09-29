@@ -343,7 +343,7 @@ function LowLevelGetTraceMeta($db,$tid)
 	return $data;
 }
 
-function GetTraceDetailsBackend($userInfo,$urlExp)
+function GetTraceDetailsBackend($userInfo,$urlExp,$user,$pass)
 {
 	$tid = (int)$urlExp[3];
 	$userId = $userInfo['userId'];
@@ -351,7 +351,7 @@ function GetTraceDetailsBackend($userInfo,$urlExp)
 	//Require log in if necessary
 	$isPublic = IsTracePubliclyDownloadable($tid);
 	if($isPublic===0)
-		list ($displayName, $userId) = RequireAuth();
+		list ($displayName, $userId) = RequireAuth($user,$pass);
 	
 	//Open DB
 	$lock=GetReadDatabaseLock();
@@ -376,13 +376,13 @@ function GetTraceDetailsBackend($userInfo,$urlExp)
 	return array(1,array("Content-Type:text/xml"),$out);
 }
 
-function GetTraceDataBackend($userInfo,$urlExp)
+function GetTraceDataBackend($userInfo,$urlExp,$user,$pass)
 {
 	$tid = (int)$urlExp[3];
 	//Require log in if not public
 	$isPublic = IsTracePubliclyDownloadable($tid);
 	if($isPublic===0)
-		list ($displayName, $userId) = RequireAuth();
+		list ($displayName, $userId) = RequireAuth($user,$pass);
 
 	//Get trace owner
 	//Open DB
@@ -479,7 +479,7 @@ function DeleteTrace($tid)
 
 }
 
-function TraceDatabaseEventHandler($eventType, $content, $listenVars)
+function TraceDatabaseEventHandler($eventType, $content, $listenVars,$user,$pass)
 {
 	if($eventType === Message::GET_TRACES_IN_BBOX)
 		return GetTracesInBboxBackend($content[0], $content[1]);
@@ -491,10 +491,10 @@ function TraceDatabaseEventHandler($eventType, $content, $listenVars)
 		return InsertTraceIntoDbBackend($content[0], $content[1]);
 
 	if($eventType === Message::GET_TRACE_DETAILS)
-		return GetTraceDetailsBackend($content[0], $content[1]);
+		return GetTraceDetailsBackend($content[0], $content[1],$user,$pass);
 
 	if($eventType === Message::GET_TRACE_DATA)
-		return GetTraceDataBackend($content[0], $content[1]);
+		return GetTraceDataBackend($content[0], $content[1],$user,$pass);
 
 }
 

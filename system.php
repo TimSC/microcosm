@@ -59,6 +59,7 @@ $messagePump->AddListener(Message::SET_USER_PERFERENCES_SINGLE, "UserDatabaseEve
 $messagePump->AddListener(Message::GET_USER_PERMISSIONS, "UserDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::SCRIPT_END, "UserDatabaseEventHandler", Null);
 
+// TODO pass the user data to TraceDatabaseEventHandler  TraceDatabaseEventHandler($eventType, $content, $listenVars,$user,$pass)
 $messagePump->AddListener(Message::GET_TRACES_IN_BBOX, "TraceDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_TRACE_FOR_USER, "TraceDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::INSERT_TRACE_INTO_DB, "TraceDatabaseEventHandler", Null);
