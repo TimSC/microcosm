@@ -3,7 +3,7 @@
 require_once('../requestprocessor.php');
 require_once('../exportfuncs.php');
 
-list ($displayName, $userId) = RequireAuth();
+list ($displayName, $userId) = RequireAuth($user,$password);
 $userDb = UserDbFactory();
 $userData = $userDb->GetUser($userId);
 $userAdmin = $userData['admin'];

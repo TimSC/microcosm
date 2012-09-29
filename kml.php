@@ -271,7 +271,7 @@ function ElementToKml($el,$lang=null)
 
 			$w = CallFuncByMessage(Message::GET_OBJECT_BY_ID,array("way",(int)$wid,Null));
 			if(!is_object($w))
-				throw new Exception("way needed in XAPI way not found, node ".$id);			
+				throw new Exception("way needed in XAPI way not found, node ".$wid);			
 			//print_r($w);
 			$outer = null;
 			if($role == "inner") $outer = 0;
