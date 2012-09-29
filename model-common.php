@@ -1,5 +1,6 @@
 <?php
 
+include_once('osmtypes.php');
 
 abstract class OsmDatabaseCommon
 {

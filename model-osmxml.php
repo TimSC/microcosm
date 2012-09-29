@@ -6,9 +6,15 @@ require_once("osmtypes.php");
 //***************************************
 //Low level changeset functions
 //***************************************
+function myclearstatcache2($filename)
+{
+	clearstatcache();
+}
 
 class ChangesetDatabaseOsmXml
 {
+
+
 function Open($cid,$data,$displayName,$userId,$createTime)
 {
 	mkdir("changesets-open/".$cid,0777);
@@ -34,7 +40,7 @@ function Update($cid,$data,$displayName,$userId)
 	$out = "<osm>".$data->ToXmlString()."</osm>";
 	fwrite($fi,$out);
 	fclose($fi);
-	clearstatcache($filename);
+	myclearstatcache2($filename);
 
 	return 1;
 }
@@ -108,7 +114,7 @@ function AppendElement($cid, $action, $el)
 	fwrite($fi,$serdata);
 	fflush($fi);
 	fclose($fi);
-	clearstatcache($filename);
+	myclearstatcache2($filename);
 	//echo filesize($filename).",";
 }
 

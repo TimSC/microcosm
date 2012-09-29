@@ -475,7 +475,7 @@ function DumpTable(&$table, &$fi, $writefunc)
 {
 	$query = "SELECT * FROM elements WHERE current=1 AND visible=1;";
 	$ret = $table->dbh->query($query);
-	if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+	if($ret===false) {$err= $table->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 	foreach($ret as $row)
 	{
 		$obj = $table->DbRowToObj($row);

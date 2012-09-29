@@ -1,12 +1,17 @@
 <?php
 
 require_once('messagepump.php');
+require_once('auth.php');
 
 class RequestProcessor
 {
 	var $methods = array();
 	var $userId = Null;
 	var $displayName = Null;
+
+	function __construct($eventType, $content, $listenVars) {
+	   /// TODO : 
+	}	 
 
 	function AddMethod($url, $method, $func, $authReq = 0, $arg = Null)
 	{
@@ -49,7 +54,7 @@ class RequestProcessor
 		return 1;
 	}
 
-	function Process($url, $urlExp)
+	function Process($url, $urlExp,$login,$pass)
 	{
 		$urlButNotMethodMatched = 0;
 		$urlMatchedAllowedMethod = null;
@@ -73,7 +78,7 @@ class RequestProcessor
 
 			//Do authentication if required
 			if($this->userId == null and $methodEntry['authReq'])
-				list ($this->displayName, $this->userId) = RequireAuth();
+				list ($this->displayName, $this->userId) = RequireAuth($login,$pass);
 	
 			try
 			{
@@ -129,8 +134,9 @@ function TranslateErrorToHtml(&$response)
 	header("Content-Type:text/plain");
 
 	if(strcmp($response[2],"already-closed")==0)
-	{	
+	{
 		//Example: "The changeset 5960426 was closed at 2010-10-05 11:18:26 UTC"
+		$changesetId = (int)$response[3];
 		header('HTTP/1.1 409 Conflict');
 		$closedTime = date("c", GetChangesetClosedTime($changesetId)); //ISO 8601
 		$err =  "The changeset ".(int)$changesetId." was closed at ".$closedTime;
@@ -183,7 +189,7 @@ function TranslateErrorToHtml(&$response)
 
 	if(strcmp($response[2],"no-such-changeset")==0)
 	{	
-		$header('HTTP/1.1 409 Conflict');
+		header('HTTP/1.1 409 Conflict');
 		echo "No such changeset.";
 		return;
 	}
@@ -262,12 +268,12 @@ function GetUserPreferences($userInfo)
 	return CallFuncByMessage(Message::GET_USER_PERFERENCES,$userInfo);
 }
 
-function SetUserPreferences($userInfo)
+function SetUserPreferences($userInfo,$data)
 {
 	return CallFuncByMessage(Message::SET_USER_PERFERENCES,array($userInfo,$data));
 }
 
-function SetUserPreferencesSingle($userInfo)
+function SetUserPreferencesSingle($userInfo,$data)
 {
 	return CallFuncByMessage(Message::SET_USER_PERFERENCES_SINGLE,array($userInfo,$data));
 }
@@ -363,6 +369,8 @@ function ApiEventHandler($eventType, $content, $listenVars)
 	$getData = $content[3];
 	$postData = $content[4];
 	$filesData = $content[5];
+	$login = $content[6];
+	$pass = $content[7];
 
 	$requestProcessor->methods = array();
 	$requestProcessor->AddMethod("/capabilities", "GET", 'GetCapabilities', 0);
@@ -408,7 +416,7 @@ function ApiEventHandler($eventType, $content, $listenVars)
 	$requestProcessor->AddMethod("/0.6/gpx/NUM/data", "GET", 'GetTraceData', 0, $urlExp);
 
 
-	return $requestProcessor->Process($url,$urlExp);
+	return $requestProcessor->Process($url,$urlExp,$login,$pass);
 	}
 
 }

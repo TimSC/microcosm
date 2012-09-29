@@ -2,66 +2,45 @@
 require_once('fileutils.php');
 require_once('querymap.php');
 require_once('system.php');
+require_once('auth.php');
 
-//*******************
-//User Authentication
-//*******************
-
-function RequestAuthFromUser()
-{
-	header('WWW-Authenticate: Basic realm="'.SERVER_NAME.'"');
-	header('HTTP/1.0 401 Unauthorized');
-	echo 'Authentication Cancelled';
-	exit;
-} 
-
-function RequireAuth()
-{
-	if (!isset($_SERVER['PHP_AUTH_USER'])) {
-		RequestAuthFromUser();
-	}
-
-	$login = $_SERVER['PHP_AUTH_USER'];
-
-	$ret = CallFuncByMessage(Message::CHECK_LOGIN,array($login, $_SERVER['PHP_AUTH_PW']));
-	if($ret===-1) RequestAuthFromUser();
-	if($ret===0) RequestAuthFromUser();
-	if(is_array($ret)) list($displayName, $userId) = $ret;
-	return array($displayName, $userId);
-}
 
 //******************************
 //Start up functions and logging
 //******************************
+
 CallFuncByMessage(Message::SCRIPT_START,Null); 
 
-//Allow GET args to be set by command line
-$options = getopt(PROG_ARG_STRING, $PROG_ARG_LONG);
-if(isset($options["g"]))
-{
-	$get= $options["g"];
-	if(!is_array($get)) $get = array($get);
-	foreach ($get as &$value)
-	{
-		$kv = explode("=",$value);
-		if (isset($kv[1]))
-			$_GET[$kv[0]]=$kv[1];
-		else
-			$_GET[$kv[0]]="";
-	}
-}
+////-------------------------
+if(DEBUG_MODE) dprint("$_SERVER",$_SERVER);
 
+global $PROG_ARG_STRING;
+$options = getopt(PROG_ARG_STRING, $PROG_ARG_LONG);
+if(isset($options['g'])) $_GET = CommandLineOptionsSetVar($options['g'], $_GET);
+
+//print_r($_GET);
 //print_r($_SERVER);
+
+$login = Null;
+if(isset($_SERVER['PHP_AUTH_USER'])) $login = $_SERVER['PHP_AUTH_USER'];
+if(isset($options['user'])) $login = $options['user'];
+
+$pass = Null;
+if(isset($_SERVER['PHP_AUTH_PW'])) $pass = $_SERVER['PHP_AUTH_PW'];
+if(isset($options['password'])) $pass = $options['password'];
+
 CheckPermissions();
 
 //Split URL for processing
 $pathInfo = GetRequestPath();
 $urlExp = explode("/",$pathInfo);
 
-//print_r($pathInfo);
+if(DEBUG_MODE) dprint("pathinfo",$pathInfo);
 
 //Log the request
 $fi = fopen("log.txt","at");
+if($fi===False)
+	throw new Exception("Failed to open log.txt file for writing: check permission.");
 flock($fi, LOCK_EX);
 fwrite($fi,GetServerRequestMethod());
 fwrite($fi,"\t");
@@ -109,13 +88,13 @@ if(API_READ_ONLY and strcmp(GetServerRequestMethod(),"GET")!=0)
 //***********************
 
 //Authentication, if there is a server username variable
-if (isset($_SERVER['PHP_AUTH_USER'])) 
-	list ($displayName, $userId) = RequireAuth();
+if ($login !== Null) 
+	list ($displayName, $userId) = RequireAuth($login, $pass);
 
 //Only allow GET method or else request authentication
 if(strcmp(GetServerRequestMethod(),"GET")!=0)
 {
-	list ($displayName, $userId) = RequireAuth();
+	list ($displayName, $userId) = RequireAuth($login, $pass);
 }
 else
 {
@@ -123,16 +102,13 @@ else
 	$userId = null;
 }
 
-//print_r( $_SERVER);
-//print_r( $pathInfo);
-
 //This function determines with function to call based on the URL and, if it can, responds to the client.
-$processed = CallFuncByMessage(Message::API_EVENT,array($pathInfo,$urlExp,$putDataStr,$_GET,$_POST,$_FILES));
+$processed = CallFuncByMessage(Message::API_EVENT,array($pathInfo,$urlExp,$putDataStr,$_GET,$_POST,$_FILES,$login,$pass));
 if(!$processed)
 {
 	header ('HTTP/1.1 404 Not Found');
 	echo "URL not found.";
-	//print_r($pathInfo);
+
 }
 
 //Trigger destructors acts better, rather than letting database handle going out of scope

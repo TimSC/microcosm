@@ -1,9 +1,10 @@
 <?php
+require_once ('model-sqlite-opt.php');
 require_once ('model-osmxml.php');
 require_once ('model-filetree.php');
 require_once ('model-sqlite.php');
 require_once ('model-mysql.php');
-require_once ('model-sqlite-opt.php');
+//require_once ('model-sqlite.php');
 require_once ('model-changesets-sqlite.php');
 require_once ("model-bbox.php");
 require_once ("config.php");

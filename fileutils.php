@@ -16,16 +16,16 @@ function CheckPermissions()
 }
 
 function GetServerRequestMethod()
-{	
+{
 	global $PROG_ARG_LONG;
 	$options = getopt(PROG_ARG_STRING, $PROG_ARG_LONG);
-	$out = "GET";
+	$out = "GET"; //The default
 	if(isset($options["m"]))
-		$out = $options["m"];
+	$out = $options["m"];
 	if(isset($_SERVER['REQUEST_METHOD']))
-		$out = $_SERVER['REQUEST_METHOD'];
+	$out = $_SERVER['REQUEST_METHOD'];
 	if(isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']))
-		$out = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
+	$out = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
 	return $out;
 }
 
@@ -188,16 +188,17 @@ function isValidEmail($email){
 
 function ValidateBbox($bbox)
 {
-	if(!is_array($bbox) or count($bbox) != 4) return "invalid-bbox";
 
-	if($bbox[0] > $bbox[2])
-	{
-		// swap em!
-		$tmp = $bbox[0];
-		$bbox[2]=$bbox[0];
-		$bbox[0]=$tmp;
-	}
+  dprint( "ValidateBbox:",$bbox);
 
+  if(!is_array($bbox) or count($bbox) != 4) return "invalid-bbox";
+
+  if($bbox[0] > $bbox[2]){
+    // swap em!
+    $tmp = $bbox[0];
+    $bbox[2]=$bbox[0];
+    $bbox[0]=$tmp;
+  }    
 	if($bbox[1] > $bbox[3])
 	{
 		// swap em!
@@ -262,6 +263,33 @@ function GetRequestPath()
 	}
 
 	return $pathInfo;
+}
+
+function dprint($name,$value)
+{
+	//  debug_print_backtrace();
+	error_log("DPRINT:". $name. ":". print_r($value,true) . "\n<",0);
+}
+
+//Allow GET args to be set by command line
+function CommandLineOptionsSetVar($opts, $existVars)
+{
+	if($existVars === Null) $out = array();
+	else $out = $existVars;
+
+	if($opts !== Null)
+	{
+		if(!is_array($opts)) $opts = array($opts);
+		foreach ($opts as &$value)
+		{
+			$kv = explode("=",$value);
+			if (isset($kv[1]))
+				$out[$kv[0]]=$kv[1];
+			else
+				$out[$kv[0]]="";
+		}
+	}
+	return $out;
 }
 
 ?>

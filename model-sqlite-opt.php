@@ -144,7 +144,13 @@ class ElementTableOpt extends ElementTable
 		//TODO
 
 		$sth = $this->dbh->prepare($sql);
-		if($sth===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+
+		if($sth===false) 
+		{
+			$err= $this->dbh->errorInfo();
+			throw new Exception($sql.",".$err[2]);
+		}
+
 		$ret = $sth->execute(array(serialize($parents)));
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 	}
@@ -245,7 +251,9 @@ class ElementTableOpt extends ElementTable
 		}
 
 		$sth = $this->dbh->prepare($sql);
-		if($sth===false) {$err= $dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+		if($sth===false) {
+			$err= $this->dbh->errorInfo();
+			throw new Exception($sql.",".$err[2]);}
 		$sqlVals = array(serialize($rowids),(int)$id);
 		$ret = $sth->execute($sqlVals);
 		if($ret===false) 
@@ -550,7 +558,7 @@ function CheckElementTableOptAgainstIdmap(&$table, &$db)
 {
 	$query = "SELECT * FROM elements;";
 	$ret = $table->dbh->query($query);
-	if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+	if($ret===false) {$err= $table->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 	
 	foreach($ret as $row)
 	{
@@ -584,7 +592,9 @@ function CheckElementTableOptAgainstPosition(&$table, &$db)
 
 	$query = "SELECT * FROM elements;";
 	$ret = $table->dbh->query($query);
-	if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+	if($ret===false) {
+		$err= $table->dbh->errorInfo();
+		throw new Exception($query.",".$err[2]);}
 	
 	foreach($ret as $row)
 	{
@@ -623,7 +633,7 @@ function CheckElementTableOptAgainstChildren(&$table, &$db)
 
 	$query = "SELECT * FROM elements;";
 	$ret = $table->dbh->query($query);
-	if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+	if($ret===false) {$err= $table->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 	
 	foreach($ret as $row)
 	{
@@ -696,7 +706,7 @@ function CheckElementTableOptAgainstHistory(&$table, &$db)
 
 	$query = "SELECT * FROM elements;";
 	$ret = $table->dbh->query($query);
-	if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+	if($ret===false) {$err= $table->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 	
 	foreach($ret as $row)
 	{
@@ -721,7 +731,7 @@ function CheckIdmapAgainstElementTableOpt($table, $db)
 {
 	$query = "SELECT * FROM idmap;";
 	$ret = $table->dbh->query($query);
-	if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+	if($ret===false) {$err= $table->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 	
 	foreach($ret as $row)
 	{
@@ -730,7 +740,7 @@ function CheckIdmapAgainstElementTableOpt($table, $db)
 		$id = $row['elid'];
 		$query = "SELECT * FROM elements WHERE i = ".$rowid.";";
 		$ret2 = $table->dbh->query($query);
-		if($ret2===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+		if($ret2===false) {$err= $table->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 		$count = 0;
 		foreach($ret2 as $row2)
 		{
@@ -776,7 +786,7 @@ function RepairHistoryOfTable(&$table, &$db)
 
 	$query = "SELECT * FROM elements;";
 	$ret = $table->dbh->query($query);
-	if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
+	if($ret===false) {$err= $table->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 	
 	foreach($ret as $row)
 	{
@@ -829,10 +839,9 @@ class OsmDatabaseSqliteOpt extends OsmDatabaseSqlite
 	//General main query
 	//**********************
 
-
-
-
 }
+
+//$test = new OsmDatabaseSqliteOpt();
 
 
 

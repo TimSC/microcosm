@@ -410,14 +410,14 @@ class UserPreferences
 			{
 				$k = (string)$pref['k'];
 				$v = (string)$pref['v'];
-				if(strlen($k)>MAX_KEY_LEN) InvalidArgumentException("Key too large");
-				if(strlen($v)>MAX_VALUE_LEN) InvalidArgumentException("Value too large");
-				if(isset($this->data[$k])) InvalidArgumentException("Duplicate key");
+				if(strlen($k)>MAX_KEY_LEN) throw new InvalidArgumentException("Key too large");
+				if(strlen($v)>MAX_VALUE_LEN) throw new InvalidArgumentException("Value too large");
+				if(isset($this->data[$k])) throw new InvalidArgumentException("Duplicate key");
 				$this->data[html_entity_decode($k)] = html_entity_decode($v);
 				$count ++;
 			}
 		}
-		if($count > MAX_USER_PERFS) InvalidArgumentException("Too many prefs");
+		if($count > MAX_USER_PERFS) throw new InvalidArgumentException("Too many prefs");
 
 		return 1;
 	}
