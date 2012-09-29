@@ -71,6 +71,7 @@ $messagePump->AddListener(Message::GET_TRACE_FOR_USER, "TraceDatabaseEventHandle
 $messagePump->AddListener(Message::INSERT_TRACE_INTO_DB, "TraceDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_TRACE_DETAILS, "TraceDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_TRACE_DATA, "TraceDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::IS_TRACE_PRIVATE, "TraceDatabaseEventHandler", Null);
 
 $messagePump->AddListener(Message::API_EVENT, "ApiEventHandler", Null);
 $messagePump->AddListener(Message::WEB_RESPONSE_TO_CLIENT, "WebResponseEventHandler", Null);

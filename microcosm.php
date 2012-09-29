@@ -89,23 +89,21 @@ if(API_READ_ONLY and strcmp(GetServerRequestMethod(),"GET")!=0)
 ob_start();
 try
 {
-//Authentication, if there is a server username variable
-if ($login !== Null) 
-	list ($displayName, $userId) = RequireAuth($login, $pass);
-
-//Only allow GET method or else request authentication
-if(strcmp(GetServerRequestMethod(),"GET")!=0)
+//Authentication, if there is a server username variable or non-GET method used
+$displayName = null;
+$userId = null;
+$authFailed = False;
+if ($login !== Null or strcmp(GetServerRequestMethod(),"GET")!=0) 
 {
-	list ($displayName, $userId) = RequireAuth($login, $pass);
-}
-else
-{
-	$displayName = null;
-	$userId = null;
+	$authRet = RequireAuth($login, $pass);
+	if($authRet == -1) //If authentication failed
+		$authFailed = True;
+	else list ($displayName, $userId) = $authRet;
 }
 
 //This function determines with function to call based on the URL and, if it can, responds to the client.
-$processed = CallFuncByMessage(Message::API_EVENT,array($pathInfo,$urlExp,$putDataStr,$_GET,$_POST,$_FILES,$login,$pass));
+if(!$authFailed)
+	$processed = CallFuncByMessage(Message::API_EVENT,array($pathInfo,$urlExp,$putDataStr,$_GET,$_POST,$_FILES,$displayName,$userId));
 }
 catch(Exception $e)
 {

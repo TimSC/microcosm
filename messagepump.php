@@ -59,6 +59,7 @@ class Message
 	const INSERT_TRACE_INTO_DB = 502;
 	const GET_TRACE_DETAILS = 503;
 	const GET_TRACE_DATA = 504;
+	const IS_TRACE_PRIVATE = 505;
 
 	//OSM API
 	const API_EVENT = 600;

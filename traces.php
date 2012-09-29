@@ -3,7 +3,6 @@
 require_once('config.php');
 require_once('dbutils.php');
 require_once('fileutils.php');
-require_once('auth.php');
 
 class RawTraceTable extends GenericSqliteTable
 {
@@ -276,7 +275,7 @@ function DropTraceDb($db)
 	SqliteDropTableIfExists($db,"meta");
 }
 
-function IsTracePubliclyDownloadable($tid)
+function IsTracePrivate($tid)
 {
 	//Open DB
 	$lock=GetReadDatabaseLock();
@@ -291,9 +290,9 @@ function IsTracePubliclyDownloadable($tid)
 	foreach($ret as $row)
 	{
 		$visible = $row['visible'];
-		if($visible == 3) return 1;
-		if($visible == 4) return 1;
-		return 0;
+		if($visible == 3) return 0;
+		if($visible == 4) return 0;
+		return 1;
 	}
 
 	return null;
@@ -343,16 +342,13 @@ function LowLevelGetTraceMeta($db,$tid)
 	return $data;
 }
 
-function GetTraceDetailsBackend($userInfo,$urlExp,$user,$pass)
+function GetTraceDetailsBackend($userInfo,$urlExp)
 {
 	$tid = (int)$urlExp[3];
 	$userId = $userInfo['userId'];
 
-	//Require log in if necessary
-	$isPublic = IsTracePubliclyDownloadable($tid);
-	if($isPublic===0)
-		list ($displayName, $userId) = RequireAuth($user,$pass);
-	
+	$isPrivate = IsTracePrivate($tid);
+
 	//Open DB
 	$lock=GetReadDatabaseLock();
 	$db = new PDO('sqlite:sqlite/traces.db');
@@ -362,8 +358,9 @@ function GetTraceDetailsBackend($userInfo,$urlExp,$user,$pass)
 	if(is_null($data)) return array(0,null,"not-found");
 
 	//Check permission, if necessary
+	//TODO move this to request process file, because this doesn't belong in the backend(?)
 	$traceOwner = $data['uid'];
-	if(!$isPublic and $userId != $traceOwner)
+	if($isPrivate and $userId != $traceOwner)
 		return array(0,null,"denied");
 	
 	//Format to XML
@@ -376,13 +373,12 @@ function GetTraceDetailsBackend($userInfo,$urlExp,$user,$pass)
 	return array(1,array("Content-Type:text/xml"),$out);
 }
 
-function GetTraceDataBackend($userInfo,$urlExp,$user,$pass)
+function GetTraceDataBackend($userInfo,$urlExp)
 {
 	$tid = (int)$urlExp[3];
-	//Require log in if not public
-	$isPublic = IsTracePubliclyDownloadable($tid);
-	if($isPublic===0)
-		list ($displayName, $userId) = RequireAuth($user,$pass);
+	$userId = $userInfo['userId'];
+
+	$isPrivate = IsTracePrivate($tid);
 
 	//Get trace owner
 	//Open DB
@@ -395,7 +391,9 @@ function GetTraceDataBackend($userInfo,$urlExp,$user,$pass)
 	$traceOwner = $data['uid'];
 
 	//Deny access if wrong user on a private trace
-	if(!$isPublic and $userId != $traceOwner)
+	//TODO move this to request process file, because this doesn't belong in the backend(?)
+	//echo $isPrivate.",".$userId.",".$traceOwner;
+	if($isPrivate and $userId != $traceOwner)
 		return array(0,null,"denied");
 	
 	//Get raw trace
@@ -479,7 +477,7 @@ function DeleteTrace($tid)
 
 }
 
-function TraceDatabaseEventHandler($eventType, $content, $listenVars,$user,$pass)
+function TraceDatabaseEventHandler($eventType, $content, $listenVars)
 {
 	if($eventType === Message::GET_TRACES_IN_BBOX)
 		return GetTracesInBboxBackend($content[0], $content[1]);
@@ -491,10 +489,13 @@ function TraceDatabaseEventHandler($eventType, $content, $listenVars,$user,$pass
 		return InsertTraceIntoDbBackend($content[0], $content[1]);
 
 	if($eventType === Message::GET_TRACE_DETAILS)
-		return GetTraceDetailsBackend($content[0], $content[1],$user,$pass);
+		return GetTraceDetailsBackend($content[0], $content[1]);
 
 	if($eventType === Message::GET_TRACE_DATA)
-		return GetTraceDataBackend($content[0], $content[1],$user,$pass);
+		return GetTraceDataBackend($content[0], $content[1]);
+
+	if($eventType === Message::IS_TRACE_PRIVATE)
+		return IsTracePrivate($content);
 
 }
 

@@ -6,8 +6,6 @@ require_once('auth.php');
 class RequestProcessor
 {
 	var $methods = array();
-	var $userId = Null;
-	var $displayName = Null;
 
 	function __construct($eventType, $content, $listenVars) {
 	   /// TODO : 
@@ -54,7 +52,7 @@ class RequestProcessor
 		return 1;
 	}
 
-	function Process($url, $urlExp,$login,$pass)
+	function Process($url, $urlExp,$displayName,$userId)
 	{
 		$urlButNotMethodMatched = 0;
 		$urlMatchedAllowedMethod = null;
@@ -77,12 +75,11 @@ class RequestProcessor
 			}
 
 			//Do authentication if required
-			if($this->userId == null and $methodEntry['authReq'])
-				list ($this->displayName, $this->userId) = RequireAuth($login,$pass);
+			if($userId == null and $methodEntry['authReq']) RequestAuthFromUser();
 	
 			try
 			{
-				$userInfo = array('userId'=>$this->userId, 'displayName'=>$this->displayName);
+				$userInfo = array('userId'=>$userId, 'displayName'=>$displayName);
 				$response = call_user_func($methodEntry['func'],$userInfo,$methodEntry['arg']);
 			}
 			catch (Exception $e)
@@ -222,6 +219,12 @@ function TranslateErrorToHtml(&$response)
 		$body = "This feature has not been implemented.";
 	}
 
+	if(strcmp($response[2],"auth-required")==0)
+	{
+		array_push($head,'WWW-Authenticate: Basic realm="'.SERVER_NAME.'"','HTTP/1.0 401 Unauthorized');
+		$body = "Authentication Cancelled";
+	}
+
 	if(strcmp($response[2],"deleting-would-break")==0)
 	{
 		//Example: Error: Precondition failed: Node 31567970 is still used by way 4733859.
@@ -294,11 +297,21 @@ function InsertTraceIntoDb($userInfo, $args)
 
 function GetTraceDetails($userInfo,$urlExp)
 {
+	//Check if this trace needs authorisation to access it
+	$tid = (int)$urlExp[3];
+	$isPrivate = CallFuncByMessage(Message::IS_TRACE_PRIVATE,$tid);
+	if($isPrivate and $userInfo['userId'] === Null) return array(0,null,"auth-required");
+
 	return CallFuncByMessage(Message::GET_TRACE_DETAILS,array($userInfo,$urlExp));
 }
 
 function GetTraceData($userInfo,$urlExp)
 {
+	//Check if this trace needs authorisation to access it
+	$tid = (int)$urlExp[3];
+	$isPrivate = CallFuncByMessage(Message::IS_TRACE_PRIVATE,$tid);
+	if($isPrivate and $userInfo['userId'] === Null) return array(0,null,"auth-required");
+
 	return CallFuncByMessage(Message::GET_TRACE_DATA,array($userInfo,$urlExp));
 }
 
@@ -395,8 +408,8 @@ function ApiEventHandler($eventType, $content, $listenVars)
 	$getData = $content[3];
 	$postData = $content[4];
 	$filesData = $content[5];
-	$login = $content[6];
-	$pass = $content[7];
+	$displayName = $content[6];
+	$userId = $content[7];
 
 	$requestProcessor->methods = array();
 	$requestProcessor->AddMethod("/capabilities", "GET", 'GetCapabilities', 0);
@@ -442,7 +455,7 @@ function ApiEventHandler($eventType, $content, $listenVars)
 	$requestProcessor->AddMethod("/0.6/gpx/NUM/data", "GET", 'GetTraceData', 0, $urlExp);
 
 
-	return $requestProcessor->Process($url,$urlExp,$login,$pass);
+	return $requestProcessor->Process($url,$urlExp,$displayName,$userId);
 	}
 
 }
