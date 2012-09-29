@@ -87,9 +87,10 @@ class RequestProcessor
 			}
 			catch (Exception $e)
 			{
-				header('HTTP/1.1 500 Internal Server Error');
-				header("Content-Type:text/plain");
-				echo "Internal server error: ".$e->getMessage()."\n";
+				$body = "Internal server error: ".$e->getMessage()."\n";
+				CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($body,
+					array('HTTP/1.1 500 Internal Server Error',"Content-Type:text/plain")));
+
 				if(DEBUG_MODE) print_r($e->getTrace());
 				return 1;
 			}
@@ -97,8 +98,9 @@ class RequestProcessor
 			//Return normal response to client
 			if(is_array($response) and $response[0] == 1)
 			{
-				foreach($response[1] as $headerline) header($headerline);
-				echo $response[2];
+				//foreach($response[1] as $headerline) header($headerline);
+				//echo $response[2];
+				CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($response[2], $response[1]));
 				return 1;
 			}
 			
@@ -109,17 +111,19 @@ class RequestProcessor
 				return 1;
 			}
 
-			header('HTTP/1.1 500 Internal Server Error');
-			header("Content-Type:text/plain");
-			echo "Internal server error: Function needs to return array result starting with 0 or 1\n";
+			$body = "Internal server error: Function needs to return array result starting with 0 or 1\n";
+			CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($body,
+				array('HTTP/1.1 500 Internal Server Error',"Content-Type:text/plain")));
+
 			return 1;
 		}
 
 		//Found URL string that matched but wrong http method specified
 		if($urlButNotMethodMatched)
 		{
-			header('HTTP/1.1 405 Method Not Allowed');
-			echo "Only method ".$urlMatchedAllowedMethod." is supported on this URI";
+			$body = "Only method ".$urlMatchedAllowedMethod." is supported on this URI";
+			CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($body,
+				array('HTTP/1.1 405 Method Not Allowed',"Content-Type:text/plain")));
 			return 1;
 		}
 
@@ -131,131 +135,119 @@ class RequestProcessor
 
 function TranslateErrorToHtml(&$response)
 {
-	header("Content-Type:text/plain");
+	$body = Null;
+	$head = array("Content-Type:text/plain");
 
 	if(strcmp($response[2],"already-closed")==0)
 	{
 		//Example: "The changeset 5960426 was closed at 2010-10-05 11:18:26 UTC"
 		$changesetId = (int)$response[3];
-		header('HTTP/1.1 409 Conflict');
+		array_push($head,'HTTP/1.1 409 Conflict');
 		$closedTime = date("c", GetChangesetClosedTime($changesetId)); //ISO 8601
 		$err =  "The changeset ".(int)$changesetId." was closed at ".$closedTime;
-		header('Error: '.$err);
-		echo $err;
-		return;
+		array_push($head,'Error: '.$err);
+		$body = $err;
 	}
 
 	if("bbox-too-large" == $response[2])
 	{
 		$err="The maximum bbox size is ".MAX_QUERY_AREA;
 		$err.=", and your request was too large. Either request a smaller area, or use planet.osm";
-		header('HTTP/1.1 400 Bad Request');
-		header('Error: '.$err);
-		//header("Error: Stuff")
-		echo $err;
-		return;
+		array_push($head,'HTTP/1.1 400 Bad Request');
+		array_push($head,'Error: '.$err);
+		//array_push($head,"Error: Stuff")
+		$body = $err;
 	}
 
 	if("invalid-bbox" == $response[2])
 	{
 		$err="The latitudes must be between -90 and 90, longitudes between ";
 		$err.="-180 and 180 and the minima must be less than the maxima.";
-		header('Error: '.$err);
-		header('HTTP/1.1 400 Bad Request');
-		echo $err;
-		return;
+		array_push($head,'Error: '.$err);
+		array_push($head,'HTTP/1.1 400 Bad Request');
+		$body = $err;
 	}
 
 	if(strcmp($response[2],"session-id-mismatch")==0)
 	{	
-		header('HTTP/1.1 409 Conflict');
-		echo "Inconsistent changeset id.";
-		return;
+		array_push($head,'HTTP/1.1 409 Conflict');
+		$body = "Inconsistent changeset id.";
 	}
 
 	if(strcmp($response[2],"invalid-xml")==0)
 	{
-		header ('HTTP/1.1 400 Bad Request');
-		echo "Invalid XML input";
-		return;
+		array_push($head,'HTTP/1.1 400 Bad Request');
+		$body = "Invalid XML input";
 	}
 
 	if(strcmp($response[2],"invalid-xml")==0)
 	{	
-		header ('HTTP/1.1 413 Request Entity Too Large');
-		echo "Request Entity Too Large";
-		return;
+		array_push($head,'HTTP/1.1 413 Request Entity Too Large');
+		$body = "Request Entity Too Large";
 	}
 
 	if(strcmp($response[2],"no-such-changeset")==0)
 	{	
-		header('HTTP/1.1 409 Conflict');
-		echo "No such changeset.";
-		return;
+		array_push($head,'HTTP/1.1 409 Conflict');
+		$body = "No such changeset.";
 	}
 
 	if(strcmp($response[2],"not-found")==0)
 	{
-		header ('HTTP/1.1 404 Not Found');
-		echo "Object not found.";
-		return;
+		array_push($head,'HTTP/1.1 404 Not Found');
+		$body = "Object not found.";
 	}
 
 	if(strcmp($response[2],"object-not-found")==0)
 	{	
-		header ('HTTP/1.1 409 Conflict');
-		echo "Required object not found in database (something to do with ".$response[3].",".$response[4].").";
-		return;
+		array_push($head,'HTTP/1.1 409 Conflict');
+		$body = "Required object not found in database (something to do with ".$response[3].",".$response[4].").";
 	}
 
 	if(strcmp($response[2],"bad-request")==0)
 	{	
-		header ('HTTP/1.1 400 Bad Request');
-		echo "Bad request.";
-		return;
+		array_push($head,'HTTP/1.1 400 Bad Request');
+		$body = "Bad request.";
 	}
 
 	if(strcmp($response[2],"gone")==0)
 	{	
-		header ('HTTP/1.1 410 Gone');
-		#echo "The ".$response[3]." with the id ".$response[4]." has already been deleted";
-		return;
+		array_push($head,'HTTP/1.1 410 Gone');
+		#$body = "The ".$response[3]." with the id ".$response[4]." has already been deleted";
 	}
 	
 	if(strcmp($response[2],"not-implemented")==0)
 	{
-		header ('HTTP/1.1 501 Not Implemented');
-		echo "This feature has not been implemented.";
-		return;
+		array_push($head,'HTTP/1.1 501 Not Implemented');
+		$body = "This feature has not been implemented.";
 	}
 
 	if(strcmp($response[2],"deleting-would-break")==0)
 	{
 		//Example: Error: Precondition failed: Node 31567970 is still used by way 4733859.
-		header('HTTP/1.1 412 Precondition failed');
+		array_push($head,'HTTP/1.1 412 Precondition failed');
 		$err = "Precondition failed: Node ".$response[3]." is still used by ".$response[4]." ".$response[5].".";
-		header('Error: '.$err);
-		echo $err;
-		return;
+		array_push($head,'Error: '.$err);
+		$body = $err;
 	}
 
 	if(strcmp($response[2],"version-mismatch")==0)
 	{	
 		//Example: Version mismatch: Provided 1, server had: 2 of Node 354516541
-		header ('HTTP/1.1 409 Conflict');
+		array_push($head,'HTTP/1.1 409 Conflict');
 		$err = "Version mismatch: Provided ".$response[3].", server had: ".$response[4]." of ".ucwords($response[5])." ".$response[6];
-		header ('Error: '.$err);
-		echo $err;
-		return;
+		array_push($head,'Error: '.$err);
+		$body = $err;
 	}
 	
-	//Default error
-	header('HTTP/1.1 500 Internal Server Error');
-	header("Content-Type:text/plain");
-	echo "Internal server error: ".$response[2];
-	for($i=3;$i<count($response);$i++) echo ",".$response[$i];
-	echo "\n";
-
+	if($body === Null)
+	{
+		//Default error
+		$body = "Internal server error: ".$response[2];
+		for($i=3;$i<count($response);$i++) $body .= ",".$response[$i];
+	}
+	CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($body,
+			array('HTTP/1.1 500 Internal Server Error',"Content-Type:text/plain")));
 }
 
 function GetUserDetails($userInfo)
@@ -345,6 +337,35 @@ function ProcessSingleObject($userInfo, $args)
 function ChangesetExpandBbox($userInfo, $args)
 {
 	return CallFuncByMessage(Message::API_CHANGESET_EXPAND,array($userInfo,$args));
+}
+
+//***************************************
+
+$globalHeaderBuffer = array();
+$globalResponseBuffer = "";
+
+function WebResponseEventHandler($eventType, $content, $listenVars)
+{
+	global $globalHeaderBuffer, $globalResponseBuffer;
+
+	if($eventType === Message::WEB_RESPONSE_TO_CLIENT)
+	{
+		$globalHeaderBuffer = array_merge($globalHeaderBuffer, $content[1]);
+		$globalResponseBuffer .= $content[0];
+	}
+
+	if($eventType === Message::FLUSH_RESPONSE_TO_CLIENT)
+	{
+		foreach($globalHeaderBuffer as $headerline) header($headerline);
+		echo $globalResponseBuffer;
+
+		$fi = fopen("webresponse.txt","wt");
+		foreach($globalHeaderBuffer as $headerline) 
+			fwrite($fi, $headerline);
+		fwrite($fi, $globalResponseBuffer);
+		fclose($fi);
+	}	
+
 }
 
 //*****************************

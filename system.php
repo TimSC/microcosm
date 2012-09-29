@@ -14,7 +14,7 @@ $messagePump->AddListener(Message::MAP_QUERY, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_OBJECT_BY_ID, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_FULL_HISTORY, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_RELATIONS_FOR_ELEMENT, "MapDatabaseEventHandler", Null);
-$messagePump->AddListener(Message::GET_WAYS_FOR_NODE, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_WAY_IDS_FOR_NODE, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::CHECK_ELEMENT_EXISTS, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_CURRENT_ELEMENT_VER, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::GET_ELEMENT_BBOX, "MapDatabaseEventHandler", Null);
@@ -23,6 +23,8 @@ $messagePump->AddListener(Message::MODIFY_ELEMENT, "MapDatabaseEventHandler", Nu
 $messagePump->AddListener(Message::DELETE_ELEMENT, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::DUMP, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::PURGE_MAP, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_ELEMENT_FULL_DATA, "MapDatabaseEventHandler", Null);
+$messagePump->AddListener(Message::GET_ELEMENT_FULL_PARENT_DATA, "MapDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::SCRIPT_END, "MapDatabaseEventHandler", Null);
 
 $messagePump->AddListener(Message::CHANGESET_IS_OPEN, "ChangesetDatabaseEventHandler", Null);
@@ -48,7 +50,11 @@ $messagePump->AddListener(Message::SCRIPT_END, "ModelBboxEventHandler", Null);
 }
 
 $messagePump->AddListener(Message::ELEMENT_UPDATE_DONE, "RichEditEventHandler", Null);
+$messagePump->AddListener(Message::ELEMENT_UPDATE_PRE_APPLY, "RichEditEventHandler", Null);
 $messagePump->AddListener(Message::SCRIPT_END, "RichEditEventHandler", Null);
+
+$messagePump->AddListener(Message::ELEMENT_UPDATE_PRE_APPLY_RICH_DATA, "RichEditLoggerEventHandler", Null);
+$messagePump->AddListener(Message::SCRIPT_END, "RichEditLoggerEventHandler", Null);
 
 $messagePump->AddListener(Message::CHECK_LOGIN, "UserDatabaseEventHandler", Null);
 $messagePump->AddListener(Message::USER_ADD, "UserDatabaseEventHandler", Null);
@@ -67,6 +73,8 @@ $messagePump->AddListener(Message::GET_TRACE_DETAILS, "TraceDatabaseEventHandler
 $messagePump->AddListener(Message::GET_TRACE_DATA, "TraceDatabaseEventHandler", Null);
 
 $messagePump->AddListener(Message::API_EVENT, "ApiEventHandler", Null);
+$messagePump->AddListener(Message::WEB_RESPONSE_TO_CLIENT, "WebResponseEventHandler", Null);
+$messagePump->AddListener(Message::FLUSH_RESPONSE_TO_CLIENT, "WebResponseEventHandler", Null);
 
 $messagePump->AddListener(Message::API_CHANGESET_OPEN, "ChangesetEventHandler", Null);
 $messagePump->AddListener(Message::API_CHANGESET_UPDATE, "ChangesetEventHandler", Null);

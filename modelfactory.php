@@ -72,6 +72,8 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 
 	public function CreateElement($type,$id,$el)
 	{
+		CallFuncByMessage(Message::ELEMENT_UPDATE_PRE_APPLY,array($type,$id,$el));
+
 		//fwrite($this->events, "Create ".$type." ".$id."\n");
 		$ret = $this->masterDb->CreateElement($type,$id,$el);
 		
@@ -81,6 +83,8 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 
 	public function ModifyElement($type,$id,$el)
 	{
+		CallFuncByMessage(Message::ELEMENT_UPDATE_PRE_APPLY,array($type,$id,$el));
+
 		//fwrite($this->events, "Modify ".$type." ".$id."\n");
 		$ret = $this->masterDb->ModifyElement($type,$id,$el);
 
@@ -90,6 +94,8 @@ class OsmDatabaseMultiplexer extends OsmDatabaseCommon
 
 	public function DeleteElement($type,$id,$el)
 	{
+		CallFuncByMessage(Message::ELEMENT_UPDATE_PRE_APPLY,array($type,$id,$el));
+
 		//fwrite($this->events, "Delete ".$type." ".$id."\n");
 		$ret = $this->masterDb->DeleteElement($type,$id,$el);
 
@@ -153,7 +159,7 @@ function MapDatabaseEventHandler($eventType, $content, $listenVars)
 	if($eventType === Message::GET_RELATIONS_FOR_ELEMENT)
 		return $dbGlobal->GetCitingRelations($content[0], $content[1]);
 
-	if($eventType === Message::GET_WAYS_FOR_NODE)
+	if($eventType === Message::GET_WAY_IDS_FOR_NODE)
 		return $dbGlobal->GetCitingWaysOfNode($content);
 
 	if($eventType === Message::CHECK_ELEMENT_EXISTS)
@@ -179,6 +185,12 @@ function MapDatabaseEventHandler($eventType, $content, $listenVars)
 
 	if($eventType === Message::PURGE_MAP)
 		return $dbGlobal->Purge();
+
+	if($eventType === Message::GET_ELEMENT_FULL_DATA)
+		return $dbGlobal->GetFullDetailsOfElement($content);
+
+	if($eventType === Message::GET_ELEMENT_FULL_PARENT_DATA)
+		return $dbGlobal->GetFullParentsOfElement($content);
 
 	if($eventType === Message::SCRIPT_END)
 	{

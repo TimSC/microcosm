@@ -7,7 +7,7 @@ class Message
 	const GET_OBJECT_BY_ID = 1;
 	const GET_FULL_HISTORY = 2;
 	const GET_RELATIONS_FOR_ELEMENT = 3;
-	const GET_WAYS_FOR_NODE = 4;
+	const GET_WAY_IDS_FOR_NODE = 4;
 	const CHECK_ELEMENT_EXISTS = 5;
 	const GET_CURRENT_ELEMENT_VER = 6;
 	const GET_ELEMENT_BBOX = 7;
@@ -16,8 +16,12 @@ class Message
 	const DELETE_ELEMENT = 10;
 	const DUMP = 11;
 	const PURGE_MAP = 12;
-	const ELEMENT_UPDATE_DONE = 13;
-	const ELEMENT_UPDATE_PARENTS = 14;
+	const ELEMENT_UPDATE_PRE_APPLY = 13;
+	const ELEMENT_UPDATE_DONE = 14;
+	const ELEMENT_UPDATE_PARENTS = 15;
+	const ELEMENT_UPDATE_PRE_APPLY_RICH_DATA = 16;
+	const GET_ELEMENT_FULL_DATA = 17; //CHILD DATA
+	const GET_ELEMENT_FULL_PARENT_DATA = 18;
 
 	//Changeset messages
 	const CHANGESET_IS_OPEN = 100;
@@ -58,6 +62,8 @@ class Message
 
 	//OSM API
 	const API_EVENT = 600;
+	const WEB_RESPONSE_TO_CLIENT = 601;
+	const FLUSH_RESPONSE_TO_CLIENT = 602;
 
 	//Map modification functions
 	const API_CHANGESET_OPEN = 700;
@@ -81,11 +87,19 @@ class MessagePump
 	{
 		$this->buffer = array();
 		$this->listeners = array();
+
+		if(True)
+		{
+			$this->log = fopen("messagelog.txt","at");
+			if($this->log) fwrite($this->log,"-------\n");
+		}
+		else $this->log = False;
 	}
 
 	function __destruct()
 	{
 		$this->Process();
+		if($this->log) fflush($this->log);
 	}
 
 	function Add($event)
@@ -103,6 +117,7 @@ class MessagePump
 
 	function ProcessSingleEvent($event)
 	{
+		if($this->log) fwrite($this->log, $event->type."\n");
 		//echo $event->type."\n";
 		if(!isset($this->listeners[$event->type])) return Null;
 		$ret = Null;

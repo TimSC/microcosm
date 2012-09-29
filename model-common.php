@@ -199,6 +199,63 @@ abstract class OsmDatabaseCommon
 		return $bbox;
 	}
 
+	function GetFullDetailsOfElement($firstObj,$depth = 0,$maxDepth=5)
+	{
+		if(!is_object($firstObj)) throw new Exception("Parent object must be defined");
+		//echo $type.$id."\n";
+		//if($depth > $maxDepth) return Null;
+		//$firstObj = $this->GetElementById($type,(int)$id, Null);
+
+		//print_r($firstObj);
+		if($firstObj===null or $firstObj===0) return "not-found";
+		if($firstObj===-2) return "gone";
+
+		//Get members recursively
+		$out = array($firstObj);
+		foreach($firstObj->members as $data)
+		{
+			$memtype = $data[0];
+			$memid = $data[1];
+			$memObj = $this->GetElementById($memtype,(int)$memid, Null);
+			if(!is_object($memObj)) throw new Exception("Return type is not object, as expected");
+
+			$obj = $this->GetFullDetailsOfElement($memObj,$depth,$maxDepth);
+			if(!is_array($obj)) throw new Exception("Return type is not array, as expected");
+			$out = array_merge($out,$obj);
+
+			if(count($out) > 10000) throw new Exception("Buffer too large. Halting to protect data.");
+		}
+		return $out;
+	}
+
+	function GetFullParentsOfElement($firstObj,$maxHeight=5)
+	{
+		if(!is_object($firstObj)) throw new Exception("Initial object must be defined");
+
+		$id = $firstObj->attr['id'];
+		$type = $firstObj->GetType();
+		$queryObjs = array($firstObj);
+		
+		#If this is a node, get parent ways
+		if($type=="node") 
+		{
+			$queryObjs = array_merge($queryObjs, $this->GetParentWaysOfNodes($queryObjs));
+		}
+
+		$out = $queryObjs;
+
+		#Recursively get relations
+		$height = 0;
+		while(count($queryObjs)>0 and $height < $maxHeight)
+		{
+			$rels = $this->GetParentRelations($queryObjs);
+			$queryObjs = $rels;
+			$out = array_merge($out, $rels);
+			$height++;
+		}
+		return $out;
+	}
+
 	public abstract function CheckPermissions();
 
 	//***********************

@@ -268,6 +268,7 @@ class BboxDatabaseSqlite
 		//Begin transaction
 		$this->BeginTransactionIfNotAlready();
 		$countInserts = 0;
+		if(!is_array($bboxModifiedEls)) throw new Exception("Updated elements should be in array");
 
 		foreach($bboxModifiedEls as $el)
 		{
@@ -491,6 +492,38 @@ class RichEditProcessor
 
 	function HandleEvent($eventType, $content, $listenVars)
 	{
+		if($eventType === Message::ELEMENT_UPDATE_PRE_APPLY)
+		{
+			$type = $content[0];
+			$eid = (int)$content[1];
+			$obj = $content[2];
+			if(!is_object($obj)) throw new Exception("Input object of wrong type");
+
+			#Get existing version of element
+			$oldobj = CallFuncByMessage(Message::GET_OBJECT_BY_ID, array($type, $eid, Null));
+
+			#Get parents of modified element
+			$parents = CallFuncByMessage(Message::GET_ELEMENT_FULL_PARENT_DATA, $obj);
+			$fi=fopen("test.xml","wt");
+			fwrite($fi,$type." ".$eid." ".print_r($oldobj,True)." ".print_r($parents,True));
+			fflush($fi);
+			
+			#Get full children details related to these parents
+			$children = array();
+			//if(is_object($oldobj)) $parentsAndSelf = array_merge(array($oldobj), $parents);
+			$parentsAndSelf = array_merge(array($obj), $parents);
+			foreach($parentsAndSelf as $el)
+			{
+				if(!is_object($el)) throw new Exception("Cannot get full details of non-object");
+				$elchildren = CallFuncByMessage(Message::GET_ELEMENT_FULL_DATA, $el);
+				$children = array_merge($children, $elchildren);
+			}
+
+			#Send data to message pump
+			CallFuncByMessage(Message::ELEMENT_UPDATE_PRE_APPLY_RICH_DATA, array($type,$eid,$oldobj,$obj,$parents,$children));
+
+		}
+
 		if($eventType === Message::ELEMENT_UPDATE_DONE)
 		{
 			//Check if any listeners are waiting for this data
@@ -503,33 +536,12 @@ class RichEditProcessor
 			$eid = (int)$content[1];
 			$obj = $content[2];
 
-			$parents = $this->GetParents($type, $eid, $obj);
+			$parents = CallFuncByMessage(Message::GET_ELEMENT_FULL_PARENT_DATA, $obj);
 
 			CallFuncByMessage(Message::ELEMENT_UPDATE_PARENTS, array($type, $eid, $obj, $parents));
 			}
 		}
 
-	}
-
-	function GetParents($type, $eid, $obj)
-	{
-		//echo $type.$eid."\n";
-		$out = array();
-
-		//Get parent ways
-		if($type == "node")
-		{
-			$pways = CallFuncByMessage(Message::GET_WAYS_FOR_NODE, $eid);
-			array_merge($out, $pways);
-		}
-
-		//Get parent relations
-		//TODO should relations be done recursively?
-		$prelations = CallFuncByMessage(Message::GET_RELATIONS_FOR_ELEMENT, array($type, $eid));
-		array_merge($out, $prelations);
-	
-		//print_r($out);
-		return $out;
 	}
 
 }
@@ -541,15 +553,201 @@ function RichEditEventHandler($eventType, $content, $listenVars)
 	if($richGlobal === Null)
 		$richGlobal = new RichEditProcessor();
 
+	$richGlobal->HandleEvent($eventType, $content, $listenVars);
+
 	if($eventType === Message::SCRIPT_END)
 	{
 		unset($richGlobal);
 		$richGlobal = Null;
 	}
-	else
+}
+
+//***********************************************
+
+class ElementSet //Adding elements to a set automatically removes duplicates
+{
+	function __construct()
 	{
-		$richGlobal->HandleEvent($eventType, $content, $listenVars);
+		$this->Clear();
+	}
+
+	function __destruct()
+	{
+
+	}
+
+	function Clear()
+	{
+		$this->members = array();
+		$this->cnt = 0;
+		$this->addCalls = 0;
+	}
+
+	function Add($el)
+	{
+		$this->addCalls ++;
+		$ty = $el->GetType();
+		if(!isset($this->members[$ty])) $this->members[$ty] = array();
+		$id = $el->attr['id'];
+		if(!isset($this->members[$ty][$id])) $this->members[$ty][$id] = array();
+		$version = $el->attr['version'];
+		if(!isset($this->members[$ty][$id][$version]))
+		{	
+			$this->cnt ++;
+		}
+		$this->members[$ty][$id][$version] = $el;
+	}
+
+	function GetElements()
+	{
+		$out = array();
+		foreach($this->members as $type=>$ids)
+			foreach($ids as $id=>$vers)
+				foreach($vers as $ver=>$obj)
+					array_push($out, $obj);
+		return $out;
+	}
+
+	function ElementIsSet($ty,$id,$version)
+	{
+		return isset($this->members[$ty][$id][$version]);
 	}
 }
+
+//***********************************************
+
+class RichEditLogger
+{
+	function __construct()
+	{
+		$this->newSet = new ElementSet();
+		$this->oldSet = new ElementSet();
+		$this->parentsSet = new ElementSet();
+		$this->childrenSet = new ElementSet();
+		$this->test = 0;
+	}
+
+	function __destruct()
+	{
+		
+	}
+
+	function Flush()
+	{
+		$fi = fopen("diff.xml","wt");
+		fwrite($fi,"<richosm>\n");
+		fwrite($fi,"<new>\n");
+
+		foreach($this->newSet->GetElements() as $el)
+			fwrite($fi, $el->ToXmlString());
+		fwrite($fi,"</new>\n");
+
+		fwrite($fi,"<old>\n");
+		foreach($this->oldSet->GetElements() as $el)
+			fwrite($fi, $el->ToXmlString());
+		fwrite($fi,"</old>\n");
+
+		fwrite($fi,"<parents>\n");
+		foreach($this->parentsSet->GetElements() as $el)
+			if(!$this->newSet->ElementIsSet($el->GetType(),$el->attr['id'],$el->attr['version']))
+				fwrite($fi, $el->ToXmlString());
+		fwrite($fi,"</parents>\n");
+
+		fwrite($fi,"<children>\n");
+		foreach($this->childrenSet->GetElements() as $el)
+			if(!$this->newSet->ElementIsSet($el->GetType(),$el->attr['id'],$el->attr['version'])
+				and !$this->parentsSet->ElementIsSet($el->GetType(),$el->attr['id'],$el->attr['version']))
+					fwrite($fi, $el->ToXmlString());
+		fwrite($fi,"</children>\n");
+		fwrite($fi,"</richosm>\n");
+		fflush($fi);
+
+		$this->newSet->Clear();
+		$this->oldSet->Clear();
+		$this->parentsSet->Clear();
+		$this->childrenSet->Clear();
+
+	}
+
+	function HandleEvent($eventType, $content, $listenVars)
+	{
+		if($eventType==Message::ELEMENT_UPDATE_PRE_APPLY_RICH_DATA)
+		{
+			$this->test ++;
+			$type = $content[0];
+			$eid = $content[1];
+			$oldobj = $content[2];
+			$obj = $content[3];
+			$parents = $content[4];
+			$children = $content[5];
+
+			$this->newSet->Add($obj);
+			if(is_object($oldobj)) $this->oldSet->Add($oldobj);
+			foreach($parents as $el)
+				$this->parentsSet->Add($el);
+			foreach($children as $el)
+				$this->childrenSet->Add($el);
+
+			/*$fi = fopen("diff2.xml","wt");
+			fwrite($fi,"<richosm>\n");
+			fwrite($fi,"<new>\n");
+			fwrite($fi, $obj->ToXmlString());
+			fwrite($fi,"</new>\n");
+			if(is_object($oldobj))
+			{
+				fwrite($fi,"<old>\n");
+				fwrite($fi, $oldobj->ToXmlString());
+				fwrite($fi,"</old>\n");
+			}
+			fwrite($fi,"<parents>\n");
+			foreach($parents as $el)
+				fwrite($fi, $el->ToXmlString());
+			fwrite($fi,"</parents>\n");
+			fwrite($fi,"<children>\n");
+			foreach($children as $el)
+				fwrite($fi, $el->ToXmlString());
+			fwrite($fi,"</children>\n");
+			fwrite($fi,"</richosm>\n");
+			fflush($fi);*/
+
+			$numEls = $this->newSet->cnt + $this->oldSet->cnt + $this->parentsSet->cnt + $this->childrenSet->cnt;
+			if($numEls > 1000)
+				$this->Flush(); //Prevent memory getting filled with changes
+		}
+	
+		if($eventType === Message::SCRIPT_END)
+		{
+			if($this->newSet->cnt>0) $this->Flush(); //Don't bother writing empty data
+		}
+	}
+
+}
+
+$richLogGlobal = Null;
+function RichEditLoggerEventHandler($eventType, $content, $listenVars)
+{
+	global $richLogGlobal;
+	if($richLogGlobal === Null)
+	{
+		/*$fi = fopen("test.txt","at");
+		fwrite($fi,"c".time()."\n");
+		fflush($fi);
+		fclose($fi);*/
+		$richLogGlobal = new RichEditLogger();
+	}
+
+	$richLogGlobal->HandleEvent($eventType, $content, $listenVars);
+
+	if($eventType === Message::SCRIPT_END)
+	{
+		/*$fi = fopen("test.txt","at");
+		fwrite($fi,"d".time()."\n");
+		fflush($fi);
+		fclose($fi);*/
+		unset($richLogGlobal);
+		$richLogGlobal = Null;
+	}
+}
+
 
 ?>

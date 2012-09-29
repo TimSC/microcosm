@@ -123,7 +123,7 @@ function CheckCitationsIfDeleted($type, $el, &$deletedEls, &$recentlyChanged)
 	if(strcmp($type,"node")==0)
 	{
 
-		$citingWays = CallFuncByMessage(Message::GET_WAYS_FOR_NODE,(int)$id);
+		$citingWays = CallFuncByMessage(Message::GET_WAY_IDS_FOR_NODE,(int)$id);
 
 		//All citing ways must already be on the "to delete list"
 		foreach($citingWays as $wayId)
