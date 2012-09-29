@@ -3,7 +3,15 @@
 require_once('../requestprocessor.php');
 require_once('../exportfuncs.php');
 
-list ($displayName, $userId) = RequireAuth($user,$password);
+$login = Null;
+if(isset($_SERVER['PHP_AUTH_USER'])) $login = $_SERVER['PHP_AUTH_USER'];
+if(isset($options['user'])) $login = $options['user'];
+
+$pass = Null;
+if(isset($_SERVER['PHP_AUTH_PW'])) $pass = $_SERVER['PHP_AUTH_PW'];
+if(isset($options['password'])) $pass = $options['password'];
+
+list ($displayName, $userId) = RequireAuth($login,$pass);
 $userDb = UserDbFactory();
 $userData = $userDb->GetUser($userId);
 $userAdmin = $userData['admin'];
