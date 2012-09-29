@@ -21,13 +21,7 @@ if(isset($options['g'])) $_GET = CommandLineOptionsSetVar($options['g'], $_GET);
 //print_r($_GET);
 //print_r($_SERVER);
 
-$login = Null;
-if(isset($_SERVER['PHP_AUTH_USER'])) $login = $_SERVER['PHP_AUTH_USER'];
-if(isset($options['user'])) $login = $options['user'];
-
-$pass = Null;
-if(isset($_SERVER['PHP_AUTH_PW'])) $pass = $_SERVER['PHP_AUTH_PW'];
-if(isset($options['password'])) $pass = $options['password'];
+list($login, $pass) = GetUsernameAndPassword();
 
 CheckPermissions();
 
