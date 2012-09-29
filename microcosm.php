@@ -114,7 +114,8 @@ catch(Exception $e)
 }
 
 //Save console output to debug file
-$debugLog = fopen("debuglog.txt","at");
+$debugLog = False;
+if(DEBUG_MODE) $debugLog = fopen("debuglog.txt","at");
 if($debugLog) {fwrite($debugLog,ob_get_contents());}
 ob_end_clean();
 
