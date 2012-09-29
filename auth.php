@@ -7,7 +7,7 @@ require_once('config.php');
 
 function GetUsernameAndPassword()
 {
-	global $PROG_ARG_STRING;
+	global $PROG_ARG_LONG;
 	$options = getopt(PROG_ARG_STRING, $PROG_ARG_LONG);
 
 	$login = Null;

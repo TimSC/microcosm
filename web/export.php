@@ -5,7 +5,15 @@ require_once('../exportfuncs.php');
 require_once('../auth.php');
 
 list($login, $pass) = GetUsernameAndPassword();
-list ($displayName, $userId) = RequireAuth($login,$pass);
+$authRet = RequireAuth($login,$pass);
+if($authRet==-1)
+{
+	RequestAuthFromUser();
+	CallFuncByMessage(Message::FLUSH_RESPONSE_TO_CLIENT,Null); 
+	die();
+}
+
+list ($displayName, $userId) = $authRet;
 $userDb = UserDbFactory();
 $userData = $userDb->GetUser($userId);
 $userAdmin = $userData['admin'];

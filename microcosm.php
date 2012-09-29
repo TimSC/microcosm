@@ -14,7 +14,7 @@ CallFuncByMessage(Message::SCRIPT_START,Null);
 ////-------------------------
 if(DEBUG_MODE) dprint("$_SERVER",$_SERVER);
 
-global $PROG_ARG_STRING;
+global $PROG_ARG_LONG;
 $options = getopt(PROG_ARG_STRING, $PROG_ARG_LONG);
 if(isset($options['g'])) $_GET = CommandLineOptionsSetVar($options['g'], $_GET);
 
