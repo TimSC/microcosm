@@ -8,6 +8,7 @@ require_once('auth.php');
 //******************************
 //Start up functions and logging
 //******************************
+ob_start();
 
 CallFuncByMessage(Message::SCRIPT_START,Null); 
 
@@ -31,56 +32,17 @@ $urlExp = explode("/",$pathInfo);
 
 if(DEBUG_MODE) dprint("pathinfo",$pathInfo);
 
-//Log the request
-$fi = fopen("log.txt","at");
-if($fi===False)
-	throw new Exception("Failed to open log.txt file for writing: check permission.");
-flock($fi, LOCK_EX);
-fwrite($fi,GetServerRequestMethod());
-fwrite($fi,"\t");
-fwrite($fi,$pathInfo);
-fwrite($fi,"\t");
-if(isset($_SERVER['QUERY_STRING'])) fwrite($fi,$_SERVER['QUERY_STRING']);
-
-ob_start();
-var_export($_SERVER);
-$serverVarDump = ob_get_contents();
-ob_end_clean();
-//fwrite($fi,"\t");
-//fwrite($fi,$serverVarDump);
-
-ob_start();
-var_export($_POST);
-$postVarDump = ob_get_contents();
-ob_end_clean();
-fwrite($fi,"\t");
-fwrite($fi,$postVarDump);
-
 $putdata = fopen("php://input", "r");
 $putDataStr = "";
 while ($data = fread($putdata, 1024))
 {
 	$putDataStr = $putDataStr . $data;
 }
-fwrite($fi,"\t");
-fwrite($fi,$putDataStr);
-
-fwrite($fi,"\n");
-fflush($fi);
-fclose($fi);
-
-//If we are in read only mode, require GET method
-if(API_READ_ONLY and strcmp(GetServerRequestMethod(),"GET")!=0)
-{
-	header ('HTTP/1.1 503 Service Unavailable');
-	echo "API in read only mode.";
-	return;
-}
 
 //***********************
 //User Authentication
 //***********************
-ob_start();
+
 try
 {
 //Authentication, if there is a server username variable or non-GET method used
@@ -100,7 +62,7 @@ if ($login !== Null or strcmp(GetServerRequestMethod(),"GET")!=0)
 
 //This function determines with function to call based on the URL and, if it can, responds to the client.
 if(!$authFailed)
-	$processed = CallFuncByMessage(Message::API_EVENT,array($pathInfo,$urlExp,$putDataStr,$_GET,$_POST,$_FILES,$displayName,$userId));
+	CallFuncByMessage(Message::API_EVENT,array($pathInfo,$urlExp,$putDataStr,$_GET,$_POST,$_FILES,$displayName,$userId));
 }
 catch(Exception $e)
 {
@@ -112,12 +74,6 @@ $debugLog = False;
 if(DEBUG_MODE) $debugLog = fopen("debuglog.txt","at");
 if($debugLog) {fwrite($debugLog,ob_get_contents());}
 ob_end_clean();
-
-if(!$processed)
-{
-	header ('HTTP/1.1 404 Not Found');
-	echo "URL not found.";
-}
 
 CallFuncByMessage(Message::FLUSH_RESPONSE_TO_CLIENT,Null); 
 

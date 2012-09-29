@@ -57,6 +57,14 @@ class RequestProcessor
 		$urlButNotMethodMatched = 0;
 		$urlMatchedAllowedMethod = null;
 
+		//If we are in read only mode, require GET method
+		if(API_READ_ONLY and strcmp(GetServerRequestMethod(),"GET")!=0)
+		{
+			CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array("API in read only mode.",
+				array('HTTP/1.1 503 Service Unavailable',"Content-Type:text/plain")));
+			return;
+		}
+
 		foreach ($this->methods as $methodEntry)
 		{
 			$urlMatch = $this->DoesUrlMatchPattern($url, $methodEntry['url']);
@@ -90,7 +98,7 @@ class RequestProcessor
 			{
 				$body = "Internal server error: ".$e->getMessage()."\n";
 				CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($body,
-					array('HTTP/1.1 500 Internal Server Error',"Content-Type:text/plain")));
+					array("Content-Type:text/plain",'HTTP/1.1 500 Internal Server Error')));
 
 				if(DEBUG_MODE) print_r($e->getTrace());
 				return 1;
@@ -127,6 +135,9 @@ class RequestProcessor
 				array('HTTP/1.1 405 Method Not Allowed',"Content-Type:text/plain")));
 			return 1;
 		}
+
+		CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array("URL not found.",
+			array("Content-Type:text/plain",'HTTP/1.1 404 Not Found')));
 
 	}
 }
