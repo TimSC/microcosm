@@ -394,13 +394,18 @@ function WebResponseEventHandler($eventType, $content, $listenVars)
 		foreach($globalHeaderBuffer as $headerline) header($headerline);
 		echo $globalResponseBuffer;
 
-		$fi = fopen("webresponse.txt","wt");
-		foreach($globalHeaderBuffer as $headerline) 
-			fwrite($fi, $headerline);
-		fwrite($fi, $globalResponseBuffer);
-		fclose($fi);
-	}	
-
+		$enableLogging = True;
+		if($enableLogging)
+		{
+			$fi = fopen("responselog.txt","at");
+			#foreach($globalHeaderBuffer as $headerline) 
+			#	fwrite($fi, $headerline);
+			#fwrite($fi, $globalResponseBuffer);
+			fwrite($fi, str_replace("\n","&#10;",serialize($globalHeaderBuffer))."\n");
+			fwrite($fi, str_replace("\n","&#10;",serialize($globalResponseBuffer))."\n");
+			fclose($fi);
+		}
+	}
 }
 
 //*****************************
@@ -410,6 +415,17 @@ function WebResponseEventHandler($eventType, $content, $listenVars)
 $requestProcessor = Null;
 function ApiEventHandler($eventType, $content, $listenVars)
 {
+	//Logging
+	$enableLogging = True;
+	if($enableLogging)
+	{
+		$fi = fopen("apilog.txt","at");
+		fwrite($fi, str_replace("\n","&#10;",serialize($eventType))."\n");
+		fwrite($fi, str_replace("\n","&#10;",serialize($content))."\n");
+		fwrite($fi, str_replace("\n","&#10;",serialize($listenVars))."\n");
+		fclose($fi);
+	}
+
 	global $requestProcessor;
 	if($requestProcessor===Null)
 	{
