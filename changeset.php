@@ -325,7 +325,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId)
 		if($ret==0) return array(0,null,"object-not-found",$type,$id);
 	
 		//Check if deleting stuff will break ways
-		if(strcmp($action,"delete")==0)
+		if(strcmp($action,"delete")==0 and !$ifUnusedIsSet)
 		{
 		$ret = CheckCitationsIfDeleted($type, $el, $deletedEls, $recentlyChanged);
 		if($ret!=1) return $ret;
@@ -351,6 +351,7 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 	{
 		$action = $eldata[0];
 		$els = &$eldata[1];
+		$ifUnusedIsSet = $eldata[2];
 
 		//Set timestamp of object
 		foreach($els as $i2 => $el)
@@ -419,6 +420,9 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 		{
 			foreach($els as $i2 => $el)
 			{
+				//If the "if-unused" flag is set, check if this element is ready for delete
+				//TODO
+
 				$type = $el->GetType();
 				$oldid = (int)$el->attr['id'];
 
@@ -462,7 +466,7 @@ function GetBboxOfReferencedElements($osmchange)
 	$bbox= null;
 	foreach($osmchange->data as $data)
 	{
-		list($method, $els) = $data;
+		list($method, $els, $ifUnusedIsSet) = $data;
 		//if(strcmp($method,"create")==0)
 		foreach($els as $el)
 		{
@@ -490,7 +494,7 @@ function ApplyChangeToDatabase(&$osmchange)
 	//For each element
 	foreach($osmchange->data as $data)
 	{
-		list($method, $els) = $data;
+		list($method, $els, $ifUnusedIsSet) = $data;
 		if(strcmp($method,"create")==0)
 		foreach($els as $el)
 		{
@@ -520,6 +524,9 @@ function ApplyChangeToDatabase(&$osmchange)
 		if(strcmp($method,"delete")==0)
 		foreach($els as $el)
 		{
+			//If the "if-unused" flag is set, check if this element is ready for delete
+			//TODO
+
 			$type = $el->GetType();
 			$value = simplexml_load_string($el->ToXmlString());
 			$el->attr['visible'] = "false";
