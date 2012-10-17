@@ -268,6 +268,8 @@ class OsmChange
 			if($action!="create" and $action != "modify" and $action != "delete")
 				throw new InvalidArgumentException("Action must be create, modify or delete, not ".$action);
 
+			$ifUnusedSet = isset($elements['if_unused']);
+
 			$elsInAction = array();
 			//For each element in the action
 			foreach($elements as $type => $elxml)
@@ -278,7 +280,7 @@ class OsmChange
 				//echo $el->ToXmlString();
 				array_push($elsInAction,$el);
 			}
-			array_push($this->data, array($action,$elsInAction));
+			array_push($this->data, array($action, $elsInAction, $ifUnusedSet));
 		}
 
 		//print_r($this->data);

@@ -211,6 +211,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId)
 	{
 		$action = $data[0];
 		$els = $data[1];
+		$ifUnusedIsSet = $data[2];
 
 		//Has at least one action?
 
@@ -585,7 +586,7 @@ function ProcessSingleObjectBackend($userInfo, $args)
 	$osmchange = new OsmChange();
 	$osmchange->version = 0.6;
 	$singleObj = SingleObjectFromXml($data);
-	array_push($osmchange->data,array($method,array($singleObj)));
+	array_push($osmchange->data,array($method,array($singleObj),False));
 	$cid = null;
 	
 	//Process OsmChange
