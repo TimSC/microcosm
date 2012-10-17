@@ -342,6 +342,64 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId)
 	return 1;
 }
 
+function CheckConditionalDeletes($osmchange)
+{
+	//This function deals with deletes that are only executed if they are unused objects
+	
+	$recentlyChanged = array();
+	$deletedEls = array();
+	$out = $osmchange;
+	//$out->data = array();
+	return $osmchange;
+	
+	//For each action,
+	foreach($osmchange->data as $i => $data)
+	{
+		$action = $data[0];
+		$els = $data[1];
+		$ifUnusedIsSet = $data[2];
+		$filteredEls = array();
+
+		//For each object in an action
+		foreach($els as $i2 => $el)
+		{
+		$type = $el->GetType();
+		$id = $el->attr['id'];
+		$ver = null;
+		if(isset($el->attr['version']))	$ver = $el->attr['version'];
+
+		if(strcmp($action,"modify")==0)
+			$recentlyChanged[$type.$id] = $el;
+
+		//Store deleted objects
+		if(strcmp($action,"delete")==0)
+			$deletedEls[$type.$id] = 1;
+
+		if($action == "delete")
+		{
+			$checkDelete = CheckCitationsIfDeleted($type, $el, $deletedEls, $recentlyChanged);
+
+			if($checkDelete == 1)
+			{
+				array_push($filteredEls, $el);
+			}
+			else
+			{
+				if(!$ifUnusedIsSet) throw new Exception("Deleting this object would break parents");
+			}
+		}
+		else array_push($filteredEls, $el);
+
+		}
+
+		$filteredAction = $data;
+		$filteredAction[1] = $filteredEls;
+		array_push($out->data, $data);
+	}
+	return $osmchange;
+	return $out;
+}
+
 function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 {
 	$idmapping = array();
@@ -559,6 +617,9 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 	{
 		return array(0,null,"bad-request",$e);
 	}
+
+	//Check each deleted object to see if it is deletable (for "if-unused")
+	$osmchange = CheckConditionalDeletes($osmchange);
 
 	//Assign IDs to created objects
 	$changes = AssignIdsToOsmChange($osmchange,$displayName,$userId);
