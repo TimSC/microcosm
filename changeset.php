@@ -345,12 +345,10 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId)
 function CheckConditionalDeletes($osmchange)
 {
 	//This function deals with deletes that are only executed if they are unused objects
-	
 	$recentlyChanged = array();
 	$deletedEls = array();
-	$out = $osmchange;
-	//$out->data = array();
-	return $osmchange;
+	$out = clone $osmchange;
+	$out->data = array();
 	
 	//For each action,
 	foreach($osmchange->data as $i => $data)
@@ -366,7 +364,7 @@ function CheckConditionalDeletes($osmchange)
 		$type = $el->GetType();
 		$id = $el->attr['id'];
 		$ver = null;
-		if(isset($el->attr['version']))	$ver = $el->attr['version'];
+		if(isset($el->attr['version'])) $ver = $el->attr['version'];
 
 		if(strcmp($action,"modify")==0)
 			$recentlyChanged[$type.$id] = $el;
@@ -374,6 +372,12 @@ function CheckConditionalDeletes($osmchange)
 		//Store deleted objects
 		if(strcmp($action,"delete")==0)
 			$deletedEls[$type.$id] = 1;
+
+		if($action == "delete" and !$ifUnusedIsSet)
+		{
+			array_push($filteredEls, $el);
+			continue; //Don't bother processing objects in this case
+		}
 
 		if($action == "delete")
 		{
@@ -396,7 +400,6 @@ function CheckConditionalDeletes($osmchange)
 		$filteredAction[1] = $filteredEls;
 		array_push($out->data, $data);
 	}
-	return $osmchange;
 	return $out;
 }
 

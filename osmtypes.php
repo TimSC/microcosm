@@ -240,8 +240,11 @@ function OsmElementFactory($type)
 
 class OsmChange
 {
-	public $data = array();
-	public $version = null;
+	function __construct()
+	{
+		$this->data = array();
+		$this->version = null;
+	}
 
 	public function FromXmlString($input)
 	{
