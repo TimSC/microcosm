@@ -357,6 +357,7 @@ function CheckConditionalDeletes($osmchange)
 		$els = $data[1];
 		$ifUnusedIsSet = $data[2];
 		$filteredEls = array();
+		//print_r($action.",".($ifUnusedIsSet==True));
 
 		//For each object in an action
 		foreach($els as $i2 => $el)
@@ -365,6 +366,7 @@ function CheckConditionalDeletes($osmchange)
 		$id = $el->attr['id'];
 		$ver = null;
 		if(isset($el->attr['version'])) $ver = $el->attr['version'];
+
 
 		if(strcmp($action,"modify")==0)
 			$recentlyChanged[$type.$id] = $el;
@@ -614,11 +616,9 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 	{
 	$valret = ValidateOsmChange($osmchange,$cid,$displayName,$userId);
 	if($valret != 1)
-		return $valret;
-	}
-	catch (Exception $e)
 	{
-		return array(0,null,"bad-request",$e);
+		print_r(explode(",",$valret));
+		return array_merge(array(0,null),explode(",",$valret));
 	}
 
 	//Check each deleted object to see if it is deletable (for "if-unused")
@@ -642,6 +642,11 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 		ExpandChangesetBbox($cid,$bbox);
 
 	return array(1,$changes);
+	}
+	catch (Exception $e)
+	{
+		return array(0,null,"bad-request",$e);
+	}
 }
 
 function ProcessSingleObjectBackend($userInfo, $args)

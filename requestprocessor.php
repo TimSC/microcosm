@@ -93,6 +93,8 @@ class RequestProcessor
 			{
 				$userInfo = array('userId'=>$userId, 'displayName'=>$displayName);
 				$response = call_user_func($methodEntry['func'],$userInfo,$methodEntry['arg']);
+				//print_r($methodEntry['func']);
+				//print_r($response);
 			}
 			catch (Exception $e)
 			{
@@ -147,7 +149,7 @@ class RequestProcessor
 
 function TranslateErrorToHtml(&$response)
 {
-	print_r($response);
+	//print_r($response);
 	$body = Null;
 	$head = array("Content-Type:text/plain");
 
@@ -263,9 +265,9 @@ function TranslateErrorToHtml(&$response)
 	if($body === Null)
 	{
 		//Default error
-		$body = "Internal server error: ".$response[2];
-		for($i=3;$i<count($response);$i++) $body .= ",".$response[$i];
-		array_merge($head,array('HTTP/1.1 500 Internal Server Error',"Content-Type:text/plain"));
+		$body = "Internal server error: ".print_r($response,1);
+		//for($i=3;$i<count($response);$i++) $body .= ",".$response[$i];
+		array_merge($head,array('HTTP/1.1 500 Internal Server Error'));
 	}
 	CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($body,$head));
 }

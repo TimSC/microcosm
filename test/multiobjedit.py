@@ -51,18 +51,18 @@ def TestMultiObjectEditing(userpass, verbose=0):
 	delete = "<?xml version='1.0' encoding='UTF-8'?>\n" +\
 	"<osmChange version='0.6' generator='test'>\n" +\
 	"<delete version='0.6' generator='test'>\n" +\
-	"  <node id='{0}' version='1' changeset='"+str(cid)+"' lat='"+str(lat)+"' lon='"+str(lon)+"'/>\n".format(mapping["node-289"]) +\
+	"  <node id='{0}' version='1' changeset='{1}' lat='{2}' lon='{3}'/>\n".format(mapping["node-289"],cid,lat,lon) +\
 	"</delete>\n" +\
 	"</osmChange>\n"
 	response = Post(baseurl+"/0.6/changeset/"+str(cid)+"/upload",delete,userpass)
 	if verbose: print response
-	if HeaderResponseCode(response[1]) != "HTTP/1.1 400 Bad Request": return (0,"Error: bad delete should fail with error 400")
+	if HeaderResponseCode(response[1]) != "HTTP/1.1 412 Precondition failed": return (0,"Error: bad delete should fail with error 412")
 
 	#Test conditional delete (which should do nothing)
 	delete = "<?xml version='1.0' encoding='UTF-8'?>\n" +\
 	"<osmChange version='0.6' generator='test'>\n" +\
 	"<delete version='0.6' generator='test' if-unused='true'>\n" +\
-	"  <node id='{0}' version='1' changeset='"+str(cid)+"' lat='"+str(lat)+"' lon='"+str(lon)+"'/>\n".format(mapping["node-289"]) +\
+	"  <node id='{0}' version='1' changeset='{1}' lat='{2}' lon='{3}'/>\n".format(mapping["node-289"],cid,lat,lon) +\
 	"</delete>\n" +\
 	"</osmChange>\n"
 	response = Post(baseurl+"/0.6/changeset/"+str(cid)+"/upload",delete,userpass)
