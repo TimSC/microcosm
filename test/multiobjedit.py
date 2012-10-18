@@ -1,12 +1,13 @@
 import sys
 sys.path.append( "." )
 from urlutil import *
+import xml.etree.ElementTree as ET
 
 def TestMultiObjectEditing(userpass, verbose=0):
 
 	#Create a changeset
 	createChangeset = "<?xml version='1.0' encoding='UTF-8'?>\n" +\
-	"<osm version='0.6' generator='JOSM'>\n" +\
+	"<osm version='0.6' generator='test'>\n" +\
 	"  <changeset  id='0' open='false'>\n" +\
 	"    <tag k='comment' v='python test function' />\n" +\
 	"    <tag k='created_by' v='JOSM/1.5 (3592 en_GB)' />\n" +\
@@ -23,8 +24,8 @@ def TestMultiObjectEditing(userpass, verbose=0):
 
 	#Create a way between two nodes
 	create = "<?xml version='1.0' encoding='UTF-8'?>\n" +\
-	"<osmChange version='0.6' generator='JOSM'>\n" +\
-	"<create version='0.6' generator='JOSM'>\n" +\
+	"<osmChange version='0.6' generator='test'>\n" +\
+	"<create version='0.6' generator='test'>\n" +\
 	"  <node id='-289' changeset='"+str(cid)+"' lat='"+str(lat)+"' lon='"+str(lon)+"' />\n" +\
 	"  <node id='-2008' changeset='"+str(cid)+"' lat='51.2419166618214' lon='-0.5910182209303836' />\n"+\
 	"  <way id='-2010' changeset='"+str(cid)+"'>\n"+\
@@ -39,6 +40,34 @@ def TestMultiObjectEditing(userpass, verbose=0):
 	#wayId = int(response[0])
 	print response[0]
 	
+	#Parse XML response
+	root = ET.fromstring(response[0])
+	mapping = {}
+	for obj in root:
+		#print obj.attrib['old_id'], obj.attrib['new_id']
+		mapping[obj.tag+obj.attrib['old_id']] = obj.attrib['new_id']
+
+	#Test delete checking (which should fail)
+	delete = "<?xml version='1.0' encoding='UTF-8'?>\n" +\
+	"<osmChange version='0.6' generator='test'>\n" +\
+	"<delete version='0.6' generator='test'>\n" +\
+	"  <node id='{0}' version='1' changeset='"+str(cid)+"' lat='"+str(lat)+"' lon='"+str(lon)+"'/>\n".format(mapping["node-289"]) +\
+	"</delete>\n" +\
+	"</osmChange>\n"
+	response = Post(baseurl+"/0.6/changeset/"+str(cid)+"/upload",delete,userpass)
+	if verbose: print response
+	if HeaderResponseCode(response[1]) != "HTTP/1.1 400 Bad Request": return (0,"Error: bad delete should fail with error 400")
+
+	#Test conditional delete (which should do nothing)
+	delete = "<?xml version='1.0' encoding='UTF-8'?>\n" +\
+	"<osmChange version='0.6' generator='test'>\n" +\
+	"<delete version='0.6' generator='test' if-unused='true'>\n" +\
+	"  <node id='{0}' version='1' changeset='"+str(cid)+"' lat='"+str(lat)+"' lon='"+str(lon)+"'/>\n".format(mapping["node-289"]) +\
+	"</delete>\n" +\
+	"</osmChange>\n"
+	response = Post(baseurl+"/0.6/changeset/"+str(cid)+"/upload",delete,userpass)
+	if verbose: print response
+
 	#Close the changeset
 	response = Put(baseurl+"/0.6/changeset/"+str(cid)+"/close","",userpass)
 	if verbose: print response
@@ -46,7 +75,7 @@ def TestMultiObjectEditing(userpass, verbose=0):
 
 	return (1,"OK")
 
-
+	############## RETURN here(?)
 
 
 
