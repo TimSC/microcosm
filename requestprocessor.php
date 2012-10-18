@@ -93,6 +93,8 @@ class RequestProcessor
 			{
 				$userInfo = array('userId'=>$userId, 'displayName'=>$displayName);
 				$response = call_user_func($methodEntry['func'],$userInfo,$methodEntry['arg']);
+				//print_r($methodEntry['func']);
+				//print_r($response);
 			}
 			catch (Exception $e)
 			{
@@ -147,7 +149,7 @@ class RequestProcessor
 
 function TranslateErrorToHtml(&$response)
 {
-	print_r($response);
+	//print_r($response);
 	$body = Null;
 	$head = array("Content-Type:text/plain");
 
@@ -263,9 +265,9 @@ function TranslateErrorToHtml(&$response)
 	if($body === Null)
 	{
 		//Default error
-		$body = "Internal server error: ".$response[2];
-		for($i=3;$i<count($response);$i++) $body .= ",".$response[$i];
-		array_merge($head,array('HTTP/1.1 500 Internal Server Error',"Content-Type:text/plain"));
+		$body = "Internal server error: ".print_r($response,1);
+		//for($i=3;$i<count($response);$i++) $body .= ",".$response[$i];
+		array_merge($head,array('HTTP/1.1 500 Internal Server Error'));
 	}
 	CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($body,$head));
 }
@@ -394,13 +396,18 @@ function WebResponseEventHandler($eventType, $content, $listenVars)
 		foreach($globalHeaderBuffer as $headerline) header($headerline);
 		echo $globalResponseBuffer;
 
-		$fi = fopen("webresponse.txt","wt");
-		foreach($globalHeaderBuffer as $headerline) 
-			fwrite($fi, $headerline);
-		fwrite($fi, $globalResponseBuffer);
-		fclose($fi);
-	}	
-
+		$enableLogging = True;
+		if($enableLogging)
+		{
+			$fi = fopen("responselog.txt","at");
+			#foreach($globalHeaderBuffer as $headerline) 
+			#	fwrite($fi, $headerline);
+			#fwrite($fi, $globalResponseBuffer);
+			fwrite($fi, str_replace("\n","&#10;",serialize($globalHeaderBuffer))."\n");
+			fwrite($fi, str_replace("\n","&#10;",serialize($globalResponseBuffer))."\n");
+			fclose($fi);
+		}
+	}
 }
 
 //*****************************
@@ -410,6 +417,17 @@ function WebResponseEventHandler($eventType, $content, $listenVars)
 $requestProcessor = Null;
 function ApiEventHandler($eventType, $content, $listenVars)
 {
+	//Logging
+	$enableLogging = True;
+	if($enableLogging)
+	{
+		$fi = fopen("apilog.txt","at");
+		fwrite($fi, str_replace("\n","&#10;",serialize($eventType))."\n");
+		fwrite($fi, str_replace("\n","&#10;",serialize($content))."\n");
+		fwrite($fi, str_replace("\n","&#10;",serialize($listenVars))."\n");
+		fclose($fi);
+	}
+
 	global $requestProcessor;
 	if($requestProcessor===Null)
 	{

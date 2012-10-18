@@ -240,8 +240,11 @@ function OsmElementFactory($type)
 
 class OsmChange
 {
-	public $data = array();
-	public $version = null;
+	function __construct()
+	{
+		$this->data = array();
+		$this->version = null;
+	}
 
 	public function FromXmlString($input)
 	{
@@ -268,6 +271,8 @@ class OsmChange
 			if($action!="create" and $action != "modify" and $action != "delete")
 				throw new InvalidArgumentException("Action must be create, modify or delete, not ".$action);
 
+			$ifUnusedSet = isset($elements['if-unused']);
+
 			$elsInAction = array();
 			//For each element in the action
 			foreach($elements as $type => $elxml)
@@ -278,7 +283,7 @@ class OsmChange
 				//echo $el->ToXmlString();
 				array_push($elsInAction,$el);
 			}
-			array_push($this->data, array($action,$elsInAction));
+			array_push($this->data, array($action, $elsInAction, $ifUnusedSet));
 		}
 
 		//print_r($this->data);

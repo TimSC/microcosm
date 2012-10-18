@@ -211,6 +211,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId)
 	{
 		$action = $data[0];
 		$els = $data[1];
+		$ifUnusedIsSet = $data[2];
 
 		//Has at least one action?
 
@@ -324,7 +325,7 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId)
 		if($ret==0) return array(0,null,"object-not-found",$type,$id);
 	
 		//Check if deleting stuff will break ways
-		if(strcmp($action,"delete")==0)
+		if(strcmp($action,"delete")==0 and !$ifUnusedIsSet)
 		{
 		$ret = CheckCitationsIfDeleted($type, $el, $deletedEls, $recentlyChanged);
 		if($ret!=1) return $ret;
@@ -341,6 +342,69 @@ function ValidateOsmChange($osmchange,$cid,$displayName,$userId)
 	return 1;
 }
 
+function CheckConditionalDeletes($osmchange)
+{
+	//This function deals with deletes that are only executed if they are unused objects
+	$recentlyChanged = array();
+	$deletedEls = array();
+	$out = clone $osmchange;
+	$out->data = array();
+	
+	//For each action,
+	foreach($osmchange->data as $i => $data)
+	{
+		$action = $data[0];
+		$els = $data[1];
+		$ifUnusedIsSet = $data[2];
+		$filteredEls = array();
+		//print_r($action.",".((int)($ifUnusedIsSet==True)));
+
+		//For each object in an action
+		foreach($els as $i2 => $el)
+		{
+		$type = $el->GetType();
+		$id = $el->attr['id'];
+		$ver = null;
+		if(isset($el->attr['version'])) $ver = $el->attr['version'];
+
+
+		if(strcmp($action,"modify")==0)
+			$recentlyChanged[$type.$id] = $el;
+
+		//Store deleted objects
+		if(strcmp($action,"delete")==0)
+			$deletedEls[$type.$id] = 1;
+
+		if($action == "delete" and !$ifUnusedIsSet)
+		{
+			array_push($filteredEls, $el);
+			continue; //Don't bother processing objects in this case
+		}
+
+		if($action == "delete")
+		{
+			$checkDelete = CheckCitationsIfDeleted($type, $el, $deletedEls, $recentlyChanged);
+
+			if($checkDelete == 1)
+			{
+				array_push($filteredEls, $el);
+			}
+			else
+			{
+				if(!$ifUnusedIsSet) throw new Exception("Deleting this object would break parents");
+			}
+		}
+		else array_push($filteredEls, $el);
+
+		}
+
+		$filteredAction = $data;
+		$filteredAction[1] = $filteredEls;
+		array_push($out->data, $data);
+	}
+	return $out;
+}
+
 function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 {
 	$idmapping = array();
@@ -350,6 +414,7 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 	{
 		$action = $eldata[0];
 		$els = &$eldata[1];
+		$ifUnusedIsSet = $eldata[2];
 
 		//Set timestamp of object
 		foreach($els as $i2 => $el)
@@ -461,7 +526,7 @@ function GetBboxOfReferencedElements($osmchange)
 	$bbox= null;
 	foreach($osmchange->data as $data)
 	{
-		list($method, $els) = $data;
+		list($method, $els, $ifUnusedIsSet) = $data;
 		//if(strcmp($method,"create")==0)
 		foreach($els as $el)
 		{
@@ -489,7 +554,7 @@ function ApplyChangeToDatabase(&$osmchange)
 	//For each element
 	foreach($osmchange->data as $data)
 	{
-		list($method, $els) = $data;
+		list($method, $els, $ifUnusedIsSet) = $data;
 		if(strcmp($method,"create")==0)
 		foreach($els as $el)
 		{
@@ -519,6 +584,9 @@ function ApplyChangeToDatabase(&$osmchange)
 		if(strcmp($method,"delete")==0)
 		foreach($els as $el)
 		{
+			//If the "if-unused" flag is set, check if this element is ready for delete
+			//TODO
+
 			$type = $el->GetType();
 			$value = simplexml_load_string($el->ToXmlString());
 			$el->attr['visible'] = "false";
@@ -545,12 +613,12 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 	{
 	$valret = ValidateOsmChange($osmchange,$cid,$displayName,$userId);
 	if($valret != 1)
-		return $valret;
-	}
-	catch (Exception $e)
 	{
-		return array(0,null,"bad-request",$e);
+		return array_merge(array(0,null),explode(",",$valret));
 	}
+
+	//Check each deleted object to see if it is deletable (for "if-unused")
+	$osmchange = CheckConditionalDeletes($osmchange);
 
 	//Assign IDs to created objects
 	$changes = AssignIdsToOsmChange($osmchange,$displayName,$userId);
@@ -570,6 +638,11 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 		ExpandChangesetBbox($cid,$bbox);
 
 	return array(1,$changes);
+	}
+	catch (Exception $e)
+	{
+		return array(0,null,"bad-request",$e);
+	}
 }
 
 function ProcessSingleObjectBackend($userInfo, $args)
@@ -585,7 +658,7 @@ function ProcessSingleObjectBackend($userInfo, $args)
 	$osmchange = new OsmChange();
 	$osmchange->version = 0.6;
 	$singleObj = SingleObjectFromXml($data);
-	array_push($osmchange->data,array($method,array($singleObj)));
+	array_push($osmchange->data,array($method,array($singleObj),False));
 	$cid = null;
 	
 	//Process OsmChange
