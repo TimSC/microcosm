@@ -271,7 +271,7 @@ class OsmChange
 			if($action!="create" and $action != "modify" and $action != "delete")
 				throw new InvalidArgumentException("Action must be create, modify or delete, not ".$action);
 
-			$ifUnusedSet = isset($elements['if_unused']);
+			$ifUnusedSet = isset($elements['if-unused']);
 
 			$elsInAction = array();
 			//For each element in the action

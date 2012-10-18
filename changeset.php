@@ -357,7 +357,7 @@ function CheckConditionalDeletes($osmchange)
 		$els = $data[1];
 		$ifUnusedIsSet = $data[2];
 		$filteredEls = array();
-		//print_r($action.",".($ifUnusedIsSet==True));
+		//print_r($action.",".((int)($ifUnusedIsSet==True)));
 
 		//For each object in an action
 		foreach($els as $i2 => $el)
@@ -483,9 +483,6 @@ function AssignIdsToOsmChange(&$osmchange,$displayName,$userId)
 		{
 			foreach($els as $i2 => $el)
 			{
-				//If the "if-unused" flag is set, check if this element is ready for delete
-				//TODO
-
 				$type = $el->GetType();
 				$oldid = (int)$el->attr['id'];
 
@@ -617,7 +614,6 @@ function ProcessOsmChange($cid,$osmchange,$displayName,$userId)
 	$valret = ValidateOsmChange($osmchange,$cid,$displayName,$userId);
 	if($valret != 1)
 	{
-		print_r(explode(",",$valret));
 		return array_merge(array(0,null),explode(",",$valret));
 	}
 
