@@ -55,11 +55,6 @@ class OAuthMicrocosm
 		$this->dataStore = new OAuthMicrocosmStore();
 	}
 
-	function lookupConsumer($provider)
-	{
-
-	}
-	
 	function RequestToken()
 	{
 		try
@@ -87,6 +82,16 @@ class OAuthMicrocosm
 			die();
 		}
 	}
+
+	function AccessToken()
+	{
+
+	}
+
+	function Authorise()
+	{
+
+	}
 }
 
 //Split URL for processing
@@ -105,6 +110,18 @@ if($urlExp[1] == "request_token")
 	//	echo "login_url=https://localhost/m/oauth.php/authorize&oauth_token=".uniqid(mt_rand(), true).
 	//		'&oauth_token_secret='.uniqid(mt_rand(), true).
 	//		'&oauth_callback_confirmed=true';
+}
+
+if($urlExp[1] == "access_token")
+{
+	$oam = new OAuthMicrocosm();
+	$error = $oam->AccessToken();
+}
+
+if($urlExp[1] == "authorize")
+{
+	$oam = new OAuthMicrocosm();
+	$error = $oam->Authorise();
 }
 
 fclose($fi);
