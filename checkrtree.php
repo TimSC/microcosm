@@ -29,7 +29,7 @@ try
 SqliteDropTableIfExists($dbh, "test");
 }
 catch (Exception $e) {
-    echo 'Caught exception: ',  $e->getMessage(), "\n";
+    echo 'Caught exception: ',  ($e->getMessage()), "\n";
 }
 
 $sql="CREATE VIRTUAL TABLE position USING rtree(id,minLat,maxLat,minLon,maxLon);";

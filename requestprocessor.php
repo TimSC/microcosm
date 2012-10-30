@@ -98,7 +98,7 @@ class RequestProcessor
 			}
 			catch (Exception $e)
 			{
-				$body = "Internal server error: ".$e->getMessage()."\n";
+				$body = "Internal server error: ".($e->getMessage())."\n";
 				CallFuncByMessage(Message::WEB_RESPONSE_TO_CLIENT, array($body,
 					array("Content-Type:text/plain",'HTTP/1.1 500 Internal Server Error')));
 

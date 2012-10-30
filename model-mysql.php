@@ -21,7 +21,7 @@ class OsmDatabaseMysql extends OsmDatabaseCommon
                   
 		$this->dbh = new PDO('mysql://dbname='.MYSQL_DB_NAME.';host='.MYSQL_SERVER.';', MYSQL_USER, MYSQL_PASSWORD);
 		} catch (PDOException $e) {
-		    throw new Exception ('Connection failed: ' . $e->getMessage());
+		    throw new Exception ('Connection failed: ' . ($e->getMessage()));
 		}
                 $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 

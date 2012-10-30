@@ -101,7 +101,7 @@ catch (Exception $e)
 {
 	header('HTTP/1.1 500 Internal Server Error');
 	header("Content-Type:text/plain");
-	echo "Internal server error: ".$e->getMessage()."\n";
+	echo "Internal server error: ".($e->getMessage())."\n";
         dprint("getTrace",$e->getTrace());
 }
 
