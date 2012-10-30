@@ -1,5 +1,5 @@
 <?php
-//require_once('OAuth.php');
+require_once('OAuth.php');
 require_once('fileutils.php');
 require_once('system.php');
 
