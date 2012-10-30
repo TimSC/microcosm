@@ -7,8 +7,8 @@ class OAuthMicrocosm
 {
 	function __construct()
 	{
-
-	}	 	
+		$this->dataStore = new SimpleOAuthDataStore();
+	}
 
 	function lookupConsumer($provider)
 	{
@@ -21,36 +21,12 @@ class OAuthMicrocosm
 		return OAUTH_OK;
 	}
 	
-	function timestampNonceChecker()
+	function RequestToken()
 	{
-
+		$server = new OAuthServer();
+		$token = $server->requestToken();
+		echo $token;
 	}
-
-	function tokenHandler()
-	{
-
-	}
-
-	function Process($pathInfo)
-	{
-		try
-		{
-			$this->provider = new OAuthProvider();
-			$this->provider->consumerHandler(array($this,'lookupConsumer'));	
-			$this->provider->timestampNonceHandler(array($this,'timestampNonceChecker'));
-			$this->provider->tokenHandler(array($this,'tokenHandler'));
-			$this->provider->setRequestTokenPath('/request_token');  // No token needed for this end point
-			$this->provider->checkOAuthRequest();
-		} 
-		catch (OAuthException $E)
-		{
-			echo OAuthProvider::reportProblem($E);
-			return true;
-		}
-		return false;
-	}
-
-
 
 }
 
@@ -66,7 +42,7 @@ fwrite($fi,print_r($pathInfo,True));
 if($urlExp[1] == "request_token")
 {
 	$oam = new OAuthMicrocosm();
-	$error = $oam->Process($pathInfo);
+	$error = $oam->RequestToken();
 	//if(!$error)
 	//	echo "login_url=https://localhost/m/oauth.php/authorize&oauth_token=".uniqid(mt_rand(), true).
 	//		'&oauth_token_secret='.uniqid(mt_rand(), true).
