@@ -129,7 +129,7 @@ class OsmTypesStream extends ExtractToXml
 				}
 				catch (Exception $e) 
 				{
-					echo 'Caught exception: ',  $e->getMessage(), "\n";
+					echo 'Caught exception: ',  ($e->getMessage()), "\n";
 				}
 			}
 			}
@@ -149,7 +149,7 @@ class OsmTypesStream extends ExtractToXml
 				}
 				catch (Exception $e) 
 				{
-					echo 'Caught exception: ',  $e->getMessage(), "\n";
+					echo 'Caught exception: ',  ($e->getMessage()), "\n";
 				}
 			}
 
