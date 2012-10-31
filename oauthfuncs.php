@@ -8,8 +8,7 @@ class OAuthMicrocosmStore extends OAuthDataStore
 {
 	function __construct()
 	{
-		//$this->consumer = new OAuthConsumer("AdCRxTpvnbmfV8aPqrTLyA", "XmYOiGY9hApytcBC3xCec3e28QBqOWz5g6DSb5UpE", NULL);
-        $this->nonce = "nonce";
+
 	}
 
 	function lookup_consumer($consumer_key) 
@@ -36,31 +35,20 @@ class OAuthMicrocosmStore extends OAuthDataStore
 
 	function lookup_nonce($consumer, $token, $nonce, $timestamp)
 	{
+
 		$consumerSecret = CallFuncByMessage(Message::OAUTH_LOOKUP_CONSUMER, array($consumer->key));
 		if($consumerSecret===Null)
 			return Null;
 
 		if(!$token) return Null;
 
-		$fi = fopen("test.txt","at");
-		fwrite($fi, $nonce."\n");
-		fclose($fi);
-
 		$tokenSecret = CallFuncByMessage(Message::OAUTH_LOOKUP_TOKEN, array(Null, $token->key));
 		if($tokenSecret!==Null)
 		{
 			$found = CallFuncByMessage(Message::OAUTH_LOOKUP_NONCE, array($token->key, $nonce, $timestamp));
-			//if(!$found) return $nonce;
+			if($found) return $nonce;
 		}
 
-		$this->requestToken = new OAuthToken("requestkey", "requestsecret", 1);
-        $this->accessToken = new OAuthToken("accesskey", "accesssecret", 1);
-		if ((($token && $token->key == $this->requestToken->key)
-				|| ($token && $token->key == $this->accessToken->key))
-			&& $nonce == $this->nonce)
-		{
-			return $this->nonce;
-		}
         return NULL;
 	}
 
@@ -88,6 +76,16 @@ class OAuthMicrocosmStore extends OAuthDataStore
 			return Null;
 
 		return new OAuthToken($token, $tokenSecret, 1);
+	}
+
+	function verify($token)
+	{
+		$accessToken = new OAuthToken("accesskey", "accesssecret", 1);
+		if($token->key == $accessToken->key)
+		{
+			return array("TimSC",1);
+		}
+		return array(Null,Null);
 	}
 }
 
@@ -196,13 +194,7 @@ class OAuthMicrocosm
 			//return implode("&", $total);
 
 			//Get display name and ID num
-			$displayName = Null;
-			$userId = Null;
-			if($token->key == $this->dataStore->accessToken->key)
-			{
-				$displayName = "TimSC";
-				$userId = 1;
-			}
+			list($displayName, $userId) = $this->dataStore->verify($token);
 
 			return array(True, $displayName, $userId, $consumer, $token);
 		} 
