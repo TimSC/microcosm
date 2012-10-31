@@ -4,7 +4,6 @@ require_once('querymap.php');
 require_once('system.php');
 require_once('auth.php');
 
-
 //******************************
 //Start up functions and logging
 //******************************
@@ -59,6 +58,10 @@ if ($login !== Null or strcmp(GetServerRequestMethod(),"GET")!=0)
 		list ($displayName, $userId) = $authRet;
 	}
 }
+
+//*******************
+//Process request
+//*******************
 
 //This function determines with function to call based on the URL and, if it can, responds to the client.
 if(!$authFailed)

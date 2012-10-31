@@ -1,6 +1,6 @@
 <?php
 require_once('config.php');
-
+require_once('oauthfuncs.php');
 //*******************
 //User Authentication
 //*******************
@@ -29,16 +29,24 @@ function RequestAuthFromUser()
 
 function RequireAuth($login, $pass)
 {
-	if ($login === Null) {
-		RequestAuthFromUser();
-		return -1;
+	if($login !== null)
+	{
+		$ret = CallFuncByMessage(Message::CHECK_LOGIN,array($login, $pass));
+		if($ret===-1) {RequestAuthFromUser(); return -1;}
+		if($ret===0) {RequestAuthFromUser(); return -1;}
+		if(is_array($ret)) list($displayName, $userId) = $ret;
+		return array($displayName, $userId);
 	}
 
-	$ret = CallFuncByMessage(Message::CHECK_LOGIN,array($login, $pass));
-	if($ret===-1) {RequestAuthFromUser(); return -1;}
-	if($ret===0) {RequestAuthFromUser(); return -1;}
-	if(is_array($ret)) list($displayName, $userId) = $ret;
-	return array($displayName, $userId);
+	$oam = new OAuthMicrocosm();
+	$ret = $oam->Verify();	
+	if($ret[0] === True)
+	{
+		return array($ret[1], $ret[2]);
+	}
+
+	RequestAuthFromUser();
+	return -1;
 }
 
 ?>
