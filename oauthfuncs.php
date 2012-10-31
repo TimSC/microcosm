@@ -8,9 +8,7 @@ class OAuthMicrocosmStore extends OAuthDataStore
 {
 	function __construct()
 	{
-		$this->consumer = new OAuthConsumer("AdCRxTpvnbmfV8aPqrTLyA", "XmYOiGY9hApytcBC3xCec3e28QBqOWz5g6DSb5UpE", NULL);
-		$this->requestToken = new OAuthToken("requestkey", "requestsecret", 1);
-        $this->accessToken = new OAuthToken("accesskey", "accesssecret", 1);
+		//$this->consumer = new OAuthConsumer("AdCRxTpvnbmfV8aPqrTLyA", "XmYOiGY9hApytcBC3xCec3e28QBqOWz5g6DSb5UpE", NULL);
         $this->nonce = "nonce";
 	}
 
@@ -38,8 +36,13 @@ class OAuthMicrocosmStore extends OAuthDataStore
 
 	function lookup_nonce($consumer, $token, $nonce, $timestamp)
 	{
-		if ($consumer->key == $this->consumer->key
-			&& (($token && $token->key == $this->requestToken->key)
+		$consumerSecret = CallFuncByMessage(Message::OAUTH_LOOKUP_CONSUMER, array($consumer->key));
+		if($consumerSecret===Null)
+			return Null;
+
+		$this->requestToken = new OAuthToken("requestkey", "requestsecret", 1);
+        $this->accessToken = new OAuthToken("accesskey", "accesssecret", 1);
+		if ((($token && $token->key == $this->requestToken->key)
 				|| ($token && $token->key == $this->accessToken->key))
 			&& $nonce == $this->nonce)
 		{
@@ -50,25 +53,28 @@ class OAuthMicrocosmStore extends OAuthDataStore
 
 	function new_request_token($consumer, $callback = null)
 	{
-		// return a new token attached to this consumer
-		if ($consumer->key == $this->consumer->key)
-		{
-			return $this->requestToken;
-		}
-		return NULL;
+		$consumerSecret = CallFuncByMessage(Message::OAUTH_LOOKUP_CONSUMER, array($consumer->key));
+		if($consumerSecret===Null)
+			return Null;
+
+		list($token, $tokenSecret) = CallFuncByMessage(Message::OAUTH_NEW_ACCESS_TOKEN, Null);
+		if($token === Null)
+			return Null;
+
+		return new OAuthToken($token, $tokenSecret, 1);
 	}
 
 	function new_access_token($token, $consumer, $verifier = null)
 	{
-		// return a new access token attached to this consumer
-		// for the user associated with this token if the request token
-		// is authorized
-		// should also invalidate the request token
-		if ($consumer->key == $this->consumer->key && $token->key == $this->requestToken->key)
-		{
-			return $this->accessToken;
-		}
-		return NULL;
+		$consumerSecret = CallFuncByMessage(Message::OAUTH_LOOKUP_CONSUMER, array($consumer->key));
+		if($consumerSecret===Null)
+			return Null;
+
+		list($token, $tokenSecret) = CallFuncByMessage(Message::OAUTH_NEW_REQUEST_TOKEN, Null);
+		if($token === Null)
+			return Null;
+
+		return new OAuthToken($token, $tokenSecret, 1);
 	}
 }
 
