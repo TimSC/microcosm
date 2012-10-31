@@ -29,6 +29,7 @@ function RequestAuthFromUser()
 
 function RequireAuth($login, $pass)
 {
+	//HTTP Authentication
 	if($login !== null)
 	{
 		$ret = CallFuncByMessage(Message::CHECK_LOGIN,array($login, $pass));
@@ -38,13 +39,19 @@ function RequireAuth($login, $pass)
 		return array($displayName, $userId);
 	}
 
-	$oam = new OAuthMicrocosm();
-	$ret = $oam->Verify();	
-	if($ret[0] === True)
+	//OAuth Authentication
+	$requestHeaders = getallheaders();
+	if(isset($requestHeaders['Authorization']))
 	{
-		return array($ret[1], $ret[2]);
+		$oam = new OAuthMicrocosm();
+		$ret = $oam->Verify();	
+		if($ret[0] === True)
+		{
+			return array($ret[1], $ret[2]);
+		}
 	}
 
+	//Prompt for HTTP username and password
 	RequestAuthFromUser();
 	return -1;
 }
