@@ -1,4 +1,4 @@
-<?
+<?php
 require_once('fileutils.php');
 require_once('querymap.php');
 require_once('system.php');
