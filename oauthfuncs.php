@@ -40,6 +40,19 @@ class OAuthMicrocosmStore extends OAuthDataStore
 		if($consumerSecret===Null)
 			return Null;
 
+		if(!$token) return Null;
+
+		$fi = fopen("test.txt","at");
+		fwrite($fi, $nonce."\n");
+		fclose($fi);
+
+		$tokenSecret = CallFuncByMessage(Message::OAUTH_LOOKUP_TOKEN, array(Null, $token->key));
+		if($tokenSecret!==Null)
+		{
+			$found = CallFuncByMessage(Message::OAUTH_LOOKUP_NONCE, array($token->key, $nonce, $timestamp));
+			//if(!$found) return $nonce;
+		}
+
 		$this->requestToken = new OAuthToken("requestkey", "requestsecret", 1);
         $this->accessToken = new OAuthToken("accesskey", "accesssecret", 1);
 		if ((($token && $token->key == $this->requestToken->key)
