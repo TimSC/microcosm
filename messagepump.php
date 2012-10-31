@@ -74,6 +74,13 @@ class Message
 	const API_GET_CHANGESET_CONTENTS = 704;
 	const API_PROCESS_SINGLE_OBJECT = 705;
 	const API_CHANGESET_EXPAND = 706;
+
+	//OAuth functions
+	const OAUTH_LOOKUP_CONSUMER = 800;
+	const OAUTH_LOOKUP_TOKEN = 801;
+	const OAUTH_LOOKUP_NONCE = 802;
+	const OAUTH_NEW_ACCESS_TOKEN = 803;
+	const OAUTH_NEW_REQUEST_TOKEN = 804;
 	
 	function __construct($type, $content)
 	{

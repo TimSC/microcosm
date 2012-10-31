@@ -14,8 +14,12 @@ class OAuthMicrocosmStore extends OAuthDataStore
         $this->nonce = "nonce";
 	}
 
-	function lookup_consumer($consumer_key) 
+	function lookup_consumer($consumerKey) 
 	{
+		//$consumerSecret = CallFuncByMessage(Message::OAUTH_LOOKUP_CONSUMER, array($consumerKey));
+		//if($consumerSecret===Null)
+		//	return new OAuthConsumer($consumerKey, $consumerSecret, NULL);
+
 		if ($consumer_key == $this->consumer->key) 
 			return $this->consumer;
 		return NULL;
@@ -23,13 +27,8 @@ class OAuthMicrocosmStore extends OAuthDataStore
 
 	function lookup_token($consumer, $token_type, $token)
 	{
-		$token_attrib = $token_type . "Token";
-		//if ($consumer->key == $this->consumer->key
-		//	&& $token == $this->$token_attrib->key)
-		//{
-		//	return $this->$token_attrib;
-		//}
-
+		//$consumer = CallFuncByMessage(Message::OAUTH_LOOKUP_TOKEN, array($token_type, $token));
+		
 		if ($consumer->key == $this->consumer->key && $token == $this->requestToken->key)
 		{
 			return $this->requestToken;
@@ -44,6 +43,8 @@ class OAuthMicrocosmStore extends OAuthDataStore
 
 	function lookup_nonce($consumer, $token, $nonce, $timestamp)
 	{
+		//$nonce = CallFuncByMessage(Message::OAUTH_LOOKUP_NONCE, array($token, $nonce, $timestamp));
+		
 		if ($consumer->key == $this->consumer->key
 			&& (($token && $token->key == $this->requestToken->key)
 				|| ($token && $token->key == $this->accessToken->key))
@@ -56,6 +57,8 @@ class OAuthMicrocosmStore extends OAuthDataStore
 
 	function new_request_token($consumer, $callback = null)
 	{
+		//$requestToken = CallFuncByMessage(Message::OAUTH_NEW_REQUEST_TOKEN, array($this->consumer->key));
+		
 		// return a new token attached to this consumer
 		if ($consumer->key == $this->consumer->key)
 		{
@@ -66,6 +69,8 @@ class OAuthMicrocosmStore extends OAuthDataStore
 
 	function new_access_token($token, $consumer, $verifier = null)
 	{
+		//$accessToken = CallFuncByMessage(Message::OAUTH_NEW_ACCESS_TOKEN, array($token, $consumer));
+		
 		// return a new access token attached to this consumer
 		// for the user associated with this token if the request token
 		// is authorized

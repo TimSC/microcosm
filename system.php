@@ -7,6 +7,7 @@ require_once('userdetails.php');
 require_once('traces.php');
 require_once('requestprocessor.php');
 require_once('changeset.php');
+require_once('oauth-sqlite.php');
 
 $messagePump = new MessagePump();
 
@@ -84,5 +85,12 @@ $messagePump->AddListener(Message::API_CHANGESET_UPLOAD, "ChangesetEventHandler"
 $messagePump->AddListener(Message::API_GET_CHANGESET_CONTENTS, "ChangesetEventHandler", Null);
 $messagePump->AddListener(Message::API_PROCESS_SINGLE_OBJECT, "ChangesetEventHandler", Null);
 $messagePump->AddListener(Message::API_CHANGESET_EXPAND, "ChangesetEventHandler", Null);
+
+$messagePump->AddListener(Message::OAUTH_LOOKUP_CONSUMER, "OAuthEventLookupConsumer", Null);
+$messagePump->AddListener(Message::OAUTH_LOOKUP_TOKEN, "OAuthEventLookupToken", Null);
+$messagePump->AddListener(Message::OAUTH_LOOKUP_NONCE, "OAuthEventLookupNonce", Null);
+$messagePump->AddListener(Message::OAUTH_NEW_ACCESS_TOKEN, "OAuthEventNewAccessToken", Null);
+$messagePump->AddListener(Message::OAUTH_NEW_REQUEST_TOKEN, "OAuthEventNewRequestToken", Null);
+
 
 ?>
