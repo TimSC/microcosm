@@ -20,30 +20,20 @@ class OAuthMicrocosmStore extends OAuthDataStore
 		if($consumerSecret!==Null)
 			return new OAuthConsumer($consumer_key, $consumerSecret, NULL);
 
-		//if ($consumer_key == $this->consumer->key) 
-		//	return $this->consumer;
 		return NULL;
 	}
 
-	function lookup_token($consumer, $token_type, $token)
+	function lookup_token($consumer, $tokenType, $token)
 	{
-		$token_attrib = $token_type . "Token";
-		//if ($consumer->key == $this->consumer->key
-		//	&& $token == $this->$token_attrib->key)
-		//{
-		//	return $this->$token_attrib;
-		//}
+		$consumerSecret = CallFuncByMessage(Message::OAUTH_LOOKUP_CONSUMER, array($consumer->key));
+		if($consumerSecret===Null)
+			return Null;
 
-		if ($consumer->key == $this->consumer->key && $token == $this->requestToken->key)
-		{
-			return $this->requestToken;
-		}
-		if ($consumer->key == $this->consumer->key && $token == $this->accessToken->key)
-		{
-			return $this->accessToken;
-		}
+		$tokenSecret = CallFuncByMessage(Message::OAUTH_LOOKUP_TOKEN, array($tokenType, $token));
+		if($tokenSecret===Null)
+			return Null;
 
-		return NULL;
+		return new OAuthToken($token, $tokenSecret, 1);
 	}
 
 	function lookup_nonce($consumer, $token, $nonce, $timestamp)
