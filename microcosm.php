@@ -44,11 +44,12 @@ while ($data = fread($putdata, 1024))
 
 try
 {
-//Authentication, if there is a server username variable or non-GET method used
+//Authentication, if there is a server username variable, OAuth is used or non-GET method used
+$requestHeaders = getallheaders();
 $displayName = null;
 $userId = null;
 $authFailed = False;
-if ($login !== Null or strcmp(GetServerRequestMethod(),"GET")!=0) 
+if ($login !== Null or strcmp(GetServerRequestMethod(),"GET")!=0 or isset($requestHeaders['Authorization'])) 
 {
 	$authRet = RequireAuth($login, $pass);
 	if($authRet == -1) //If authentication failed
