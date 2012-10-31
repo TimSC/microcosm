@@ -17,9 +17,11 @@ class OAuthMicrocosmStore extends OAuthDataStore
 	function lookup_consumer($consumer_key) 
 	{
 		$consumerSecret = CallFuncByMessage(Message::OAUTH_LOOKUP_CONSUMER, array($consumer_key));
-		if($consumerSecret===Null)
+		if($consumerSecret!==Null)
 			return new OAuthConsumer($consumer_key, $consumerSecret, NULL);
 
+		//if ($consumer_key == $this->consumer->key) 
+		//	return $this->consumer;
 		return NULL;
 	}
 
