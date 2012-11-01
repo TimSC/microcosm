@@ -53,13 +53,13 @@ function OAuthEventLookupNonce($userInfo,$argExp)
 
 function OAuthEventNewAccessToken($userInfo,$argExp)
 {
-	$key = uniqid($more_entropy=True);
-	$secret = uniqid($more_entropy=True);
+	$key = hash("sha1",uniqid($more_entropy=True).mt_rand());
+	$secret = hash("sha1",uniqid($more_entropy=True).mt_rand());
 	$consumerKey = $argExp[0];
 
 	$tokenStore = new OAuthTokensSqlite();
 	while(isset($tokenStore[$key])) //Prevent key collision
-		$key = uniqid($more_entropy=True);
+		$key = hash("sha1",uniqid($more_entropy=True).mt_rand());
 
 	//Set key
 	$tokenStore[$key] = array('secret'=>$secret,'type'=>'access','consumer'=>$consumerKey);
@@ -69,13 +69,13 @@ function OAuthEventNewAccessToken($userInfo,$argExp)
 
 function OAuthEventNewRequestToken($userInfo,$argExp)
 {
-	$key = uniqid($more_entropy=True);
-	$secret = uniqid($more_entropy=True);
+	$key = hash("sha1",uniqid($more_entropy=True).mt_rand());
+	$secret = hash("sha1",uniqid($more_entropy=True).mt_rand());
 	$consumerKey = $argExp[0];
 
 	$tokenStore = new OAuthTokensSqlite();
 	while(isset($tokenStore[$key])) //Prevent key collision
-		$key = uniqid($more_entropy=True);
+		$key = hash("sha1",uniqid($more_entropy=True).mt_rand());
 
 	//Set key
 	$tokenStore[$key] = array('secret'=>$secret,'type'=>'request','consumer'=>$consumerKey);
