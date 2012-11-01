@@ -172,10 +172,11 @@ class OAuthMicrocosm
 		{
 			echo "Logged in as ".$_SESSION['username']." ".$_SESSION['displayName']."(".$_SESSION['userId'].")";
 
-			//$req = OAuthRequest::from_request();
-			//$token = Null;
-			//$requestToken = $this->server->fetch_request_token($req);
-			
+			$req = OAuthRequest::from_request();
+			$consumer = $this->server->get_consumer($req);
+			$token = $this->server->get_token($req,$consumer);
+			$this->check_signature($request, $consumer, $token);
+						
 		}
 		else
 		{
