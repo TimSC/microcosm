@@ -171,12 +171,11 @@ class OAuthMicrocosm
 		if(isset($_SESSION['userId']))
 		{
 			echo "Logged in as ".$_SESSION['username']." ".$_SESSION['displayName']."(".$_SESSION['userId'].")";
-
+	
 			$req = OAuthRequest::from_request();
-			$consumer = $this->server->get_consumer($req);
-			$token = $this->server->get_token($req,$consumer);
-			$this->check_signature($request, $consumer, $token);
-						
+			$key = $req->get_parameter("oauth_token");
+			CallFuncByMessage(Message::OAUTH_AUTH_REQUEST_TOKEN, array($key,$_SESSION['userId'],$_SESSION['username'],$_SESSION['displayName']));
+			
 		}
 		else
 		{

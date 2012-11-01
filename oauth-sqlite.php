@@ -94,4 +94,22 @@ function OAuthEventGetUserFromAccessToken($userInfo,$argExp)
 	}
 }
 
+function OAuthEventAuthRequestToken($userInfo,$argExp)
+{
+	$tokenStore = new OAuthTokensSqlite();
+	$key = $argExp[0];
+	$userId = $argExp[1];
+	$username = $argExp[2];
+	$displayName = $argExp[3];
+
+	if(!isset($tokenStore[$key])) return False;
+	$requestToken = $tokenStore[$key];
+	if($requestToken['type'] != "request") return False;
+	$requestToken["userId"] = $userId;
+	$requestToken["username"] = $username;
+	$requestToken["displayName"] = $displayName;
+	$requestToken["auth"] = True;
+	$tokenStore[$key] = $requestToken;
+}
+
 ?>
