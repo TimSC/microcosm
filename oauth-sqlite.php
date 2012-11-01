@@ -31,7 +31,6 @@ function OAuthEventLookupToken($userInfo,$argExp)
 {
 	$tokenType = $argExp[0];
 	$tokenKey = $argExp[1];
-	if($tokenKey=="accesskey") return "accesssecret";	
 
 	$tokenStore = new OAuthTokensSqlite();
 	if(isset($tokenStore[$tokenKey]))
@@ -39,8 +38,6 @@ function OAuthEventLookupToken($userInfo,$argExp)
 		return $tokenStore[$tokenKey]['secret']; //Return token secret
 	}
 
-	//if($tokenKey=="requestkey") return "requestsecret";
-	
 	return Null;
 }
 
@@ -51,7 +48,17 @@ function OAuthEventLookupNonce($userInfo,$argExp)
 
 function OAuthEventNewAccessToken($userInfo,$argExp)
 {
-	return array("accesskey", "accesssecret");
+	$key = uniqid($more_entropy=True);
+	$secret = uniqid($more_entropy=True);
+
+	$tokenStore = new OAuthTokensSqlite();
+	while(isset($tokenStore[$key])) //Prevent key collision
+		$key = uniqid($more_entropy=True);
+
+	//Set key
+	$tokenStore[$key] = array('secret'=>$secret,'type'=>'access');
+
+	return array($key,$secret);
 }
 
 function OAuthEventNewRequestToken($userInfo,$argExp)
@@ -71,8 +78,10 @@ function OAuthEventNewRequestToken($userInfo,$argExp)
 
 function OAuthEventGetUserFromAccessToken($userInfo,$argExp)
 {
+	$tokenStore = new OAuthTokensSqlite();
 	$tokenKey = $argExp[0];
-	if($tokenKey == "accesskey")
+
+	if(isset($tokenStore[$tokenKey]))
 	{
 		return array("TimSC",1);
 	}
