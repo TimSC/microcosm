@@ -75,7 +75,13 @@ class OAuthMicrocosmStore extends OAuthDataStore
 		if($consumerSecret===Null)
 			return Null;
 
-		list($token, $tokenSecret) = CallFuncByMessage(Message::OAUTH_NEW_ACCESS_TOKEN, array($consumer->key));
+		//Check if request token is authorised before giving out access token
+		$requestToken = CallFuncByMessage(Message::OAUTH_GET_INFO_FOR_TOKEN, array($token->key));
+		if($requestToken['type']!="request") return Null;
+		if(!isset($requestToken['auth'])) return Null;
+		if($requestToken['auth']!==True) return Null;
+
+		list($token, $tokenSecret) = CallFuncByMessage(Message::OAUTH_NEW_ACCESS_TOKEN, array($consumer->key, $requestToken));
 		if($token === Null)
 			return Null;
 
@@ -84,8 +90,9 @@ class OAuthMicrocosmStore extends OAuthDataStore
 
 	function verify($token)
 	{
-		list($displayName, $userId) = CallFuncByMessage(Message::OAUTH_GET_USER_FROM_ACCESS_TOKEN, array($token->key));
-		return array($displayName, $userId);
+		$ret = CallFuncByMessage(Message::OAUTH_GET_INFO_FOR_TOKEN, array($token->key));
+		if($ret===Null) return array(Null, Null);
+		return array($ret['displayName'], $ret['userId']);
 	}
 }
 
@@ -146,6 +153,13 @@ class OAuthMicrocosm
 
 	function AccessToken()
 	{
+		//Check if request token is authorised before giving out access token
+		/*$req = OAuthRequest::from_request();
+		$fi=fopen("test.txt","wt");
+		fwrite($fi,print_r($req,True));
+		fclose($fi);
+		list($consumer, $token) = $this->server->verify_request($req);*/
+
 		return $this->FetchToken(False,True);
 	}
 

@@ -91,7 +91,8 @@ $messagePump->AddListener(Message::OAUTH_LOOKUP_TOKEN, "OAuthEventLookupToken", 
 $messagePump->AddListener(Message::OAUTH_LOOKUP_NONCE, "OAuthEventLookupNonce", Null);
 $messagePump->AddListener(Message::OAUTH_NEW_ACCESS_TOKEN, "OAuthEventNewAccessToken", Null);
 $messagePump->AddListener(Message::OAUTH_NEW_REQUEST_TOKEN, "OAuthEventNewRequestToken", Null);
-$messagePump->AddListener(Message::OAUTH_GET_USER_FROM_ACCESS_TOKEN, "OAuthEventGetUserFromAccessToken", Null);
+$messagePump->AddListener(Message::OAUTH_GET_INFO_FOR_TOKEN, "OAuthEventGetInfoForToken", Null);
 $messagePump->AddListener(Message::OAUTH_AUTH_REQUEST_TOKEN, "OAuthEventAuthRequestToken", Null);
+$messagePump->AddListener(Message::OAUTH_UNAUTH_REQUEST_TOKEN, "OAuthEventUnAuthRequestToken", Null);
 
 ?>

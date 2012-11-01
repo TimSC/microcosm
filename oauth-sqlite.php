@@ -56,13 +56,17 @@ function OAuthEventNewAccessToken($userInfo,$argExp)
 	$key = hash("sha1",uniqid($more_entropy=True).mt_rand());
 	$secret = hash("sha1",uniqid($more_entropy=True).mt_rand());
 	$consumerKey = $argExp[0];
+	$requestToken = $argExp[1];
 
 	$tokenStore = new OAuthTokensSqlite();
 	while(isset($tokenStore[$key])) //Prevent key collision
 		$key = hash("sha1",uniqid($more_entropy=True).mt_rand());
 
 	//Set key
-	$tokenStore[$key] = array('secret'=>$secret,'type'=>'access','consumer'=>$consumerKey);
+	$tokenStore[$key] = array('secret'=>$secret,'type'=>'access','consumer'=>$consumerKey,
+		'auth'=>True,
+		'displayName'=>$requestToken['displayName'],
+		'userId'=>$requestToken['userId']);
 
 	return array($key,$secret);
 }
@@ -83,15 +87,16 @@ function OAuthEventNewRequestToken($userInfo,$argExp)
 	return array($key,$secret);
 }
 
-function OAuthEventGetUserFromAccessToken($userInfo,$argExp)
+function OAuthEventGetInfoForToken($userInfo,$argExp)
 {
 	$tokenStore = new OAuthTokensSqlite();
 	$tokenKey = $argExp[0];
 
 	if(isset($tokenStore[$tokenKey]))
 	{
-		return array("TimSC",1);
+		return $tokenStore[$tokenKey];
 	}
+	return Null;
 }
 
 function OAuthEventAuthRequestToken($userInfo,$argExp)
@@ -110,6 +115,12 @@ function OAuthEventAuthRequestToken($userInfo,$argExp)
 	$requestToken["displayName"] = $displayName;
 	$requestToken["auth"] = True;
 	$tokenStore[$key] = $requestToken;
+}
+
+
+function OAuthEventUnAuthRequestToken($userInfo,$argExp)
+{
+
 }
 
 ?>
