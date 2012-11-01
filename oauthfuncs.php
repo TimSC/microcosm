@@ -80,12 +80,8 @@ class OAuthMicrocosmStore extends OAuthDataStore
 
 	function verify($token)
 	{
-		$accessToken = new OAuthToken("accesskey", "accesssecret", 1);
-		if($token->key == $accessToken->key)
-		{
-			return array("TimSC",1);
-		}
-		return array(Null,Null);
+		list($displayName, $userId) = CallFuncByMessage(Message::OAUTH_GET_USER_FROM_ACCESS_TOKEN, array($token->key));
+		return array($displayName, $userId);
 	}
 }
 
@@ -121,9 +117,9 @@ class OAuthMicrocosm
 			if($access) $token = $this->server->fetch_access_token($req);
 
 			echo $token;
-			$fi = fopen("out.txt","wt");
+			/*$fi = fopen("out.txt","wt");
 			fwrite($fi, "Token:".$token);
-			fclose($fi);
+			fclose($fi);*/
 			return True;
 		}
 		catch (OAuthException $e)
@@ -131,10 +127,10 @@ class OAuthMicrocosm
 			print($e->getMessage() . "\n<hr />\n");
 			print_r($req);
 
-			$fi = fopen("out.txt","wt");
+			/*$fi = fopen("out.txt","wt");
 			fwrite($fi, $e->getMessage() . "\n<hr />\n");
 			fwrite($fi, print_r($req, True));
-			fclose($fi);
+			fclose($fi);*/
 			return False;
 		}
 	}

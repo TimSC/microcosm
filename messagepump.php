@@ -81,6 +81,7 @@ class Message
 	const OAUTH_LOOKUP_NONCE = 802;
 	const OAUTH_NEW_ACCESS_TOKEN = 803;
 	const OAUTH_NEW_REQUEST_TOKEN = 804;
+	const OAUTH_GET_USER_FROM_ACCESS_TOKEN = 805;
 	
 	function __construct($type, $content)
 	{
