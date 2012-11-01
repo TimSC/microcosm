@@ -5,9 +5,9 @@ require_once('oauthfuncs.php');
 $pathInfo = GetRequestPath();
 $urlExp = explode("/",$pathInfo);
 
-$fi = fopen("log.txt","wt");
-fwrite($fi,print_r($_POST,True));
-fwrite($fi,print_r($pathInfo,True));
+//$fi = fopen("log.txt","wt");
+//fwrite($fi,print_r($_POST,True));
+//fwrite($fi,print_r($pathInfo,True));
 
 if($urlExp[1] == "request_token")
 {
@@ -27,6 +27,6 @@ if($urlExp[1] == "authorise")
 	$error = $oam->Authorise();
 }
 
-fclose($fi);
+//fclose($fi);
 
 ?>

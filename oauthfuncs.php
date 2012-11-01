@@ -58,7 +58,7 @@ class OAuthMicrocosmStore extends OAuthDataStore
 		if($consumerSecret===Null)
 			return Null;
 
-		list($token, $tokenSecret) = CallFuncByMessage(Message::OAUTH_NEW_REQUEST_TOKEN, Null);
+		list($token, $tokenSecret) = CallFuncByMessage(Message::OAUTH_NEW_REQUEST_TOKEN, array($consumer->key));
 		if($token === Null)
 			return Null;
 
@@ -67,11 +67,15 @@ class OAuthMicrocosmStore extends OAuthDataStore
 
 	function new_access_token($token, $consumer, $verifier = null)
 	{
+		// return a new access token attached to this consumer
+		// for the user associated with this token if the request token
+		// is authorized
+		// should also invalidate the request token
 		$consumerSecret = CallFuncByMessage(Message::OAUTH_LOOKUP_CONSUMER, array($consumer->key));
 		if($consumerSecret===Null)
 			return Null;
 
-		list($token, $tokenSecret) = CallFuncByMessage(Message::OAUTH_NEW_ACCESS_TOKEN, Null);
+		list($token, $tokenSecret) = CallFuncByMessage(Message::OAUTH_NEW_ACCESS_TOKEN, array($consumer->key));
 		if($token === Null)
 			return Null;
 
@@ -167,6 +171,11 @@ class OAuthMicrocosm
 		if(isset($_SESSION['userId']))
 		{
 			echo "Logged in as ".$_SESSION['username']." ".$_SESSION['displayName']."(".$_SESSION['userId'].")";
+
+			//$req = OAuthRequest::from_request();
+			//$token = Null;
+			//$requestToken = $this->server->fetch_request_token($req);
+			
 		}
 		else
 		{

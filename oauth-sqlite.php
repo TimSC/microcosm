@@ -55,13 +55,14 @@ function OAuthEventNewAccessToken($userInfo,$argExp)
 {
 	$key = uniqid($more_entropy=True);
 	$secret = uniqid($more_entropy=True);
+	$consumerKey = $argExp[0];
 
 	$tokenStore = new OAuthTokensSqlite();
 	while(isset($tokenStore[$key])) //Prevent key collision
 		$key = uniqid($more_entropy=True);
 
 	//Set key
-	$tokenStore[$key] = array('secret'=>$secret,'type'=>'access');
+	$tokenStore[$key] = array('secret'=>$secret,'type'=>'access','consumer'=>$consumerKey);
 
 	return array($key,$secret);
 }
@@ -70,13 +71,14 @@ function OAuthEventNewRequestToken($userInfo,$argExp)
 {
 	$key = uniqid($more_entropy=True);
 	$secret = uniqid($more_entropy=True);
+	$consumerKey = $argExp[0];
 
 	$tokenStore = new OAuthTokensSqlite();
 	while(isset($tokenStore[$key])) //Prevent key collision
 		$key = uniqid($more_entropy=True);
 
 	//Set key
-	$tokenStore[$key] = array('secret'=>$secret,'type'=>'request');
+	$tokenStore[$key] = array('secret'=>$secret,'type'=>'request','consumer'=>$consumerKey);
 
 	return array($key,$secret);
 }
