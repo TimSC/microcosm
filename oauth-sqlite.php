@@ -43,6 +43,7 @@ function OAuthEventLookupToken($userInfo,$argExp)
 
 function OAuthEventLookupNonce($userInfo,$argExp)
 {
+	//TODO Currently OAuth nonce is not checked, which prevents replay attacks
 	return False;
 }
 
