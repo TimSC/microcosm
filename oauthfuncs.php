@@ -58,7 +58,7 @@ class OAuthMicrocosmStore extends OAuthDataStore
 		if($consumerSecret===Null)
 			return Null;
 
-		list($token, $tokenSecret) = CallFuncByMessage(Message::OAUTH_NEW_ACCESS_TOKEN, Null);
+		list($token, $tokenSecret) = CallFuncByMessage(Message::OAUTH_NEW_REQUEST_TOKEN, Null);
 		if($token === Null)
 			return Null;
 
@@ -71,7 +71,7 @@ class OAuthMicrocosmStore extends OAuthDataStore
 		if($consumerSecret===Null)
 			return Null;
 
-		list($token, $tokenSecret) = CallFuncByMessage(Message::OAUTH_NEW_REQUEST_TOKEN, Null);
+		list($token, $tokenSecret) = CallFuncByMessage(Message::OAUTH_NEW_ACCESS_TOKEN, Null);
 		if($token === Null)
 			return Null;
 
