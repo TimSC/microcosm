@@ -115,12 +115,20 @@ function OAuthEventAuthRequestToken($userInfo,$argExp)
 	$requestToken["displayName"] = $displayName;
 	$requestToken["auth"] = True;
 	$tokenStore[$key] = $requestToken;
+	return True;
 }
 
 
 function OAuthEventUnAuthRequestToken($userInfo,$argExp)
 {
+	$tokenStore = new OAuthTokensSqlite();
+	$tokenKey = $argExp[0];
 
+	if(!isset($tokenStore[$tokenKey])) return False;
+	$requestToken = $tokenStore[$tokenKey];
+	$requestToken["auth"] = False;
+	$tokenStore[$tokenKey] = $requestToken;
+	return True;
 }
 
 ?>

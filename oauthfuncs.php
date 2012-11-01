@@ -81,11 +81,15 @@ class OAuthMicrocosmStore extends OAuthDataStore
 		if(!isset($requestToken['auth'])) return Null;
 		if($requestToken['auth']!==True) return Null;
 
-		list($token, $tokenSecret) = CallFuncByMessage(Message::OAUTH_NEW_ACCESS_TOKEN, array($consumer->key, $requestToken));
-		if($token === Null)
+		//Issue a new access token
+		list($accessToken, $accessTokenSecret) = CallFuncByMessage(Message::OAUTH_NEW_ACCESS_TOKEN, array($consumer->key, $requestToken));
+		if($accessToken === Null)
 			return Null;
 
-		return new OAuthToken($token, $tokenSecret, 1);
+		//Revoke the old request token to prevent multiple use
+		CallFuncByMessage(Message::OAUTH_UNAUTH_REQUEST_TOKEN, array($token->key));
+
+		return new OAuthToken($accessToken, $accessTokenSecret, 1);
 	}
 
 	function verify($token)
