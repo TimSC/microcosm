@@ -56,18 +56,17 @@ function OAuthEventNewAccessToken($userInfo,$argExp)
 
 function OAuthEventNewRequestToken($userInfo,$argExp)
 {
-	//return array("requestkey", "requestsecret");
-	$requestKey = uniqid($more_entropy=True);
-	$requestSecret = uniqid($more_entropy=True);
+	$key = uniqid($more_entropy=True);
+	$secret = uniqid($more_entropy=True);
 
 	$tokenStore = new OAuthTokensSqlite();
-	while(isset($tokenStore[$requestKey])) //Prevent key collision
-		$requestKey = uniqid($more_entropy=True);
+	while(isset($tokenStore[$key])) //Prevent key collision
+		$key = uniqid($more_entropy=True);
 
 	//Set key
-	$tokenStore[$requestKey] = array('secret'=>$requestSecret);
+	$tokenStore[$key] = array('secret'=>$secret,'type'=>'request');
 
-	return array($requestKey,$requestSecret);
+	return array($key,$secret);
 }
 
 function OAuthEventGetUserFromAccessToken($userInfo,$argExp)
