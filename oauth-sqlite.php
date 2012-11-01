@@ -35,6 +35,10 @@ function OAuthEventLookupToken($userInfo,$argExp)
 	$tokenStore = new OAuthTokensSqlite();
 	if(isset($tokenStore[$tokenKey]))
 	{
+		//Verify type
+		if ($tokenType !== Null and $tokenStore[$tokenKey]['type'] != $tokenType)
+			return Null;
+
 		return $tokenStore[$tokenKey]['secret']; //Return token secret
 	}
 
