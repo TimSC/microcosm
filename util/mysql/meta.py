@@ -8,7 +8,7 @@ def ToObjectCode(objType):
 	if objType == "relation": return 2;
 	raise Exception("Unrecognised type")
 
-class AssociationParser:
+class TagParser:
 
 	def __init__(self, con):
 		self._parser = expat.ParserCreate()
@@ -43,31 +43,24 @@ class AssociationParser:
 				self.countObjs[self.objectType] = 0
 			self.countObjs[self.objectType] += 1
 
-		if self.depth == 3:
-			
-			if tag == "nd":
-				#print repr(tag), attrs
-				test = ".assoc (ptype, pid, pver, ctype, cid) VALUES (1,{0},{1},0,{2});".format(self.objectId, \
-					self.objectVer, int(attrs['ref']))
-				sql = "INSERT INTO "+self.dbName+test;
-				#print sql
-				self.cur.execute(sql)
-				self.count += 1
-				if self.count % 1000 == 0:
-					self.con.commit()
-					print self.count
+			#print repr(tag), attrs
+			changeset = int(attrs['changeset'])
+			user = attrs['user']
+			uid = int(attrs['uid'])
+			timestamp = attrs['timestamp']
 
-			if tag == "member":
-				#print tag, attrs
-				test = ".assoc (ptype, pid, pver, ctype, cid, role) VALUES ({0},{1},{2},{3},{4},'{5}');".format(self.objectType, \
-					self.objectId, self.objectVer, ToObjectCode(attrs['type']), int(attrs['ref']), self.con.escape_string(attrs['role'].encode("UTF-8")))
-				sql = "INSERT INTO "+self.dbName+test;
-				#print sql
-				self.cur.execute(sql)
-				self.count += 1
-				if self.count % 1000 == 0:
-					self.con.commit()
-					print self.count, self.countObjs
+			test = ".meta (type, id, ver, changeset, user, uid, timestamp) VALUES ({0},{1},{2},{3},'{4}',{5},'{6}');"\
+				.format(self.objectType, self.objectId, self.objectVer, changeset, \
+				self.con.escape_string(user.encode("UTF-8")), uid, \
+				self.con.escape_string(timestamp.encode("UTF-8")))
+			sql = "INSERT INTO "+self.dbName+test;
+			#print sql
+			self.cur.execute(sql)
+			self.count += 1
+			if self.count % 1000 == 0:
+				self.con.commit()
+				print self.count, self.countObjs
+
 
 	def end(self, tag):
 		
@@ -90,10 +83,11 @@ if __name__ == "__main__":
 		con = mdb.connect('localhost', 'map', 'maptest222', dbName);
 		cur = con.cursor()
 
-		sql = "DROP TABLE IF EXISTS "+dbName+".assoc;"
+		sql = "DROP TABLE IF EXISTS "+dbName+".meta;"
 		cur.execute(sql)
 
-		sql = "CREATE TABLE IF NOT EXISTS "+dbName+".assoc (intid BIGINT PRIMARY KEY AUTO_INCREMENT, ptype INTEGER, pid BIGINT, pver BIGINT, ctype INTEGER, cid BIGINT, role TEXT, INDEX(pid,cid)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
+		sql = "CREATE TABLE IF NOT EXISTS "+dbName+".meta (intid BIGINT PRIMARY KEY AUTO_INCREMENT, type INTEGER, id BIGINT, ver BIGINT, changeset BIGINT, user TEXT, uid BIGINT, timestamp TEXT, visible INTEGER, INDEX(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
+		print sql
 		cur.execute(sql)
 
 		inFina = "/home/tim/Downloads/northern_mariana_islands.osm.bz2"
@@ -101,7 +95,7 @@ if __name__ == "__main__":
 
 		#Read text file into expat parser	
 		reading = 1
-		parser = AssociationParser(con)
+		parser = TagParser(con)
 		while reading:
 			xmlTxt = inFinaXml.read(1024 * 1024)
 			if len(xmlTxt) > 0:

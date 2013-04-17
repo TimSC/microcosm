@@ -20,6 +20,7 @@ class NodePositionParser:
 		self.objectVer = None
 		self.dbName = "map"
 		self.count = 0
+		self.countObjs = {}
 		self.con = con
 		self.cur = self.con.cursor()
 
@@ -34,9 +35,13 @@ class NodePositionParser:
 		self.depth += 1
 
 		if self.depth == 2:
-			self.objectType = tag
+			self.objectType = ToObjectCode(tag)
 			self.objectId = int(attrs['id'])
 			self.objectVer = int(attrs['version'])
+
+			if self.objectType not in self.countObjs:
+				self.countObjs[self.objectType] = 0
+			self.countObjs[self.objectType] += 1
 
 		if tag == "node" and self.depth == 2:
 			changeset = int(attrs['changeset'])
@@ -57,7 +62,7 @@ class NodePositionParser:
 			self.count += 1
 			if self.count % 1000 == 0:
 				self.con.commit()
-				print self.count
+				print self.count, self.countObjs
 
 	def end(self, tag):
 		
