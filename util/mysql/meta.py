@@ -46,13 +46,22 @@ class TagParser:
 
 			#print repr(tag), attrs
 			changeset = int(attrs['changeset'])
-			user = attrs['user']
-			uid = int(attrs['uid'])
+			if 'user' in attrs:
+				user = attrs['user']
+				userEnc = "'"+self.con.escape_string(user.encode("UTF-8"))+"'"
+			else:
+				user = None
+				userEnc = "NULL"
+
+			if 'uid' in attrs:
+				uid = int(attrs['uid'])
+			else:
+				uid = "NULL"
 			timestamp = attrs['timestamp']
 
-			test = ".meta (type, id, ver, changeset, user, uid, timestamp) VALUES ({0},{1},{2},{3},'{4}',{5},'{6}');"\
+			test = ".meta (type, id, ver, changeset, user, uid, timestamp) VALUES ({0},{1},{2},{3},{4},{5},'{6}');"\
 				.format(self.objectType, self.objectId, self.objectVer, changeset, \
-				self.con.escape_string(user.encode("UTF-8")), uid, \
+				userEnc, uid, \
 				self.con.escape_string(timestamp.encode("UTF-8")))
 			sql = "INSERT INTO "+self.dbName+test;
 			#print sql

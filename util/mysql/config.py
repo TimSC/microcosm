@@ -2,6 +2,6 @@
 
 hostname = "localhost"
 username = "map"
-password = "35j2q3t3h"
+password = "437y6hg34"
 dbName = "map"
-fina = "/home/tim/Downloads/northern_mariana_islands.osm.bz2"
+fina = "/home/tim/Downloads/egypt.osm.bz2"

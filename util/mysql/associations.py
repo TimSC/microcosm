@@ -56,7 +56,7 @@ class AssociationParser:
 				self.count += 1
 				if self.count % 1000 == 0:
 					self.con.commit()
-					print self.count
+					print self.count, self.countObjs
 
 			if tag == "member":
 				#print tag, attrs

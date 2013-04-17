@@ -46,13 +46,13 @@ class NodePositionParser:
 
 		if tag == "node" and self.depth == 2:
 			changeset = int(attrs['changeset'])
-			uid = int(attrs['uid'])
+			#uid = int(attrs['uid'])
 			objectCode = ToObjectCode(tag)
 			timestamp = attrs['timestamp']
 			lon = float(attrs['lon'])
 			lat = float(attrs['lat'])
 			version = int(attrs['version'])
-			user = attrs['user']
+			#user = attrs['user']
 			objId = int(attrs[u'id'])
 
 			#print uid, lon, lat
