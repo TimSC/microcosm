@@ -92,7 +92,7 @@ if __name__ == "__main__":
 		reading = 1
 		parser = TagParser(con)
 		while reading:
-			xmlTxt = inFinaXml.read(1024 * 1024)
+			xmlTxt = inFinaXml.read(config.pageSize)
 			if len(xmlTxt) > 0:
 				parser.Parse(xmlTxt, 0)
 			else:
