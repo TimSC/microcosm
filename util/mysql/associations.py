@@ -1,6 +1,7 @@
 import MySQLdb as mdb
 import sys, bz2
 import xml.parsers.expat as expat
+import config
 
 def ToObjectCode(objType):
 	if objType == "node": return 0;
@@ -18,7 +19,7 @@ class AssociationParser:
 		self.objectType = None
 		self.objectId = None
 		self.objectVer = None
-		self.dbName = "map"
+		self.dbName = config.dbName
 		self.count = 0
 		self.countObjs = {}
 		self.con = con
@@ -86,18 +87,17 @@ if __name__ == "__main__":
 
 	try:
 
-		dbName = "map"
-		con = mdb.connect('localhost', 'map', 'maptest222', dbName);
+		con = mdb.connect(config.hostname, config.username, \
+			config.password, config.dbName);
 		cur = con.cursor()
 
-		sql = "DROP TABLE IF EXISTS "+dbName+".assoc;"
+		sql = "DROP TABLE IF EXISTS "+config.dbName+".assoc;"
 		cur.execute(sql)
 
-		sql = "CREATE TABLE IF NOT EXISTS "+dbName+".assoc (intid BIGINT PRIMARY KEY AUTO_INCREMENT, ptype INTEGER, pid BIGINT, pver BIGINT, ctype INTEGER, cid BIGINT, role TEXT, INDEX(pid,cid)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
+		sql = "CREATE TABLE IF NOT EXISTS "+config.dbName+".assoc (intid BIGINT PRIMARY KEY AUTO_INCREMENT, ptype INTEGER, pid BIGINT, pver BIGINT, ctype INTEGER, cid BIGINT, role TEXT, INDEX(pid,cid)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		cur.execute(sql)
 
-		inFina = "/home/tim/Downloads/northern_mariana_islands.osm.bz2"
-		inFinaXml = bz2.BZ2File(inFina,'r')
+		inFinaXml = bz2.BZ2File(config.fina, 'r')
 
 		#Read text file into expat parser	
 		reading = 1
