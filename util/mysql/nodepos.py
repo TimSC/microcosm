@@ -2,9 +2,15 @@ import MySQLdb as mdb
 import sys, bz2
 import xml.parsers.expat as expat
 
-class Parser:
+def ToObjectCode(objType):
+	if objType == "node": return 0;
+	if objType == "way": return 1;
+	if objType == "relation": return 2;
+	raise Exception("Unrecognised type")
 
-	def __init__(self):
+class NodePositionParser:
+
+	def __init__(self, con):
 		self._parser = expat.ParserCreate()
 		self._parser.StartElementHandler = self.start
 		self._parser.EndElementHandler = self.end
@@ -12,7 +18,14 @@ class Parser:
 		self.objectType = None
 		self.objectId = None
 		self.objectVer = None
+		self.dbName = "map"
+		self.count = 0
+		self.con = con
+		self.cur = self.con.cursor()
 
+	def __del__(self):
+		self.con.commit()
+		
 	def Parse(self, data, done):
 		self._parser.Parse(data, done)
 
@@ -28,14 +41,23 @@ class Parser:
 		if tag == "node" and self.depth == 2:
 			changeset = int(attrs['changeset'])
 			uid = int(attrs['uid'])
+			objectCode = ToObjectCode(tag)
 			timestamp = attrs['timestamp']
 			lon = float(attrs['lon'])
 			lat = float(attrs['lat'])
 			version = int(attrs['version'])
 			user = attrs['user']
-			uid = int(attrs[u'id'])
+			objId = int(attrs[u'id'])
 
-			print uid, lon, lat
+			#print uid, lon, lat
+
+			sql = "INSERT INTO "+self.dbName+".geom (g, type, id, ver) VALUES (GeomFromText('POINT("+str(lat)+" "+str(lon)+")'),"+str(objectCode)+","+str(objId)+","+str(version)+");";
+			#print sql
+			self.cur.execute(sql)
+			self.count += 1
+			if self.count % 1000 == 0:
+				self.con.commit()
+				print self.count
 
 	def end(self, tag):
 		
@@ -46,7 +68,6 @@ class Parser:
 
 		#print "END", repr(tag)
 		self.depth -= 1
-
 
 if __name__ == "__main__":
 
@@ -59,7 +80,10 @@ if __name__ == "__main__":
 		con = mdb.connect('localhost', 'map', 'maptest222', dbName);
 		cur = con.cursor()
 
-		sql = "CREATE TABLE IF NOT EXISTS "+dbName+".geom (intid BIGINT PRIMARY KEY, g GEOMETRY NOT NULL, SPATIAL INDEX(g), type INTEGER, id BIGINT, ver BIGINT, INDEX(id,ver)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
+		sql = "DROP TABLE IF EXISTS "+dbName+".geom;"
+		cur.execute(sql)
+
+		sql = "CREATE TABLE IF NOT EXISTS "+dbName+".geom (intid BIGINT PRIMARY KEY AUTO_INCREMENT, g GEOMETRY NOT NULL, SPATIAL INDEX(g), type INTEGER, id BIGINT, ver BIGINT, INDEX(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		cur.execute(sql)
 
 		inFina = "/home/tim/Downloads/northern_mariana_islands.osm.bz2"
@@ -67,7 +91,7 @@ if __name__ == "__main__":
 
 		#Read text file into expat parser	
 		reading = 1
-		parser = Parser()
+		parser = NodePositionParser(con)
 		while reading:
 			xmlTxt = inFinaXml.read(1024 * 1024)
 			if len(xmlTxt) > 0:
