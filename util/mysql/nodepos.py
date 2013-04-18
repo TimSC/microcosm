@@ -7,7 +7,8 @@ def ToObjectCode(objType):
 	if objType == "node": return 0;
 	if objType == "way": return 1;
 	if objType == "relation": return 2;
-	raise Exception("Unrecognised type")
+	#raise Exception("Unrecognised type "+objType)
+	return -1;
 
 class NodePositionParser:
 
@@ -35,7 +36,11 @@ class NodePositionParser:
 		#print "START", repr(tag), attrs
 		self.depth += 1
 
+		if tag == "bound": return
+		if tag == "changeset": return
+
 		if self.depth == 2:
+			print tag, attrs
 			self.objectType = ToObjectCode(tag)
 			self.objectId = int(attrs['id'])
 			self.objectVer = int(attrs['version'])
@@ -45,6 +50,7 @@ class NodePositionParser:
 			self.countObjs[self.objectType] += 1
 
 		if tag == "node" and self.depth == 2:
+			print tag, attrs
 			changeset = int(attrs['changeset'])
 			#uid = int(attrs['uid'])
 			objectCode = ToObjectCode(tag)

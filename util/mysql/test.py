@@ -7,9 +7,10 @@ def ToObjectCode(objType):
 	if objType == "node": return 0;
 	if objType == "way": return 1;
 	if objType == "relation": return 2;
-	raise Exception("Unrecognised type")
+	#raise Exception("Unrecognised type "+objType)
+	return -1;
 
-class TagParser:
+class NodePositionParser:
 
 	def __init__(self, con):
 		self._parser = expat.ParserCreate()
@@ -38,36 +39,10 @@ class TagParser:
 		if tag == "bound": return
 		if tag == "changeset": return
 
-		if self.depth == 2:
-			self.objectType = ToObjectCode(tag)
-			self.objectId = int(attrs['id'])
-			self.objectVer = int(attrs['version'])
-
-			if self.objectType not in self.countObjs:
-				self.countObjs[self.objectType] = 0
-			self.countObjs[self.objectType] += 1
-
-		if tag == "tag" and self.depth == 3:
-			if attrs['k'] != 'created_by':
-
-				#print repr(tag), attrs
-				test = ".tags (type, id, ver, k, v) VALUES ({0},{1},{2},'{3}','{4}');".format(self.objectType, self.objectId, \
-					self.objectVer, self.con.escape_string(attrs['k'].encode("UTF-8")), self.con.escape_string(attrs['v'].encode("UTF-8")))
-				sql = "INSERT INTO "+self.dbName+test;
-				#print sql
-				self.cur.execute(sql)
-				self.count += 1
-				if self.count % 1000 == 0:
-					self.con.commit()
-					print self.count, self.countObjs
+		#print tag, self.depth#, attrs
 
 	def end(self, tag):
 		
-		if self.depth == 2:
-			self.objectType = None
-			self.objectId = None
-			self.objectVer = None
-
 		#print "END", repr(tag)
 		self.depth -= 1
 
@@ -82,24 +57,28 @@ if __name__ == "__main__":
 			config.password, config.dbName);
 		cur = con.cursor()
 
-		sql = "DROP TABLE IF EXISTS "+config.dbName+".tags;"
+		sql = "DROP TABLE IF EXISTS "+config.dbName+".geom;"
 		cur.execute(sql)
 
-		sql = "CREATE TABLE IF NOT EXISTS "+config.dbName+".tags (intid BIGINT PRIMARY KEY AUTO_INCREMENT, type INTEGER, id BIGINT, ver BIGINT, k VARCHAR(255), v VARCHAR(255), INDEX(id), INDEX(k), INDEX(v)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
-		print sql
+		sql = "CREATE TABLE IF NOT EXISTS "+config.dbName+".geom (intid BIGINT PRIMARY KEY AUTO_INCREMENT, g GEOMETRY NOT NULL, SPATIAL INDEX(g), type INTEGER, id BIGINT, ver BIGINT, INDEX(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		cur.execute(sql)
 
 		inFinaXml = bz2.BZ2File(config.fina, 'r')
+		out = open("out.txt","wt")
 
 		#Read text file into expat parser	
 		reading = 1
-		parser = TagParser(con)
+		parser = NodePositionParser(con)
 		while reading:
 			xmlTxt = inFinaXml.read(config.pageSize)
+			print len(xmlTxt)
 			if len(xmlTxt) > 0:
+				out.write(xmlTxt)
+				out.flush()
 				parser.Parse(xmlTxt, 0)
 			else:
 				reading = 0
+		print "here"
 		parser.Parse("",1)
 
 

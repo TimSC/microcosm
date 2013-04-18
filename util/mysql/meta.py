@@ -35,6 +35,9 @@ class TagParser:
 		#print "START", repr(tag), attrs
 		self.depth += 1
 
+		if tag == "bound": return
+		if tag == "changeset": return
+
 		if self.depth == 2:
 			self.objectType = ToObjectCode(tag)
 			self.objectId = int(attrs['id'])
