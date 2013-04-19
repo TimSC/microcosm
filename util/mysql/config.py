@@ -1,7 +1,7 @@
 #nice bzcat planet.osm.bz2 | bzip2 > test.bz2
 
-hostname = "localhost"
-username = "map"
+hostname = "192.168.1.2"
+username = "mapremote"
 password = "437y6hg34"
 dbName = "map"
 #fina = "/home/tim/Downloads/egypt.osm.bz2"
