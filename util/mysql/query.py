@@ -3,9 +3,15 @@ import sys, bz2, pickle
 import config
 
 def ToObjectCode(objType):
-	if objType == "node": return 0;
-	if objType == "way": return 1;
-	if objType == "relation": return 2;
+	if objType == "node": return 0
+	if objType == "way": return 1
+	if objType == "relation": return 2
+	raise Exception("Unrecognised type")
+
+def ObjectCodeToStr(objCode):
+	if objCode == 0: return "node"
+	if objCode == 1: return "way"
+	if objCode == 2: return "relation"
 	raise Exception("Unrecognised type")
 
 class AssocTable:
@@ -29,16 +35,15 @@ class AssocTable:
 		sql = "SELECT ptype, pid, pver FROM "+config.dbName+(".assoc WHERE cid={0}".format(oid))+(" AND ctype={0};".format(ty))
 		#print sql
 
-		print "1"
 		self.cur.execute(sql)
 		parents = self.cur.fetchall()
-		print "2"
 		return parents
 
 class MetaTable:
 	def __init__(self, cur):
 		self.cur = cur
 		self.highestVerCache = {}
+		self.metaCache = {}
 
 	def GetHighestVersionNumOfObj(self, ty, oid):
 		if (ty, oid) in self.highestVerCache:
@@ -49,6 +54,16 @@ class MetaTable:
 		maxver = cur.fetchone()
 		self.highestVerCache[(ty, oid)] = maxver[0]
 		return maxver[0]
+
+	def GetObject(self, ty, oid, ver):
+		if (ty, oid, ver) in self.metaCache:
+			return self.metaCache[(ty, oid, ver)]
+		sql = "SELECT changeset, user, uid, timestamp FROM "+\
+			config.dbName+".meta WHERE id={1} AND type={0} AND ver={2};".format(ty, oid, ver)
+		cur.execute(sql)
+		obj = cur.fetchone()
+		self.metaCache[(ty, oid, ver)] = obj
+		return obj
 
 class GeomTable:
 	def __init__(self, cur):
@@ -82,17 +97,28 @@ class GeomTable:
 	def GetNode(self, nodeId, ver):
 
 		if (nodeId, ver) in self.nodeCache:
-			print "cache hit"
 			return self.nodeCache[(nodeId, ver)]
 
 		sql = "SELECT AsText(geom.g), geom.id, geom.ver FROM "+config.dbName+".geom "\
-			"WHERE type=0 AND id={0} AND ver={1};".format(nodeId, ver);
+			"WHERE id={0} AND type=0 AND ver={1};".format(nodeId, ver);
 		#print sql
 		self.cur.execute(sql)
 		recentNode = self.cur.fetchone()
 		latLon = map(float, recentNode[0][6:-1].split(" "))
 		self.nodeCache[(nodeId, ver)] = latLon
 		return latLon
+
+class TagTable:
+	def __init__(self, cur):
+		self.cur = cur
+
+	def GetObject(self, ty, oid, ver):
+		sql = "SELECT k, v FROM "+config.dbName+".tags "\
+			"WHERE id={1} AND type={0} AND ver={2};".format(ty, oid, ver);
+		#print sql
+		self.cur.execute(sql)
+		tags = self.cur.fetchall()
+		return tags
 
 def QueryBbox(bbox, assocTable, metaTable, geomTable):
 	nodesInBbox = geomTable.NodesInBbox(bbox)
@@ -162,6 +188,54 @@ def QueryBbox(bbox, assocTable, metaTable, geomTable):
 
 	return extendedObjs
 
+def ObjToXml(ty, oid, ver, assocTable, metaTable, geomTable, tagTable):
+
+	metaData = metaTable.GetObject(ty, oid, ver)
+	if metaData == None:
+		raise Exception("Object not found")
+
+	out = "  <{0} id='{1}' timestamp='{2}' uid='{3}' user='{4}' visible='{5}' version='{6}' changeset='{7}'"\
+		.format(ObjectCodeToStr(ty), oid, metaData[3], metaData[2], metaData[1].decode('utf-8'), "true", ver, metaData[0])
+	if ty == 0:
+		node = geomTable.GetNode(oid, ver)
+		out += " lat='{0}' lon='{1}'".format(*node)
+	out += ">"
+
+	tags = tagTable.GetObject(ty, oid, ver)
+	for tag in tags:
+		out += "    <tag k=\"{0}\" v=\"{1}\" />\n".format(tag[0].decode('utf-8'), tag[1].decode('utf-8'))
+
+	if ty != 0: #Nodes can't have children
+		children = assocTable.GetChildren(ty, oid, ver)
+		for child in children:
+			if ty == 1: out += "    <nd ref='"+str(child[1])+"' />\n"
+			#if ty == 2: out += "    <nd ref='"+str(child[1])+"' />\n"
+	out += "</"+ObjectCodeToStr(ty)+">\n"
+	return out.encode('utf-8')
+
+def ObjListToXml(objs, bbox, assocTable, metaTable, geomTable, tagTable, out):
+
+	out.write("<?xml version='1.0' encoding='UTF-8'?>\n")
+	out.write("<osm version='0.6' generator='mysql-query'>\n")
+	out.write("<bounds minlat='{0}' minlon='{1}' maxlat='{2}' maxlon='{3}' origin='mysql-query' />\n".format(bbox[1], bbox[0], bbox[3], bbox[2]))
+
+	#Dump nodes
+	for obj in objs:
+		if obj[0] != 0: continue
+		out.write(ObjToXml(obj[0], obj[1], obj[2], assocTable, metaTable, geomTable, tagTable))
+
+	#Dump ways
+	for obj in objs:
+		if obj[0] != 1: continue
+		out.write(ObjToXml(obj[0], obj[1], obj[2], assocTable, metaTable, geomTable, tagTable))
+
+	#Dump relations
+	for obj in objs:
+		if obj[0] != 2: continue
+		out.write(ObjToXml(obj[0], obj[1], obj[2], assocTable, metaTable, geomTable, tagTable))
+
+	out.write("</osm>\n");
+
 if __name__ == "__main__":
 
 	con = mdb.connect(config.hostname, config.username, \
@@ -171,13 +245,17 @@ if __name__ == "__main__":
 	assocTable = AssocTable(cur)
 	metaTable = MetaTable(cur)
 	geomTable = GeomTable(cur)
+	tagTable = TagTable(cur)
 
 	bbox = [-0.526129,51.277553,-0.5081755,51.2828722]
 	extendedObjs = QueryBbox(bbox, assocTable, metaTable, geomTable)
 
-	pickle.dump(extendedObjs, open("extendedObj.dat","wb"), protocol = -1)
+	#pickle.dump(extendedObjs, open("extendedObj.dat","wb"), protocol = -1)
 
 	#Dump extended objects to output
-	#TODO
+	fi = open("out.osm","wt")
+	ObjListToXml(extendedObjs, bbox, assocTable, metaTable, geomTable, tagTable, fi)
+
+
 
 
