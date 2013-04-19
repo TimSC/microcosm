@@ -40,7 +40,7 @@ class NodePositionParser:
 		if tag == "changeset": return
 
 		if self.depth == 2:
-			print tag, attrs
+			#print tag, attrs
 			self.objectType = ToObjectCode(tag)
 			self.objectId = int(attrs['id'])
 			self.objectVer = int(attrs['version'])
@@ -50,7 +50,7 @@ class NodePositionParser:
 			self.countObjs[self.objectType] += 1
 
 		if tag == "node" and self.depth == 2:
-			print tag, attrs
+			#print tag, attrs
 			changeset = int(attrs['changeset'])
 			#uid = int(attrs['uid'])
 			objectCode = ToObjectCode(tag)
