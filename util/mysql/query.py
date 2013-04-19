@@ -1,5 +1,5 @@
 import MySQLdb as mdb
-import sys, bz2
+import sys, bz2, pickle
 import config
 
 def ToObjectCode(objType):
@@ -24,6 +24,16 @@ class AssocTable:
 		children = self.cur.fetchall()
 		self.childrenCache[(ty, oid, ver)] = children
 		return children
+
+	def GetParents(self, ty, oid):
+		sql = "SELECT ptype, pid, pver FROM "+config.dbName+(".assoc WHERE cid={0}".format(oid))+(" AND ctype={0};".format(ty))
+		#print sql
+
+		print "1"
+		self.cur.execute(sql)
+		parents = self.cur.fetchall()
+		print "2"
+		return parents
 
 class MetaTable:
 	def __init__(self, cur):
@@ -84,17 +94,7 @@ class GeomTable:
 		self.nodeCache[(nodeId, ver)] = latLon
 		return latLon
 
-if __name__ == "__main__":
-
-	con = mdb.connect(config.hostname, config.username, \
-		config.password, config.dbName);
-	cur = con.cursor()
-
-	assocTable = AssocTable(cur)
-	metaTable = MetaTable(cur)
-	geomTable = GeomTable(cur)
-
-	bbox = [-0.526129,51.267553,-0.5081755,51.2828722]
+def QueryBbox(bbox, assocTable, metaTable, geomTable):
 	nodesInBbox = geomTable.NodesInBbox(bbox)
 
 	#Check if these are the highest known node versions
@@ -123,12 +123,8 @@ if __name__ == "__main__":
 	while len(seekLi) > 0:
 		print "Seek list len", len(seekLi)
 		obj = seekLi.pop(0)
+		parents = assocTable.GetParents(obj[0], obj[1])
 
-		sql = "SELECT ptype, pid, pver FROM "+config.dbName+(".assoc WHERE cid={0}".format(obj[1]))+(" AND ctype={0};".format(obj[0]))
-		#print sql
-
-		cur.execute(sql)
-		parents = cur.fetchall()
 		if len(parents) > 0:
 			for p in parents:
 				#Get latest version
@@ -149,8 +145,8 @@ if __name__ == "__main__":
 					coreObjs.append((p[0], p[1], maxver))
 					seekLi.append((p[0], p[1]))
 
-	#Generate extended node list (including ways that extend out of the bbox)
-	extendedObj = coreObjs[:]
+	#Generate extended node list (including nodes of ways that extend out of the bbox)
+	extendedObjs = coreObjs[:]
 	for coreObj in coreObjs:
 		#Only process ways
 		if coreObj[0] != 1:
@@ -159,5 +155,29 @@ if __name__ == "__main__":
 
 		children = assocTable.GetChildren(coreObj[0], coreObj[1], coreObj[2])
 		for child in children:
-			pass
+			maxver = metaTable.GetHighestVersionNumOfObj(child[0], child[1])
+			if (child[0], child[1], maxver) not in extendedObjs:
+				print "Found extended obj", (child[0], child[1], maxver)
+				extendedObjs.append((child[0], child[1], maxver))
+
+	return extendedObjs
+
+if __name__ == "__main__":
+
+	con = mdb.connect(config.hostname, config.username, \
+		config.password, config.dbName);
+	cur = con.cursor()
+
+	assocTable = AssocTable(cur)
+	metaTable = MetaTable(cur)
+	geomTable = GeomTable(cur)
+
+	bbox = [-0.526129,51.277553,-0.5081755,51.2828722]
+	extendedObjs = QueryBbox(bbox, assocTable, metaTable, geomTable)
+
+	pickle.dump(extendedObjs, open("extendedObj.dat","wb"), protocol = -1)
+
+	#Dump extended objects to output
+	#TODO
+
 
