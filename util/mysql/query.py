@@ -23,7 +23,7 @@ class AssocTable:
 		if (ty, oid, ver) in self.childrenCache:
 			return self.childrenCache[(ty, oid, ver)]
 
-		sql = "SELECT ctype, cid FROM "+config.dbName+(".assoc WHERE pid={0}".format(oid))+\
+		sql = "SELECT ctype, cid, role FROM "+config.dbName+(".assoc WHERE pid={0}".format(oid))+\
 			(" AND ptype={0}".format(ty))+\
 			(" AND pver={0};".format(ver))
 		self.cur.execute(sql)
@@ -147,7 +147,8 @@ def QueryBbox(bbox, assocTable, metaTable, geomTable):
 
 	#Get parents
 	while len(seekLi) > 0:
-		print "Seek list len", len(seekLi)
+		if len(seekLi) % 1000==0:
+			print "Seek list len", len(seekLi)
 		obj = seekLi.pop(0)
 		parents = assocTable.GetParents(obj[0], obj[1])
 
@@ -173,11 +174,11 @@ def QueryBbox(bbox, assocTable, metaTable, geomTable):
 
 	#Generate extended node list (including nodes of ways that extend out of the bbox)
 	extendedObjs = coreObjs[:]
-	for coreObj in coreObjs:
+	for count, coreObj in enumerate(coreObjs):
 		#Only process ways
 		if coreObj[0] != 1:
 			continue
-		print coreObj
+		print count, len(coreObjs), coreObj
 
 		children = assocTable.GetChildren(coreObj[0], coreObj[1], coreObj[2])
 		for child in children:
@@ -194,7 +195,8 @@ def ObjToXml(ty, oid, ver, assocTable, metaTable, geomTable, tagTable):
 	if metaData == None:
 		raise Exception("Object not found")
 
-	out = "  <{0} id='{1}' timestamp='{2}' uid='{3}' user='{4}' visible='{5}' version='{6}' changeset='{7}'"\
+	out = unicode("")
+	out += "  <{0} id='{1}' timestamp='{2}' uid='{3}' user='{4}' visible='{5}' version='{6}' changeset='{7}'"\
 		.format(ObjectCodeToStr(ty), oid, metaData[3], metaData[2], metaData[1].decode('utf-8'), "true", ver, metaData[0])
 	if ty == 0:
 		node = geomTable.GetNode(oid, ver)
@@ -209,7 +211,7 @@ def ObjToXml(ty, oid, ver, assocTable, metaTable, geomTable, tagTable):
 		children = assocTable.GetChildren(ty, oid, ver)
 		for child in children:
 			if ty == 1: out += "    <nd ref='"+str(child[1])+"' />\n"
-			#if ty == 2: out += "    <nd ref='"+str(child[1])+"' />\n"
+			if ty == 2: out += "    <member type='{0}' ref='{1}' role='{2}' />\n".format(ObjectCodeToStr(child[0]), child[1], child[2])
 	out += "</"+ObjectCodeToStr(ty)+">\n"
 	return out.encode('utf-8')
 
@@ -247,10 +249,11 @@ if __name__ == "__main__":
 	geomTable = GeomTable(cur)
 	tagTable = TagTable(cur)
 
-	bbox = [-0.526129,51.277553,-0.5081755,51.2828722]
+	bbox = [-0.526129,51.277553,-0.5081755,51.2828722] #Small area
+	#bbox = [-0.6365204,51.2008603,-0.5081177,51.2750181] #Guildford area
 	extendedObjs = QueryBbox(bbox, assocTable, metaTable, geomTable)
 
-	#pickle.dump(extendedObjs, open("extendedObj.dat","wb"), protocol = -1)
+	pickle.dump(extendedObjs, open("extendedObj.dat","wb"), protocol = -1)
 
 	#Dump extended objects to output
 	fi = open("out.osm","wt")
