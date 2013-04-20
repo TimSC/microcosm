@@ -47,7 +47,7 @@ class AssociationParser:
 				self.countObjs[self.objectType] = 0
 			self.countObjs[self.objectType] += 1
 
-		if self.depth == 3:
+		if self.depth == 3 and self.objectType!=None:
 			
 			if tag == "nd":
 				#print repr(tag), attrs

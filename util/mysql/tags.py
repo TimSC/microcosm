@@ -32,8 +32,9 @@ class TagParser:
 		self._parser.Parse(data, done)
 
 	def start(self, tag, attrs):
-		#print "START", repr(tag), attrs
+
 		self.depth += 1
+		#print "START", self.depth, repr(tag)
 
 		if tag == "bound": return
 		if tag == "changeset": return
@@ -47,14 +48,13 @@ class TagParser:
 				self.countObjs[self.objectType] = 0
 			self.countObjs[self.objectType] += 1
 
-		if tag == "tag" and self.depth == 3:
+		if tag == "tag" and self.depth == 3 and self.objectType!=None:
 			if attrs['k'] != 'created_by':
 
 				#print repr(tag), attrs
 				test = ".tags (type, id, ver, k, v) VALUES ({0},{1},{2},'{3}','{4}');".format(self.objectType, self.objectId, \
 					self.objectVer, self.con.escape_string(attrs['k'].encode("UTF-8")), self.con.escape_string(attrs['v'].encode("UTF-8")))
 				sql = "INSERT INTO "+self.dbName+test;
-				#print sql
 				self.cur.execute(sql)
 				self.count += 1
 				if self.count % 1000 == 0:
@@ -88,6 +88,7 @@ if __name__ == "__main__":
 		sql = "CREATE TABLE IF NOT EXISTS "+config.dbName+".tags (intid BIGINT PRIMARY KEY AUTO_INCREMENT, type INTEGER, id BIGINT, ver BIGINT, k VARCHAR(255), v VARCHAR(255), INDEX(id), INDEX(k), INDEX(v)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		print sql
 		cur.execute(sql)
+		print "Create table done"
 
 		inFinaXml = bz2.BZ2File(config.fina, 'r')
 

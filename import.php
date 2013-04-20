@@ -1,4 +1,6 @@
 <?php
+apd_set_pprof_trace(".");
+
 include_once('importfuncs.php');
 
 //print_r($_SERVER);

@@ -9,13 +9,13 @@ define("LICENSE_HUMAN","TBC");
 define("INSTALL_FOLDER_DEPTH",2);
 set_time_limit(60);
 
-define("BACKEND_DATABASE","sqlite");
-#define("BACKEND_DATABASE","mysql");
+#define("BACKEND_DATABASE","sqlite");
+define("BACKEND_DATABASE","mysql");
 
-define("MYSQL_DB_NAME","db_map");
+define("MYSQL_DB_NAME","map");
 define("MYSQL_SERVER","localhost");
-define("MYSQL_USER","map_map");
-define("MYSQL_PASSWORD","4yuy34udm"); #Keeping this as default is a bad idea
+define("MYSQL_USER","map");
+define("MYSQL_PASSWORD","437y6hg34"); #Keeping this as default is a bad idea
 
 define("API_READ_ONLY",false);
 define("ENABLE_ANON_EDITS",false);

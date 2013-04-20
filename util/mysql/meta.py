@@ -37,9 +37,10 @@ class TagParser:
 
 		if tag == "bound": return
 		if tag == "changeset": return
-
 		if self.depth == 2:
 			self.objectType = ToObjectCode(tag)
+
+		if self.depth == 2 and self.objectType is not None:
 			self.objectId = int(attrs['id'])
 			self.objectVer = int(attrs['version'])
 

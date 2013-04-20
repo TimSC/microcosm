@@ -106,6 +106,7 @@ if __name__ == "__main__":
 		while reading:
 			xmlTxt = inFinaXml.read(config.pageSize)
 			if len(xmlTxt) > 0:
+				print len(xmlTxt)
 				parser.Parse(xmlTxt, 0)
 			else:
 				reading = 0
