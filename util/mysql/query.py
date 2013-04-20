@@ -168,7 +168,7 @@ def QueryBbox(bbox, assocTable, metaTable, geomTable):
 				
 				#Check if this is a newly discovered parent
 				if (p[0], p[1], maxver) not in coreObjs:
-					print "Confirmed parent", p[0], p[1]
+					print "Confirmed parent", p[0], p[1], "(", len(seekLi) ,"remain)"
 					coreObjs.append((p[0], p[1], maxver))
 					seekLi.append((p[0], p[1]))
 
@@ -189,15 +189,26 @@ def QueryBbox(bbox, assocTable, metaTable, geomTable):
 
 	return extendedObjs
 
-def ObjToXml(ty, oid, ver, assocTable, metaTable, geomTable, tagTable):
+def ObjToXml(ty, oid, ver, assocTable, metaTable, geomTable, tagTable, replaceAmpersands = True):
 
 	metaData = metaTable.GetObject(ty, oid, ver)
 	if metaData == None:
 		raise Exception("Object not found")
 
 	out = unicode("")
-	out += "  <{0} id='{1}' timestamp='{2}' uid='{3}' user='{4}' visible='{5}' version='{6}' changeset='{7}'"\
-		.format(ObjectCodeToStr(ty), oid, metaData[3], metaData[2], metaData[1].decode('utf-8'), "true", ver, metaData[0])
+	out += "  <{0} id='{1}' timestamp='{2}'".format(ObjectCodeToStr(ty), oid, metaData[3])
+	
+	if metaData[2] is not None:
+		out += " uid='{0}'".format(metaData[2])
+	if metaData[1] is not None:
+		userStr = metaData[1].decode('utf-8')
+		if replaceAmpersands: userStr = userStr.replace("&", "&amp;")
+		userStr = userStr.replace("\"", "&quot;")
+		userStr = userStr.replace("'", "&#39;")
+		out += unicode(" user='{0}'").format(userStr)
+
+	out += " visible='{0}' version='{1}' changeset='{2}'"\
+		.format("true", ver, metaData[0])
 	if ty == 0:
 		node = geomTable.GetNode(oid, ver)
 		out += " lat='{0}' lon='{1}'".format(*node)
@@ -205,7 +216,17 @@ def ObjToXml(ty, oid, ver, assocTable, metaTable, geomTable, tagTable):
 
 	tags = tagTable.GetObject(ty, oid, ver)
 	for tag in tags:
-		out += "    <tag k=\"{0}\" v=\"{1}\" />\n".format(tag[0].decode('utf-8'), tag[1].decode('utf-8'))
+		kdec = tag[0].decode('utf-8')
+		vdec = tag[1].decode('utf-8')
+		if replaceAmpersands:
+			kdec = kdec.replace("&", "&amp;")
+			vdec = vdec.replace("&", "&amp;")
+		kdec = kdec.replace("\"", "&quot;")
+		kdec = kdec.replace("'", "&#39;")
+		vdec = vdec.replace("\"", "&quot;")
+		vdec = vdec.replace("'", "&#39;")
+
+		out += unicode("    <tag k=\"{0}\" v=\"{1}\" />\n").format(kdec, vdec)
 
 	if ty != 0: #Nodes can't have children
 		children = assocTable.GetChildren(ty, oid, ver)
@@ -222,16 +243,19 @@ def ObjListToXml(objs, bbox, assocTable, metaTable, geomTable, tagTable, out):
 	out.write("<bounds minlat='{0}' minlon='{1}' maxlat='{2}' maxlon='{3}' origin='mysql-query' />\n".format(bbox[1], bbox[0], bbox[3], bbox[2]))
 
 	#Dump nodes
+	print "Dumping nodes"
 	for obj in objs:
 		if obj[0] != 0: continue
 		out.write(ObjToXml(obj[0], obj[1], obj[2], assocTable, metaTable, geomTable, tagTable))
 
 	#Dump ways
+	print "Dumping ways"
 	for obj in objs:
 		if obj[0] != 1: continue
 		out.write(ObjToXml(obj[0], obj[1], obj[2], assocTable, metaTable, geomTable, tagTable))
 
 	#Dump relations
+	print "Dumping relations"
 	for obj in objs:
 		if obj[0] != 2: continue
 		out.write(ObjToXml(obj[0], obj[1], obj[2], assocTable, metaTable, geomTable, tagTable))
@@ -249,11 +273,12 @@ if __name__ == "__main__":
 	geomTable = GeomTable(cur)
 	tagTable = TagTable(cur)
 
-	bbox = [-0.526129,51.277553,-0.5081755,51.2828722] #Small area
-	#bbox = [-0.6365204,51.2008603,-0.5081177,51.2750181] #Guildford area
-	extendedObjs = QueryBbox(bbox, assocTable, metaTable, geomTable)
+	#bbox = [-0.526129,51.277553,-0.5081755,51.2828722] #Small area
+	bbox = [-0.6365204,51.2008603,-0.5081177,51.2750181] #Guildford area
 
-	pickle.dump(extendedObjs, open("extendedObj.dat","wb"), protocol = -1)
+	#extendedObjs = QueryBbox(bbox, assocTable, metaTable, geomTable)
+	#pickle.dump(extendedObjs, open("extendedObj.dat","wb"), protocol = -1)
+	extendedObjs = pickle.load(open("extendedObj.dat","rb"))
 
 	#Dump extended objects to output
 	fi = open("out.osm","wt")
