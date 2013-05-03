@@ -85,7 +85,7 @@ if __name__ == "__main__":
 		sql = "DROP TABLE IF EXISTS "+config.dbName+".tags;"
 		cur.execute(sql)
 
-		sql = "CREATE TABLE IF NOT EXISTS "+config.dbName+".tags (intid BIGINT PRIMARY KEY AUTO_INCREMENT, type INTEGER, id BIGINT, ver BIGINT, k VARCHAR(255), v VARCHAR(255), INDEX(id), INDEX(k), INDEX(v)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
+		sql = "CREATE TABLE IF NOT EXISTS "+config.dbName+".tags (intid BIGINT PRIMARY KEY AUTO_INCREMENT, type INTEGER, id BIGINT, ver BIGINT, k VARCHAR(255), v VARCHAR(255)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		print sql
 		cur.execute(sql)
 		print "Create table done"

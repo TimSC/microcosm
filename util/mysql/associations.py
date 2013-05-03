@@ -97,7 +97,7 @@ if __name__ == "__main__":
 		sql = "DROP TABLE IF EXISTS "+config.dbName+".assoc;"
 		cur.execute(sql)
 
-		sql = "CREATE TABLE IF NOT EXISTS "+config.dbName+".assoc (intid BIGINT PRIMARY KEY AUTO_INCREMENT, ptype INTEGER, pid BIGINT, pver BIGINT, ctype INTEGER, cid BIGINT, role TEXT, INDEX(pid, ptype), INDEX(cid, ctype)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
+		sql = "CREATE TABLE IF NOT EXISTS "+config.dbName+".assoc (intid BIGINT PRIMARY KEY AUTO_INCREMENT, ptype INTEGER, pid BIGINT, pver BIGINT, ctype INTEGER, cid BIGINT, role TEXT, INDEX(pid, ptype)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		cur.execute(sql)
 
 		inFinaXml = bz2.BZ2File(config.fina, 'r')

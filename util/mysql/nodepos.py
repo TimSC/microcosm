@@ -95,7 +95,7 @@ if __name__ == "__main__":
 		sql = "DROP TABLE IF EXISTS "+config.dbName+".geom;"
 		cur.execute(sql)
 
-		sql = "CREATE TABLE IF NOT EXISTS "+config.dbName+".geom (intid BIGINT PRIMARY KEY AUTO_INCREMENT, g GEOMETRY NOT NULL, SPATIAL INDEX(g), type INTEGER, id BIGINT, ver BIGINT, INDEX(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
+		sql = "CREATE TABLE IF NOT EXISTS "+config.dbName+".geom (intid BIGINT PRIMARY KEY AUTO_INCREMENT, g GEOMETRY NOT NULL, SPATIAL INDEX(g), type INTEGER, id BIGINT, ver BIGINT) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		cur.execute(sql)
 
 		inFinaXml = bz2.BZ2File(config.fina, 'r')
