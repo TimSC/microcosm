@@ -1,7 +1,7 @@
 import MySQLdb as mdb
 import sys, bz2
 import xml.parsers.expat as expat
-import config
+import config, time
 
 def ToObjectCode(objType):
 	if objType == "node": return 0;
@@ -25,6 +25,7 @@ class NodePositionParser:
 		self.countObjs = {}
 		self.con = con
 		self.cur = self.con.cursor()
+		self.buffer = []
 
 	def __del__(self):
 		self.con.commit()
@@ -62,14 +63,28 @@ class NodePositionParser:
 			objId = int(attrs[u'id'])
 
 			#print uid, lon, lat
+			record = {'lat':lat,'lon':lon,'objectCode':objectCode,'objId':objId,'version':version}
+			self.buffer.append(record)
 
-			sql = "INSERT INTO "+self.dbName+".geom (g, type, id, ver) VALUES (GeomFromText('POINT("+str(lat)+" "+str(lon)+")'),"+str(objectCode)+","+str(objId)+","+str(version)+");";
-			#print sql
-			self.cur.execute(sql)
-			self.count += 1
-			if self.count % 1000 == 0:
-				self.con.commit()
-				print self.count, self.countObjs
+			
+			if len(self.buffer) > 1000:
+				self.FlushBuffer()
+				print time.clock(), self.count, self.countObjs
+
+	def FlushBuffer(self):
+		if len(self.buffer) == 0: return
+		sql = "INSERT INTO "+self.dbName+".geom (g, type, id, ver) VALUES "
+		for recnum, rec in enumerate(self.buffer):
+			sql+="(GeomFromText('POINT("+str(rec['lat'])+" "+str(rec['lon'])+")'),"+str(rec['objectCode'])+","+str(rec['objId'])+","+str(rec['version'])+")"
+			if recnum < len(self.buffer) - 1:
+				sql += ","
+
+		sql += ";";
+		#print sql
+		self.cur.execute(sql)
+		self.count += len(self.buffer)
+		self.buffer = []
+		self.con.commit()
 
 	def end(self, tag):
 		
@@ -77,6 +92,9 @@ class NodePositionParser:
 			self.objectType = None
 			self.objectId = None
 			self.objectVer = None
+
+		if self.depth == 1:
+			self.FlushBuffer()
 
 		#print "END", repr(tag)
 		self.depth -= 1
@@ -95,7 +113,7 @@ if __name__ == "__main__":
 		sql = "DROP TABLE IF EXISTS "+config.dbName+".geom;"
 		cur.execute(sql)
 
-		sql = "CREATE TABLE IF NOT EXISTS "+config.dbName+".geom (intid BIGINT PRIMARY KEY AUTO_INCREMENT, g GEOMETRY NOT NULL, SPATIAL INDEX(g), type INTEGER, id BIGINT, ver BIGINT) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
+		sql = "CREATE TABLE IF NOT EXISTS "+config.dbName+".geom (intid BIGINT PRIMARY KEY AUTO_INCREMENT, g GEOMETRY NOT NULL, type INTEGER, id BIGINT, ver BIGINT) DEFAULT CHARACTER SET utf8 COLLATE utf8_bin ENGINE=MyISAM;";
 		cur.execute(sql)
 
 		inFinaXml = bz2.BZ2File(config.fina, 'r')
@@ -106,7 +124,7 @@ if __name__ == "__main__":
 		while reading:
 			xmlTxt = inFinaXml.read(config.pageSize)
 			if len(xmlTxt) > 0:
-				print len(xmlTxt)
+				#print len(xmlTxt)
 				parser.Parse(xmlTxt, 0)
 			else:
 				reading = 0
