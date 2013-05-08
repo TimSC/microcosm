@@ -24,12 +24,31 @@ class TagParser:
 		self.countObjs = {}
 		self.con = con
 		self.cur = self.con.cursor()
+		self.buffer = []
 
 	def __del__(self):
 		self.con.commit()
 		
 	def Parse(self, data, done):
 		self._parser.Parse(data, done)
+
+	def FlushBuffer(self):
+		if len(self.buffer) == 0: return
+		#print repr(tag), attrs
+		sql = "INSERT INTO "+self.dbName
+		sql += ".tags (type, id, ver, k, v) VALUES "
+		for recnum, rec in enumerate(self.buffer):
+			sql += "({0},{1},{2},'{3}','{4}')".format(rec['objectType'], rec['objectId'], \
+				rec['objectVer'], \
+				self.con.escape_string(rec['k'].encode("UTF-8")), \
+				self.con.escape_string(rec['v'].encode("UTF-8")))
+			if recnum < len(self.buffer)-1: sql += ","
+
+		sql += ";"
+		self.cur.execute(sql)
+		self.count += len(self.buffer)
+		self.con.commit()
+		self.buffer = []
 
 	def start(self, tag, attrs):
 
@@ -51,15 +70,14 @@ class TagParser:
 		if tag == "tag" and self.depth == 3 and self.objectType!=None:
 			if attrs['k'] != 'created_by':
 
-				#print repr(tag), attrs
-				test = ".tags (type, id, ver, k, v) VALUES ({0},{1},{2},'{3}','{4}');".format(self.objectType, self.objectId, \
-					self.objectVer, self.con.escape_string(attrs['k'].encode("UTF-8")), self.con.escape_string(attrs['v'].encode("UTF-8")))
-				sql = "INSERT INTO "+self.dbName+test;
-				self.cur.execute(sql)
-				self.count += 1
-				if self.count % 1000 == 0:
-					self.con.commit()
+				record = {'objectType':self.objectType,'objectId':self.objectId,\
+					'objectVer':self.objectVer,'k':attrs['k'],'v':attrs['v']}
+				self.buffer.append(record)
+				if len(self.buffer) > 1000:
+					self.FlushBuffer()
 					print self.count, self.countObjs
+
+
 
 	def end(self, tag):
 		
@@ -67,6 +85,9 @@ class TagParser:
 			self.objectType = None
 			self.objectId = None
 			self.objectVer = None
+
+		if self.depth == 1:
+			self.FlushBuffer()
 
 		#print "END", repr(tag)
 		self.depth -= 1
