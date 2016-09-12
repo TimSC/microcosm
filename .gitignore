@@ -1,0 +1,8 @@
+config.php
+sqlite/
+*.osm.bz2
+*.osm
+*.osm.gz
+log.txt
+*.pyc
+
