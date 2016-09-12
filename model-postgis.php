@@ -1,7 +1,5 @@
 <?php
 
-require_once('fileutils.php'); //Remove this when possible.
-require_once('dbutils.php'); //Remove this when possible.
 require_once('model-common.php');
 
 class ElementTablePostgis
@@ -248,15 +246,15 @@ class ElementTablePostgis
 			if(strcmp($child->GetType(),"node")==0)
 				foreach($el->members as $e)
 				{
-					//echo $e[0]."\n";
-					if($e[0] == $child->attr['id']) return 1;
+					//echo $e[0].count($e)."\n";
+					if($e[0] == "node" && $e[1] == $child->attr['id']) return 1;
 				}
 			if(strcmp($child->GetType(),"way")==0)
-				foreach($el->ways as $e)
-					if($e[0] == $child->attr['id']) return 1;
+				foreach($el->members as $e)
+					if($e[0] == "way" && $e[1] == $child->attr['id']) return 1;
 			if(strcmp($child->GetType(),"relation")==0)
-				foreach($el->relations as $e)
-					if($e[0] == $child->attr['id']) return 1;
+				foreach($el->members as $e)
+					if($e[0] == "relation" && $e[1] == $child->attr['id']) return 1;
 		}
 		return 0;
 	}
