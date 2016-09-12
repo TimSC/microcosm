@@ -146,8 +146,8 @@ class ElementTablePostgis
 		$el->attr['version'] = (int)$row['version'];
 
 		//Tags and members
-		$el->tags = unserialize($row['tags']);
-		$el->members = unserialize($row['members']);
+		$el->tags = unserialize(stream_get_contents($row['tags']));
+		$el->members = unserialize(stream_get_contents($row['members']));
 		return $el;
 	}
 
@@ -246,7 +246,7 @@ class ElementTablePostgis
 		{
 			if(!is_object($child)) throw new Exception("Child must be an object");
 			if(strcmp($child->GetType(),"node")==0)
-				foreach($el->nodes as $e)
+				foreach($el->members as $e)
 				{
 					//echo $e[0]."\n";
 					if($e[0] == $child->attr['id']) return 1;
