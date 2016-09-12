@@ -18,8 +18,7 @@ class BboxDatabaseSqlite
 
 	function __construct()
 	{
-		chdir(dirname(realpath (__FILE__)));
-		$this->dbh = new PDO('sqlite:sqlite/bbox.db');
+		$this->dbh = new PDO('sqlite:'.PATH_TO_SQLITE_DB.'bbox.db');
 		$this->UpdateTablesList();
 		$this->transactionOpen = 0;
 		$this->bboxindex = new BboxIndex();
@@ -438,7 +437,7 @@ class BboxDatabaseSqlite
 class BboxIndex extends GenericSqliteTable
 {
 	var $keys=array('id'=>'STRING');
-	var $dbname='sqlite/bboxindex.db';
+	var $dbname='bboxindex.db';
 	var $tablename="bboxindex";
 
 }

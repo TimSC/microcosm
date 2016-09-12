@@ -12,8 +12,6 @@ class ElementTable
 
 	function __construct($type, $name, $latlon = 0)
 	{
-		chdir(dirname(realpath (__FILE__)));
-
 		//Check database schema and connection
 		$this->dbh = new PDO('sqlite:'.$name);
 		//chmod($name,0777);
@@ -350,9 +348,9 @@ class OsmDatabaseSqlite extends OsmDatabaseCommon
 {
 	function __construct()
 	{
-		$this->nodeTable = new ElementTable("node","sqlite/node.db",1);
-		$this->wayTable = new ElementTable("way","sqlite/way.db");
-		$this->relationTable = new ElementTable("relation","sqlite/relation.db");
+		$this->nodeTable = new ElementTable("node",PATH_TO_SQLITE_DB."node.db",1);
+		$this->wayTable = new ElementTable("way",PATH_TO_SQLITE_DB."way.db");
+		$this->relationTable = new ElementTable("relation",PATH_TO_SQLITE_DB."relation.db");
 	}
 
 	function __destruct()

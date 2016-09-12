@@ -5,7 +5,7 @@ require_once('dbutils.php');
 class ChangesetDatabaseSqlite extends GenericSqliteTable
 {
 	var $keys=array('cid'=>'INTEGER');
-	var $dbname='sqlite/changesets.db';
+	var $dbname='changesets.db';
 	var $tablename="changesets";
 
 	public function Open($cid,$data,$displayName,$userId,$createTime)

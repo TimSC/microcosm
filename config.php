@@ -7,15 +7,16 @@ define("DEBUG_MODE",false);
 define("VERSION_VALIDATION",true);
 define("LICENSE_HUMAN","TBC");
 define("INSTALL_FOLDER_DEPTH",2);
+define("PATH_TO_SQLITE_DB", '/var/www/html/microcosm/sqlite/');
 set_time_limit(60);
 
-define("BACKEND_DATABASE","sqlite");
-#define("BACKEND_DATABASE","mysql");
+#define("BACKEND_DATABASE","sqlite");
+define("BACKEND_DATABASE","mysql");
 
 define("MYSQL_DB_NAME","db_map");
 define("MYSQL_SERVER","localhost");
-define("MYSQL_USER","map_map");
-define("MYSQL_PASSWORD","4yuy34udm"); #Keeping this as default is a bad idea
+define("MYSQL_USER","microcosm");
+define("MYSQL_PASSWORD","xU@9N@%SfF6J"); #Keeping this as default is a bad idea
 
 define("API_READ_ONLY",false);
 define("ENABLE_ANON_EDITS",false);
@@ -30,7 +31,7 @@ define("MAX_USER_PERFS",150);
 define("MAX_GPX_FIELD_LENGTH",255);
 define("TRACE_PAGE_SIZE",1000);
 define("MAX_XAPI_ELEMENTS",10000000);
-define("ENABLE_XAPI",true);
+define("ENABLE_XAPI",false);
 
 define("MAX_WAY_NODES",2000);
 define("MAX_CHANGESET_SIZE",50000);

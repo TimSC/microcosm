@@ -23,11 +23,11 @@ function OsmDatabase()
 	//$db = new OsmDatabaseByFileTree();
 	//$db = new OsmDatabaseSqlite();
 	//$db = new OsmDatabaseSqliteOpt();
-	$db = new OsmDatabaseMultiplexer();
-	//if(BACKEND_DATABASE == "mysql")
-	//	$db = new OsmDatabaseMysql();
-	//if(BACKEND_DATABASE == "sqlite")
-	//	$db = new OsmDatabaseSqliteOpt();
+	//$db = new OsmDatabaseMultiplexer();
+	if(BACKEND_DATABASE == "mysql")
+		$db = new OsmDatabaseMysql();
+	if(BACKEND_DATABASE == "sqlite")
+		$db = new OsmDatabaseSqliteOpt();
 
 	$checkPermissions = $db->CheckPermissions();
 	if($checkPermissions != 1)

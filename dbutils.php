@@ -1,4 +1,5 @@
 <?php
+include_once 'config.php';
 
 function SqliteGetTables(&$dbh)
 {
@@ -82,6 +83,7 @@ function CheckForRtree()
 class GenericSqliteTable implements ArrayAccess
 {
 	var $keys=array('key'=>'STRING');
+
 	var $dbname='generictable.db';
 	var $tablename="table";
 	var $dbh = null;
@@ -90,8 +92,8 @@ class GenericSqliteTable implements ArrayAccess
 
 	function __construct()
 	{
-		chdir(dirname(realpath (__FILE__)));
-		$this->dbh = new PDO('sqlite:'.$this->dbname);
+		$fina = PATH_TO_SQLITE_DB.$this->dbname;
+		$this->dbh = new PDO('sqlite:'.$fina);
 		$this->InitialiseSchema();
 	}
 

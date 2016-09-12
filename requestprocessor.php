@@ -394,11 +394,14 @@ function WebResponseEventHandler($eventType, $content, $listenVars)
 		foreach($globalHeaderBuffer as $headerline) header($headerline);
 		echo $globalResponseBuffer;
 
-		$fi = fopen("webresponse.txt","wt");
-		foreach($globalHeaderBuffer as $headerline) 
-			fwrite($fi, $headerline);
-		fwrite($fi, $globalResponseBuffer);
-		fclose($fi);
+		if(0)
+		{
+			$fi = fopen("webresponse.txt","wt");
+			foreach($globalHeaderBuffer as $headerline) 
+				fwrite($fi, $headerline);
+			fwrite($fi, $globalResponseBuffer);
+			fclose($fi);
+		}
 	}	
 
 }

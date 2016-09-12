@@ -314,7 +314,7 @@ class UserDbFile
 class UserDbSqlite extends GenericSqliteTable
 {
 	var $keys=array('uid'=>'INTEGER', 'userName'=>'STRING', 'displayName'=>'STRING');
-	var $dbname='private/users.db';
+	var $dbname='users.db';
 	var $tablename="users";
 
 	function __construct()
