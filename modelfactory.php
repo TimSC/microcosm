@@ -20,6 +20,8 @@ function OsmDatabase()
 		$db = new OsmDatabaseMysql();
 	if(BACKEND_DATABASE == "sqlite")
 		$db = new OsmDatabaseSqliteOpt();
+	if(BACKEND_DATABASE == "sqlite-simple")
+		$db = new OsmDatabaseSqlite();
 	if(BACKEND_DATABASE == "postgis")
 		$db = new OsmDatabasePostgis();
 
