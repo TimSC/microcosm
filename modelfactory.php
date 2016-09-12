@@ -1,15 +1,12 @@
 <?php
 require_once ('model-sqlite-opt.php');
-require_once ('model-osmxml.php');
-require_once ('model-filetree.php');
 require_once ('model-sqlite.php');
 require_once ('model-mysql.php');
-//require_once ('model-sqlite.php');
 require_once ('model-changesets-sqlite.php');
 require_once ("model-bbox.php");
+require_once ("model-postgis.php");
 require_once ("config.php");
 require_once ("system.php");
-
 
 $dbGlobal = Null;
 $changesetGlobal = Null;
@@ -19,15 +16,12 @@ $changesetGlobal = Null;
 
 function OsmDatabase()
 {
-	//$db = new OsmDatabaseOsmXml();
-	//$db = new OsmDatabaseByFileTree();
-	//$db = new OsmDatabaseSqlite();
-	//$db = new OsmDatabaseSqliteOpt();
-	//$db = new OsmDatabaseMultiplexer();
 	if(BACKEND_DATABASE == "mysql")
 		$db = new OsmDatabaseMysql();
 	if(BACKEND_DATABASE == "sqlite")
 		$db = new OsmDatabaseSqliteOpt();
+	if(BACKEND_DATABASE == "postgis")
+		$db = new OsmDatabasePostgis();
 
 	$checkPermissions = $db->CheckPermissions();
 	if($checkPermissions != 1)
@@ -42,7 +36,6 @@ function OsmDatabase()
 
 function ChangesetDatabase()
 {
-	//return new ChangesetDatabaseOsmXml();
 	return new ChangesetDatabaseSqlite();
 }
 

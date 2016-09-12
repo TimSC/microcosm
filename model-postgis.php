@@ -1,20 +1,21 @@
 <?php
 
-require_once('fileutils.php');
-require_once('dbutils.php');
+require_once('fileutils.php'); //Remove this when possible.
+require_once('dbutils.php'); //Remove this when possible.
 require_once('model-common.php');
 
-class ElementTable
+class ElementTablePostgis
 {
 	var $latlon = 0;
 	var $transactionOpen = 0;
 	var $type = "element";
 
-	function __construct($type, $name, $latlon = 0)
+	function __construct($type, $latlon = false)
 	{
 		//Check database schema and connection
-		$this->dbh = new PDO('sqlite:'.$name);
-		//chmod($name,0777);
+		$this->dbh = new PDO('pgsql:host='.POSTGIS_SERVER.';port='.POSTGIS_PORT.
+			';dbname='.POSTGIS_DB_NAME.';user='.POSTGIS_USER.';password='.POSTGIS_PASSWORD);
+		$this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		$this->latlon = $latlon;
 		$this->type = $type;
 		$this->InitialiseSchema();
@@ -25,31 +26,26 @@ class ElementTable
 		$this->FlushWrite();
 	}
 
-	function CheckTableExists($name)
-	{
-		return SqliteCheckTableExists($this->dbh,$name);
-	}
-
-	function CheckTableExistsOtherwiseCreate($name,$createSql)
-	{
-		return SqliteCheckTableExistsOtherwiseCreate($this->dbh,$name,$createSql);
-	}
-
 	function InitialiseSchema()
 	{
-		$sql = 'CREATE TABLE elements (i INTEGER PRIMARY KEY, id INTEGER';
+		$sql = 'CREATE TABLE IF NOT EXISTS "'.$this->type.'" (i BIGSERIAL PRIMARY KEY, id BIGINT';
 		if($this->latlon) $sql .= ', lat REAL, lon REAL';
-		$sql .= ', changeset INTEGER, user STRING, uid INTEGER, ';
-		$sql .= 'visible INTEGER, timestamp INTEGER, version INTEGER';
-		$sql .= ', current INTEGER, tags BLOB, members BLOB';
+		$sql .= ', changeset BIGINT, username TEXT, uid INTEGER, ';
+		$sql .= 'visible BOOLEAN, timestamp BIGINT, version INTEGER';
+		$sql .= ', current BOOLEAN, tags BYTEA, members BYTEA';
 		$sql .= ');';
-		$this->CheckTableExistsOtherwiseCreate("elements",$sql);
+		$qry = $this->dbh->prepare($sql);
+		$ret = $qry->execute();
+
+		$sql = 'CREATE INDEX IF NOT EXISTS "'.$this->type.'_index" ON "'.$this->type.'" (id, version);';
+		$qry = $this->dbh->prepare($sql);
+		$ret = $qry->execute();
 	}
 
 	function ClearCurrentFlagInElementTable($id)
 	{
 		//Set existing historic versions to not current
-		$sql = "UPDATE elements SET current=0 WHERE id=".(int)$id.";";
+		$sql = "UPDATE \"".$this->type."\" SET current=false WHERE id=".(int)$id.";";
 		$ret = $this->dbh->exec($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 	}
@@ -58,7 +54,7 @@ class ElementTable
 	{
 		if(!$this->transactionOpen)
 		{
-			$sql = "BEGIN;";
+			$sql = "BEGIN TRANSACTION;";
 			$ret = $this->dbh->exec($sql);//Begin transaction
 			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 			$this->transactionOpen = 1;
@@ -69,13 +65,12 @@ class ElementTable
 	{
 		//Insert new data
 		$invertVals = array();
-		$insertsql = "INSERT INTO elements (i, id";
+		$insertsql = "INSERT INTO \"".$this->type."\" (id";
 		if($this->latlon) $insertsql .= ", lat, lon";
 		$insertsql .= ", changeset";
-		$insertsql .= ", user";
+		$insertsql .= ", username";
 		$insertsql .= ", uid";
 		$insertsql .= ", visible, timestamp, version, current, tags, members) VALUES (";
-		$insertsql .= "null, ";
 		$insertsql .= (int)$el->attr['id'].", ";
 		if($this->latlon) $insertsql .= (float)$el->attr['lat'].", ";
 		if($this->latlon) $insertsql .= (float)$el->attr['lon'].", ";
@@ -88,14 +83,14 @@ class ElementTable
 		else $insertsql .= "null, ";
 		if(isset($el->attr['uid'])) $insertsql .= ((int)$el->attr['uid']).", ";
 		else $insertsql .= "null, ";
-		if(strcmp($el->attr['visible'],"true")==0) $insertsql .= "1, ";
-		else $insertsql .= "0, ";
+		if(strcmp($el->attr['visible'],"true")==0) $insertsql .= "true, ";
+		else $insertsql .= "false, ";
 		if(isset($el->attr['timestamp']))
 			$insertsql .= ((int)strtotime($el->attr['timestamp']).", ");
 		else
 			$insertsql .= ("null, ");
 		$insertsql .= ((int)$el->attr['version']);
-		$insertsql .= ", 1";
+		$insertsql .= ", true";
 		$insertsql .= ", ?";
 		$insertsql .= ", ?";
 		$insertsql .= ");\n";
@@ -117,23 +112,15 @@ class ElementTable
 		$this->InsertObjectIntoElementTable($el);	
 	}
 
-	/*function DeleteLowLevel($id)
-	{
-		$deletesql = "DELETE FROM elements WHERE id=".(int)$id.";";
-		$ret = $this->dbh->exec($deletesql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($deletesql.",".$err[2]);}
-	}*/
-
 	function FlushWrite()
 	{
 		if($this->transactionOpen)
 		{
-			$sql = "END;";
+			$sql = "COMMIT;";
 			$ret = $this->dbh->exec($sql);//End transaction	
 			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 			$this->transactionOpen = 0;
 		}
-
 	}
 
 	public function Delete($el)
@@ -151,7 +138,7 @@ class ElementTable
 		if(isset($row['lat'])) $el->attr['lat'] = (float)$row['lat'];
 		if(isset($row['lon'])) $el->attr['lon'] = (float)$row['lon'];
 		$el->attr['changeset'] = (int)$row['changeset'];
-		if(isset($row['user'])) $el->attr['user'] = (string)$row['user'];
+		if(isset($row['username'])) $el->attr['user'] = (string)$row['username'];
 		if(isset($row['uid'])) $el->attr['uid'] = (int)$row['uid'];
 		if((int)$row['visible']==1) $el->attr['visible'] = "true";
 		else $el->attr['visible'] = "false";
@@ -171,9 +158,9 @@ class ElementTable
 		$latestVerObj = null;
 		$latestVer = null;
 
-		$query = "SELECT * FROM elements WHERE id=".(int)$id."";
+		$query = "SELECT * FROM ".$this->type." WHERE id=".(int)$id."";
 		if(!is_null($version)) $query .= " AND version=".(int)$version."";
-		if(is_null($version)) $query .= " AND current=1";
+		if(is_null($version)) $query .= " AND current=true";
 		$query .= ";";
 
 		$ret = $this->dbh->query($query);
@@ -206,7 +193,7 @@ class ElementTable
 	{
 		//Dump all non-deleted elements to a callback function
 		//Warning: this could take a while
-		$query = "SELECT * FROM elements WHERE current=1 AND visible=1;";
+		$query = "SELECT * FROM ".$this->type." WHERE current=true AND visible=true;";
 
 		$ret = $this->dbh->query($query);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
@@ -216,7 +203,7 @@ class ElementTable
 			$obj = $this->DbRowToObj($row);
 
 			//Verify latest version is used
-			$query = "SELECT version FROM elements WHERE id=".$obj->attr['id'].";";
+			$query = "SELECT version FROM ".$this->type." WHERE id=".$obj->attr['id'].";";
 			$verret = $this->dbh->query($query);
 			if($verret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 			$latest = null;
@@ -238,7 +225,7 @@ class ElementTable
 	public function GetElementHistory($id)
 	{
 		//$this->FlushWrite();
-		$query = "SELECT * FROM elements WHERE id=".(int)$id."";
+		$query = "SELECT * FROM ".$this->type." WHERE id=".(int)$id."";
 		$query .= ";";
 
 		$ret = $this->dbh->query($query);
@@ -277,7 +264,7 @@ class ElementTable
 	public function GetElementsWithMembers(&$queryObjs)
 	{
 		//Do exhaustive search
-		$sql = "SELECT * FROM elements WHERE current = 1 and visible = 1;";		
+		$sql = "SELECT * FROM ".$this->type." WHERE current = true and visible = true;";
 		$ret = $this->dbh->query($sql);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		$out = array();
@@ -297,11 +284,11 @@ class ElementTable
 		if(!$this->latlon) throw new Exception("Position was not enabled for this object.");
 
 		//print_r($bbox);
-		$query = "SELECT * FROM elements" ;
+		$query = "SELECT * FROM ".$this->type ;
 		$query .= " WHERE lat > ".(float)$bbox[1];
 		$query .= " and lat < ".(float)$bbox[3];
 		$query .= " and lon < ".(float)$bbox[2]." and lon > ".(float)$bbox[0];
-		$query .= " and visible=1 and current=1";
+		$query .= " and visible=true and current=true";
 		$query .= ";";
 		//echo $query;
 		$ret = $this->dbh->query($query);
@@ -319,12 +306,14 @@ class ElementTable
 	
 	public function DropTableIfExists($name)
 	{
-		SqliteDropTableIfExists($this->dbh,$name);
+		$sql = 'DROP TABLE IF EXISTS '.$name.';';
+		$qry = $this->dbh->prepare($sql);
+		$ret = $qry->execute();
 	}
 
 	public function Count()
 	{
-		$query = "SELECT COUNT(id) FROM elements WHERE current = 1;";
+		$query = "SELECT COUNT(id) FROM ".$this->type." WHERE current = true;";
 		$ret = $this->dbh->query($query);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
 		foreach($ret as $row)
@@ -334,7 +323,7 @@ class ElementTable
 
 	public function Purge()
 	{
-		$this->DropTableIfExists("elements");
+		$this->DropTableIfExists($this->type);
 		$this->InitialiseSchema();
 	}
 
@@ -344,13 +333,13 @@ class ElementTable
 //Model Storage
 //****************************
 
-class OsmDatabaseSqlite extends OsmDatabaseCommon
+class OsmDatabasePostgis extends OsmDatabaseCommon
 {
 	function __construct()
 	{
-		$this->nodeTable = new ElementTable("node",PATH_TO_SQLITE_DB."node.db",1);
-		$this->wayTable = new ElementTable("way",PATH_TO_SQLITE_DB."way.db");
-		$this->relationTable = new ElementTable("relation",PATH_TO_SQLITE_DB."relation.db");
+		$this->nodeTable = new ElementTablePostgis("node",1);
+		$this->wayTable = new ElementTablePostgis("way");
+		$this->relationTable = new ElementTablePostgis("relation");
 	}
 
 	function __destruct()
@@ -366,13 +355,6 @@ class OsmDatabaseSqlite extends OsmDatabaseCommon
 
 	function CheckPermissions()
 	{
-		$filesToCheck=array('node.db','way.db','relation.db');
-
-		foreach($filesToCheck as $f)
-		if(!is_writable(PATH_TO_SQLITE_DB.$f))
-		{
-			return $f;
-		}
 		return 1;
 	}
 
@@ -463,43 +445,6 @@ class OsmDatabaseSqlite extends OsmDatabaseCommon
 		$this->relationTable->Purge();
 	}
 
-}
-
-//*********************
-//Planet Dump functions
-//*********************
-
-function DumpTable(&$table, &$fi, $writefunc)
-{
-	$query = "SELECT * FROM elements WHERE current=1 AND visible=1;";
-	$ret = $table->dbh->query($query);
-	if($ret===false) {$err= $table->dbh->errorInfo();throw new Exception($query.",".$err[2]);}
-	foreach($ret as $row)
-	{
-		$obj = $table->DbRowToObj($row);
-		call_user_func($writefunc,$fi,$obj->ToXmlString());
-	}
-}
-
-function DumpSqliteDatabase($db, $outFilename)
-{
-	if(strcasecmp(substr($outFilename,strlen($outFilename)-4),".bz2")==0)
-	{
-		$fi = bzopen($outFilename,"w");
-		$writefunc = 'bzwrite';
-	}
-	else
-	{
-		$fi = fopen($outFilename,"wt");
-		$writefunc = 'fwrite';
-	}
-
-	call_user_func($writefunc,$fi,"<?xml version='1.0' encoding='UTF-8'?>\n");
-	call_user_func($writefunc,$fi,"<osm version='0.6' generator=\"".SERVER_NAME."\">\n");
-	DumpTable($db->nodeTable,$fi,$writefunc);
-	DumpTable($db->wayTable,$fi,$writefunc);
-	DumpTable($db->relationTable,$fi,$writefunc);
-	call_user_func($writefunc,$fi,"</osm>\n");
 }
 
 ?>

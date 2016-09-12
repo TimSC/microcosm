@@ -4,7 +4,7 @@ microcosm
 OSM API implemented in PHP. More documentation at: https://wiki.openstreetmap.org/wiki/Microcosm
 
 Install on nginx
-================
+----------------
 
 	sudo apt install php php-fpm 
 	sudo apt install nginx
@@ -39,8 +39,30 @@ Restart services:
 	sudo service php7.0-fpm restart
 	sudo service nginx restart
 
+Install PostGIS
+---------------
+
+Install PostGIS extensions TODO
+
+Create user and database
+
+    sudo su - postgres
+	psql
+
+    CREATE USER microcosm WITH PASSWORD '4yuy34udm';
+	CREATE DATABASE db_map;
+	GRANT ALL PRIVILEGES ON DATABASE db_map to microcosm;
+
+Get back to your normal user and see if you can connect:
+
+    psql --username=microcosm --password --host=127.0.0.1 --dbname=db_map
+
+If that fails, check your pg_hba.conf for allowed authentication methods and check your error logs: /var/log/postgresql/postgresql-9.5-main.log
+
+
+
 Random notes
-============
+------------
 
 config.php contains :
 
