@@ -70,7 +70,7 @@ abstract class OsmDatabaseCommon
 		$bbox = ValidateBbox($bbox);
 		$out=$out.'<bounds minlat="'.$bbox[1].'" minlon="'.$bbox[0];
 		$out=$out.'" maxlat="'.$bbox[3].'" maxlon="'.$bbox[2].'"/>'."\n";
-
+		
 		$timers = array();
 		$startTimer = microtime(1);
 		$nodes = $this->GetNodesInBbox($bbox);
