@@ -250,7 +250,8 @@ class GenericSqliteTable implements ArrayAccess
 		if($sth===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 		for($i=0;$i<count($sqlVals);$i++)
 			$sth->bindParam($i+1, $sqlVals[$i]);
-		$sth->bindParam(count($sqlVals)+1, serialize($data), PDO::PARAM_LOB);
+		$blobData = serialize($data);
+		$sth->bindParam(count($sqlVals)+1, $blobData, PDO::PARAM_LOB);
 		$ret = $sth->execute();
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 

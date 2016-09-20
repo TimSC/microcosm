@@ -61,17 +61,24 @@ class ElementTablePostgis
 
 	function InsertObjectIntoElementTable($el)
 	{
+		$elType = $el->GetType();
+
 		//Insert new data
 		$invertVals = array();
 		$insertsql = "INSERT INTO \"".$this->tablename."\" (id";
-		if($this->latlon) $insertsql .= ", lat, lon";
+		if($this->latlon) $insertsql .= ", geom";
 		$insertsql .= ", changeset";
 		$insertsql .= ", username";
 		$insertsql .= ", uid";
-		$insertsql .= ", visible, timestamp, version, current, tags, members) VALUES (";
+		$insertsql .= ", visible, timestamp, version, current, tags";
+		if($elType!="node")
+			$insertsql .= ", members";
+		$insertsql .= ") VALUES (";
 		$insertsql .= (int)$el->attr['id'].", ";
-		if($this->latlon) $insertsql .= (float)$el->attr['lat'].", ";
-		if($this->latlon) $insertsql .= (float)$el->attr['lon'].", ";
+		if($this->latlon)
+		{ 
+			$insertsql .= "ST_GeomFromText('POINT(".(float)$el->attr['lon']." ".(float)$el->attr['lat'].")', 4326),";
+		}
 		$insertsql .= (int)$el->attr['changeset'].", ";
 		if(isset($el->attr['user']))
 		{
@@ -90,10 +97,25 @@ class ElementTablePostgis
 		$insertsql .= ((int)$el->attr['version']);
 		$insertsql .= ", true";
 		$insertsql .= ", ?";
-		$insertsql .= ", ?";
-		$insertsql .= ");\n";
 		array_push($invertVals,json_encode($el->tags));
-		array_push($invertVals,json_encode($el->members));
+		if($elType!="node")
+		{
+			$insertsql .= ", ?";
+			if($elType=="way")
+			{
+				$nids = array(); //Way is special case
+				foreach($el->members as $mem)
+					array_push($nids, $mem[1]);
+				array_push($invertVals,json_encode($nids));
+			}
+			else
+			{
+				//Handle relation
+				array_push($invertVals,json_encode($el->members));
+			}
+		}
+
+		$insertsql .= ");\n";
 
 		$qry = $this->dbh->prepare($insertsql);
 		$ret = $qry->execute($invertVals);

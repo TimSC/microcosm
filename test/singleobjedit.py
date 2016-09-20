@@ -167,7 +167,7 @@ def ReadDeletedNode(nodeId,verbose=1):
 
 
 
-baseurl = "http://localhost/m/microcosm.php"
+baseurl = "http://sodium/api"
 #baseurl = "http://www.sheerman-chase.org.uk:81/m/microcosm.php"
 #baseurl = "http://www.openstreetmap.org/api"
 username = raw_input("Username:")
