@@ -284,44 +284,28 @@ class ElementTablePostgis
 		return $out;
 	}
 
-	function ElementMatchesQuery(&$el, &$children)
-	{
-		//echo $el->GetType().$el->attr['id']."\n";
-		foreach($children as $child)
-		{
-			if(!is_object($child)) throw new Exception("Child must be an object");
-			if(strcmp($child->GetType(),"node")==0)
-				foreach($el->members as $e)
-				{
-					//echo $e[0].count($e)."\n";
-					if($e[0] == "node" && $e[1] == $child->attr['id']) return 1;
-				}
-			if(strcmp($child->GetType(),"way")==0)
-				foreach($el->members as $e)
-					if($e[0] == "way" && $e[1] == $child->attr['id']) return 1;
-			if(strcmp($child->GetType(),"relation")==0)
-				foreach($el->members as $e)
-					if($e[0] == "relation" && $e[1] == $child->attr['id']) return 1;
-		}
-		return 0;
-	}
-
 	public function GetElementsWithMembers(&$queryObjs)
 	{
-		//Do exhaustive search
-		$selectSql = "SELECT *";
 		if($this->latlon)
-			$selectSql = "SELECT *, ST_X(geom) as lon, ST_Y(geom) as lat";
-		$sql = $selectSql." FROM ".$this->tablename." WHERE current = true and visible = true;";
-		$ret = $this->dbh->query($sql);
-		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+			return array(); //Nodes don't have members
 		$out = array();
-
-		foreach($ret as $row)
+		$alreadyFound = array_unique(array());
+		foreach ($queryObjs as $qo)
 		{
-			$obj = $this->DbRowToObj($row);
-			$match = $this->ElementMatchesQuery($obj, $queryObjs);
-			if($match) array_push($out, $obj);
+			$qoType = $qo->GetType();
+			//TODO this query is only correct for ways table. Also relations need filtering.
+			$sql = "SELECT * FROM ".$this->tablename." WHERE current = true and visible = true AND members @> '".($qo->attr["id"])."';";
+			$ret = $this->dbh->query($sql);
+			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+
+			foreach($ret as $row)
+			{
+				$obj = $this->DbRowToObj($row);
+				if(in_array($obj->attr["id"], $alreadyFound)) continue;
+				array_push($alreadyFound, $obj->attr["id"]); 
+
+				array_push($out, $obj);
+			}
 		}
 
 		return $out;
