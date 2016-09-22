@@ -3,6 +3,8 @@ microcosm
 
 OSM API implemented in PHP. More documentation at: https://wiki.openstreetmap.org/wiki/Microcosm
 
+The backend data base is sqlite. There is experimental support for PostGIS (postgreSQL) and MySQL.
+
 Install on nginx
 ----------------
 
@@ -59,7 +61,7 @@ Get back to your normal user and see if you can connect:
 
 If that fails, check your pg_hba.conf for allowed authentication methods and check your error logs: /var/log/postgresql/postgresql-9.5-main.log
 
-
+Import your data using: https://github.com/TimSC/osm2pgcopy
 
 Random notes
 ------------

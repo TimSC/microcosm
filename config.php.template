@@ -10,13 +10,21 @@ define("INSTALL_FOLDER_DEPTH",2);
 define("PATH_TO_SQLITE_DB", '/var/www/html/microcosm/sqlite/');
 set_time_limit(60);
 
-#define("BACKEND_DATABASE","sqlite");
-define("BACKEND_DATABASE","mysql");
+define("BACKEND_DATABASE","sqlite");
+#define("BACKEND_DATABASE","mysql"); #Experimental
+#define("BACKEND_DATABASE","postgis"); #Experimental
 
 define("MYSQL_DB_NAME","db_map");
 define("MYSQL_SERVER","localhost");
 define("MYSQL_USER","microcosm");
 define("MYSQL_PASSWORD","xU@9N@%SfF6J"); #Keeping this as default is a bad idea
+
+define("POSTGIS_DB_NAME",'db_map');
+define("POSTGIS_SERVER",'127.0.0.1');
+define("POSTGIS_PORT",5432);
+define("POSTGIS_USER",'microcosm');
+define("POSTGIS_PASSWORD",'5t35f$^24#5'); #Keeping this as default is a bad idea
+define("POSTGIS_PREFIX",'planet_');
 
 define("API_READ_ONLY",false);
 define("ENABLE_ANON_EDITS",false);
