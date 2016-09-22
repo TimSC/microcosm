@@ -345,14 +345,29 @@ class ElementTablePostgis
 		}
 		if($this->isRelationType)
 		{
-			foreach ($queryObjs as $qo)
+			$cursor = 0;
+			$step = 20;
+			while ($cursor < count($queryObjs))
 			{
-				$qoType = $qo->GetType();
-				$sql = "SELECT * FROM ".$this->tablename." WHERE current = true and visible = true AND members @> '[[\"".$qoType."\", ".($qo->attr["id"])."]]';";
-				$ret = $this->dbh->query($sql);
+				$qos = array_slice ($queryObjs, $cursor, $step);
+				$cursor += $step;
+				
+				$sqlFrags = array(); 
+				$sqlArg = array();
+				foreach($qos as $qo)
+				{
+					array_push($sqlFrags, "members @> ?");
+					array_push($sqlArg, "[[\"".$qo->GetType()."\", ".($qo->attr["id"])."]]");
+				}
+				
+				$sql = "SELECT * FROM ".$this->tablename." WHERE current = true and visible = true AND (".implode(" OR ", $sqlFrags).");";
+
+				$qry = $this->dbh->prepare($sql);
+				$ret = $qry->execute($sqlArg);
+
 				if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
-				foreach($ret as $row)
+				while($row = $qry->fetch())
 				{
 					$obj = $this->DbRowToObj($row);
 					if(in_array($obj->attr["id"], $alreadyFound)) continue;
