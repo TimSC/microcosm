@@ -4,19 +4,26 @@ require_once('model-common.php');
 
 class ElementTablePostgis
 {
-	var $latlon = 0;
 	var $transactionOpen = 0;
 	var $type = "element";
 	var $tablename = "tablename";
+	var $isNodeType = false;
+	var $isWayType = false;
+	var $isRelationType = false;
 
-	function __construct($type, $tablename, $latlon = false)
+	function __construct($type, $tablename)
 	{
 		//Check database schema and connection
 		$this->dbh = new PDO('pgsql:host='.POSTGIS_SERVER.';port='.POSTGIS_PORT.
 			';dbname='.POSTGIS_DB_NAME.';user='.POSTGIS_USER.';password='.POSTGIS_PASSWORD);
 		$this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$this->latlon = $latlon;
 		$this->type = $type;
+		if($this->type=="node")
+			$this->isNodeType = true;
+		if($this->type=="way")
+			$this->isWayType = true;
+		if($this->type=="relation")
+			$this->isRelationType = true;
 		$this->tablename = $tablename;
 		$this->InitialiseSchema();
 	}
@@ -28,13 +35,17 @@ class ElementTablePostgis
 
 	function InitialiseSchema()
 	{
-		if($this->latlon)
+		if($this->isNodeType)
 		{
-			$sql = "CREATE TABLE IF NOT EXISTS ".$this->tablename." (id BIGINT, changeset BIGINT, username TEXT, uid INTEGER, visible BOOLEAN, timestamp BIGINT, version INTEGER, current BOOLEAN, tags TEXT, geom GEOMETRY(Point, 4326));";
+			$sql = "CREATE TABLE IF NOT EXISTS ".$this->tablename." (id BIGINT, changeset BIGINT, username TEXT, uid INTEGER, visible BOOLEAN, timestamp BIGINT, version INTEGER, current BOOLEAN, tags JSONB, geom GEOMETRY(Point, 4326));";
 		}
-		else
+		if($this->isWayType)
 		{
-			$sql = "CREATE TABLE IF NOT EXISTS ".$this->tablename." (id BIGINT, changeset BIGINT, username TEXT, uid INTEGER, visible BOOLEAN, timestamp BIGINT, version INTEGER, current BOOLEAN, tags TEXT, members TEXT);";
+			$sql = "CREATE TABLE IF NOT EXISTS ".$this->tablename." (id BIGINT, changeset BIGINT, username TEXT, uid INTEGER, visible BOOLEAN, timestamp BIGINT, version INTEGER, current BOOLEAN, tags JSONB, members JSONB);";
+		}
+		if($this->isRelationType)
+		{
+			$sql = "CREATE TABLE IF NOT EXISTS ".$this->tablename." (id BIGINT, changeset BIGINT, username TEXT, uid INTEGER, visible BOOLEAN, timestamp BIGINT, version INTEGER, current BOOLEAN, tags JSONB, members JSONB, memberroles JSONB);";
 		}
 		$qry = $this->dbh->prepare($sql);
 		$ret = $qry->execute();
@@ -66,16 +77,18 @@ class ElementTablePostgis
 		//Insert new data
 		$invertVals = array();
 		$insertsql = "INSERT INTO \"".$this->tablename."\" (id";
-		if($this->latlon) $insertsql .= ", geom";
+		if($this->isNodeType) $insertsql .= ", geom";
 		$insertsql .= ", changeset";
 		$insertsql .= ", username";
 		$insertsql .= ", uid";
 		$insertsql .= ", visible, timestamp, version, current, tags";
-		if($elType!="node")
+		if($this->isWayType)
 			$insertsql .= ", members";
+		if($this->isRelationType)
+			$insertsql .= ", members, memberroles";
 		$insertsql .= ") VALUES (";
 		$insertsql .= (int)$el->attr['id'].", ";
-		if($this->latlon)
+		if($this->isNodeType)
 		{ 
 			$insertsql .= "ST_GeomFromText('POINT(".(float)$el->attr['lon']." ".(float)$el->attr['lat'].")', 4326),";
 		}
@@ -98,21 +111,27 @@ class ElementTablePostgis
 		$insertsql .= ", true";
 		$insertsql .= ", ?";
 		array_push($invertVals,json_encode($el->tags));
-		if($elType!="node")
+		if($this->isWayType)
 		{
 			$insertsql .= ", ?";
-			if($elType=="way")
+			$nids = array(); //Way is special case
+			foreach($el->members as $mem)
+				array_push($nids, $mem[1]);
+			array_push($invertVals,json_encode($nids));
+		}
+		if($this->isRelationType)
+		{
+			//Handle relation
+			$insertsql .= ", ?, ?";
+			$mems = array();
+			$memRoles = array();
+			foreach($el->members as $mem)
 			{
-				$nids = array(); //Way is special case
-				foreach($el->members as $mem)
-					array_push($nids, $mem[1]);
-				array_push($invertVals,json_encode($nids));
+				array_push($mems, array($mem[0], $mem[1]));
+				array_push($memRoles, $mem[2]);
 			}
-			else
-			{
-				//Handle relation
-				array_push($invertVals,json_encode($el->members));
-			}
+			array_push($invertVals,json_encode($mems));
+			array_push($invertVals,json_encode($memRoles));
 		}
 
 		$insertsql .= ");\n";
@@ -155,7 +174,7 @@ class ElementTablePostgis
 		
 		//Attributes
 		$el->attr['id'] = (int)$row['id'];
-		if($this->type == "node")
+		if($this->isNodeType)
 		{
 			$el->attr['lat'] = (float)$row['lat'];
 			$el->attr['lon'] = (float)$row['lon'];
@@ -170,20 +189,21 @@ class ElementTablePostgis
 
 		//Tags and members
 		$el->tags = json_decode($row['tags']);
-		if(array_key_exists('members', $row))
+		if($this->isWayType)
 		{
-			if($this->type == "way")
-			{
-				$mems = json_decode($row['members']);
-				$el->members = array();
-				foreach($mems as $mem)
-					array_push($el->members, array("node",$mem,null));
-			}
-			else
-				$el->members = json_decode($row['members']);
-		}
-		else
+			$mems = json_decode($row['members']);
 			$el->members = array();
+			foreach($mems as $mem)
+				array_push($el->members, array("node",$mem,null));
+		}
+		if($this->isRelationType)
+		{
+			$mems = json_decode($row['members']);
+			$memRoles = json_decode($row['memberroles']);
+			$el->members = array();
+			for($i=0;$i<count($mems);$i++)
+				array_push($el->members, array($mems[$i][0],$mems[$i][1],$memRoles[$i]));
+		}
 		return $el;
 	}
 
@@ -195,7 +215,7 @@ class ElementTablePostgis
 		$latestVer = null;
 
 		$selectSql = "SELECT *";
-		if($this->latlon)
+		if($this->isNodeType)
 			$selectSql = "SELECT *, ST_X(geom) as lon, ST_Y(geom) as lat";
 		$query = $selectSql." FROM ".$this->tablename." WHERE id=".(int)$id."";
 		if(!is_null($version)) $query .= " AND version=".(int)$version."";
@@ -233,7 +253,7 @@ class ElementTablePostgis
 		//Dump all non-deleted elements to a callback function
 		//Warning: this could take a while
 		$selectSql = "SELECT *";
-		if($this->latlon)
+		if($this->isNodeType)
 			$selectSql = "SELECT *, ST_X(geom) as lon, ST_Y(geom) as lat";
 		$query = $selectSql." FROM ".$this->tablename." WHERE current=true AND visible=true;";
 
@@ -268,7 +288,7 @@ class ElementTablePostgis
 	{
 		//$this->FlushWrite();
 		$selectSql = "SELECT *";
-		if($this->latlon)
+		if($this->isNodeType)
 			$selectSql = "SELECT *, ST_X(geom) as lon, ST_Y(geom) as lat";
 		$query = $selectSql." FROM ".$this->tablename." WHERE id=".(int)$id."";
 		$query .= ";";
@@ -286,25 +306,47 @@ class ElementTablePostgis
 
 	public function GetElementsWithMembers(&$queryObjs)
 	{
-		if($this->latlon)
+		if($this->isNodeType)
 			return array(); //Nodes don't have members
 		$out = array();
 		$alreadyFound = array_unique(array());
-		foreach ($queryObjs as $qo)
+
+		if($this->isWayType)
 		{
-			$qoType = $qo->GetType();
-			//TODO this query is only correct for ways table. Also relations need filtering.
-			$sql = "SELECT * FROM ".$this->tablename." WHERE current = true and visible = true AND members @> '".($qo->attr["id"])."';";
-			$ret = $this->dbh->query($sql);
-			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
-
-			foreach($ret as $row)
+			foreach ($queryObjs as $qo)
 			{
-				$obj = $this->DbRowToObj($row);
-				if(in_array($obj->attr["id"], $alreadyFound)) continue;
-				array_push($alreadyFound, $obj->attr["id"]); 
+				$qoType = $qo->GetType();
+				$sql = "SELECT * FROM ".$this->tablename." WHERE current = true and visible = true AND members @> '".($qo->attr["id"])."';";
+				$ret = $this->dbh->query($sql);
+				if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
-				array_push($out, $obj);
+				foreach($ret as $row)
+				{
+					$obj = $this->DbRowToObj($row);
+					if(in_array($obj->attr["id"], $alreadyFound)) continue;
+					array_push($alreadyFound, $obj->attr["id"]); 
+
+					array_push($out, $obj);
+				}
+			}
+		}
+		if($this->isRelationType)
+		{
+			foreach ($queryObjs as $qo)
+			{
+				$qoType = $qo->GetType();
+				$sql = "SELECT * FROM ".$this->tablename." WHERE current = true and visible = true AND members @> '[[\"".$qoType."\", ".($qo->attr["id"])."]]';";
+				$ret = $this->dbh->query($sql);
+				if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+
+				foreach($ret as $row)
+				{
+					$obj = $this->DbRowToObj($row);
+					if(in_array($obj->attr["id"], $alreadyFound)) continue;
+					array_push($alreadyFound, $obj->attr["id"]); 
+
+					array_push($out, $obj);
+				}
 			}
 		}
 
@@ -313,7 +355,7 @@ class ElementTablePostgis
 
 	public function GetElementsInBbox($bbox)
 	{
-		if(!$this->latlon) throw new Exception("Position was not enabled for this object.");
+		if(!$this->isNodeType) throw new Exception("Position was not enabled for this object.");
 
 		//print_r($bbox);
 		$query = "SELECT *, ST_X(geom) as lon, ST_Y(geom) AS lat FROM ".$this->tablename ;
@@ -367,7 +409,7 @@ class OsmDatabasePostgis extends OsmDatabaseCommon
 {
 	function __construct()
 	{
-		$this->nodeTable = new ElementTablePostgis("node",POSTGIS_PREFIX."nodes",1);
+		$this->nodeTable = new ElementTablePostgis("node",POSTGIS_PREFIX."nodes");
 		$this->wayTable = new ElementTablePostgis("way",POSTGIS_PREFIX."ways");
 		$this->relationTable = new ElementTablePostgis("relation",POSTGIS_PREFIX."relations");
 	}
