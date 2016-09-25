@@ -347,37 +347,61 @@ class ElementTablePostgis
 		}
 		if($this->isRelationType)
 		{
+			$memNodes = array();
+			$memWays = array();
+			$memRelations = array();
+
 			foreach($queryObjs as $qo)
 			{
-				$mt = null;
 				if($qo->GetType()=="node")
-					$mt = $this->membertables[0];
+					array_push($memNodes, $qo->attr["id"]);
 				elseif($qo->GetType()=="way")
-					$mt = $this->membertables[1];
+					array_push($memWays, $qo->attr["id"]);
 				elseif($qo->GetType()=="relation")
-					$mt = $this->membertables[2];
-
-				$sql = "SELECT ".$this->tablename.".* FROM ".$mt." INNER JOIN ".$this->tablename." ON ".$mt.".id = ".$this->tablename.".id AND ".$mt.".version = ".$this->tablename.".version WHERE current = true and visible = true AND ".$mt.".member=:oid;";
-
-				$qry = $this->dbh->prepare($sql);
-				$qry->bindParam(':oid', $qo->attr["id"]);
-				$ret = $qry->execute();
-
-				if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
-
-				while($row = $qry->fetch())
-				{
-					$obj = $this->DbRowToObj($row);
-					if(in_array($obj->attr["id"], $alreadyFound)) continue;
-					array_push($alreadyFound, $obj->attr["id"]); 
-
-					array_push($out, $obj);
-				}
-
+					array_push($memRelations, $qo->attr["id"]);
 			}
+
+			$this->CheckRelationMemberTables("node", $memNodes, $this->membertables[0], $alreadyFound, $out);
+			$this->CheckRelationMemberTables("way", $memWays, $this->membertables[1], $alreadyFound, $out);
+			$this->CheckRelationMemberTables("relation", $memRelations, $this->membertables[2], $alreadyFound, $out);
 		}
 
 		return $out;
+	}
+
+	private function CheckRelationMemberTables($objType, &$objIds, $mt, &$alreadyFound, &$out)
+	{
+		$cursor = 0;
+		$step = 50;
+		while ($cursor < count($objIds))
+		{
+			$qids = array_slice ($objIds, $cursor, $step);
+			$cursor += $step;
+			
+			$sqlFrags = array(); 
+			$sqlArg = array();
+			foreach($qids as $qid)
+			{
+				array_push($sqlFrags, $mt.".member=?");
+				array_push($sqlArg, $qid);
+			}
+			$sql = "SELECT ".$this->tablename.".* FROM ".$mt." INNER JOIN ".$this->tablename." ON ".$mt.".id = ".$this->tablename.".id AND ".$mt.".version = ".$this->tablename.".version WHERE current = true and visible = true AND (".implode(" OR ", $sqlFrags).");";
+
+			$qry = $this->dbh->prepare($sql);
+			for($i=0; $i<count($sqlArg);$i++)
+				$qry->bindValue($i+1, $sqlArg[$i]);
+			$ret = $qry->execute($sqlArg);
+			if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
+
+			while($row = $qry->fetch())
+			{
+				$obj = $this->DbRowToObj($row);
+				if(in_array($obj->attr["id"], $alreadyFound)) continue;
+				array_push($alreadyFound, $obj->attr["id"]); 
+
+				array_push($out, $obj);
+			}
+		}
 	}
 
 	public function GetElementsInBbox($bbox)
