@@ -10,8 +10,9 @@ class ElementTablePostgis
 	var $isNodeType = false;
 	var $isWayType = false;
 	var $isRelationType = false;
+	var $membertables = "membertable";
 
-	function __construct($type, $tablename)
+	function __construct($type, $tablename, $membertables)
 	{
 		//Check database schema and connection
 		$this->dbh = new PDO('pgsql:host='.POSTGIS_SERVER.';port='.POSTGIS_PORT.
@@ -25,6 +26,7 @@ class ElementTablePostgis
 		if($this->type=="relation")
 			$this->isRelationType = true;
 		$this->tablename = $tablename;
+		$this->membertables = $membertables;
 		$this->InitialiseSchema();
 	}
 
@@ -314,7 +316,7 @@ class ElementTablePostgis
 		if($this->isWayType)
 		{
 			$cursor = 0;
-			$step = 50;
+			$step = 200;
 			while ($cursor < count($queryObjs))
 			{
 				$qos = array_slice ($queryObjs, $cursor, $step);
@@ -324,10 +326,10 @@ class ElementTablePostgis
 				$sqlArg = array();
 				foreach($qos as $qo)
 				{
-					array_push($sqlFrags, "members @> ?");
+					array_push($sqlFrags, "greece_way_mems.member = ?");
 					array_push($sqlArg, $qo->attr["id"]);
 				}
-				$sql = "SELECT * FROM ".$this->tablename." WHERE current = true and visible = true AND (".implode(" OR ", $sqlFrags).");";
+				$sql = "SELECT ".$this->tablename.".* FROM ".$this->membertables." INNER JOIN ".$this->tablename." ON ".$this->membertables.".id = ".$this->tablename.".id AND ".$this->membertables.".version = ".$this->tablename.".version WHERE current = true and visible = true AND (".implode(" OR ", $sqlFrags).");";
 
 				$qry = $this->dbh->prepare($sql);
 				$ret = $qry->execute($sqlArg);
@@ -345,25 +347,21 @@ class ElementTablePostgis
 		}
 		if($this->isRelationType)
 		{
-			$cursor = 0;
-			$step = 20;
-			while ($cursor < count($queryObjs))
+			foreach($queryObjs as $qo)
 			{
-				$qos = array_slice ($queryObjs, $cursor, $step);
-				$cursor += $step;
-				
-				$sqlFrags = array(); 
-				$sqlArg = array();
-				foreach($qos as $qo)
-				{
-					array_push($sqlFrags, "members @> ?");
-					array_push($sqlArg, "[[\"".$qo->GetType()."\", ".($qo->attr["id"])."]]");
-				}
-				
-				$sql = "SELECT * FROM ".$this->tablename." WHERE current = true and visible = true AND (".implode(" OR ", $sqlFrags).");";
+				$mt = null;
+				if($qo->GetType()=="node")
+					$mt = $this->membertables[0];
+				elseif($qo->GetType()=="way")
+					$mt = $this->membertables[1];
+				elseif($qo->GetType()=="relation")
+					$mt = $this->membertables[2];
+
+				$sql = "SELECT ".$this->tablename.".* FROM ".$mt." INNER JOIN ".$this->tablename." ON ".$mt.".id = ".$this->tablename.".id AND ".$mt.".version = ".$this->tablename.".version WHERE current = true and visible = true AND ".$mt.".member=:oid;";
 
 				$qry = $this->dbh->prepare($sql);
-				$ret = $qry->execute($sqlArg);
+				$qry->bindParam(':oid', $qo->attr["id"]);
+				$ret = $qry->execute();
 
 				if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($sql.",".$err[2]);}
 
@@ -375,6 +373,7 @@ class ElementTablePostgis
 
 					array_push($out, $obj);
 				}
+
 			}
 		}
 
@@ -437,9 +436,9 @@ class OsmDatabasePostgis extends OsmDatabaseCommon
 {
 	function __construct()
 	{
-		$this->nodeTable = new ElementTablePostgis("node",POSTGIS_PREFIX."nodes");
-		$this->wayTable = new ElementTablePostgis("way",POSTGIS_PREFIX."ways");
-		$this->relationTable = new ElementTablePostgis("relation",POSTGIS_PREFIX."relations");
+		$this->nodeTable = new ElementTablePostgis("node",POSTGIS_PREFIX."nodes", null);
+		$this->wayTable = new ElementTablePostgis("way",POSTGIS_PREFIX."ways", POSTGIS_PREFIX."way_mems");
+		$this->relationTable = new ElementTablePostgis("relation",POSTGIS_PREFIX."relations", array(POSTGIS_PREFIX."relation_mems_n", POSTGIS_PREFIX."relation_mems_w", POSTGIS_PREFIX."relation_mems_r"));
 	}
 
 	function __destruct()
