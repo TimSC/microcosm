@@ -326,7 +326,7 @@ class ElementTablePostgis
 				$sqlArg = array();
 				foreach($qos as $qo)
 				{
-					array_push($sqlFrags, "greece_way_mems.member = ?");
+					array_push($sqlFrags, $this->membertables.".member = ?");
 					array_push($sqlArg, $qo->attr["id"]);
 				}
 				$sql = "SELECT ".$this->tablename.".* FROM ".$this->membertables." INNER JOIN ".$this->tablename." ON ".$this->membertables.".id = ".$this->tablename.".id AND ".$this->membertables.".version = ".$this->tablename.".version WHERE current = true and visible = true AND (".implode(" OR ", $sqlFrags).");";
