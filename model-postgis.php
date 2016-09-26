@@ -137,11 +137,44 @@ class ElementTablePostgis
 		}
 
 		$insertsql .= ");\n";
-
+	
 		$qry = $this->dbh->prepare($insertsql);
+		if($qry===false) {$err= $this->dbh->errorInfo();throw new Exception($insertsql.",".$err[2]);}
 		$ret = $qry->execute($invertVals);
 		if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($insertsql.",".$err[2]);}
-		return $this->dbh->lastInsertId();
+		$lastInsertId = $this->dbh->lastInsertId();
+
+		if($this->isWayType)
+		{
+			$insertsql = "INSERT INTO ".$this->membertables." (id, version, member) VALUES (?,?,?);";
+			$qry = $this->dbh->prepare($insertsql);
+			foreach($el->members as $mem)
+			{
+				$ret = $qry->execute(array($el->attr['id'], $el->attr['version'], $mem[1]));
+				if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($insertsql.",".$err[2]);}
+			}
+		}
+
+		if($this->isRelationType)
+		{
+			foreach($el->members as $mem)
+			{
+				$mt = null;
+				if($mem[0]=="node")
+					$mt = $this->membertables[0];
+				if($mem[0]=="way")
+					$mt = $this->membertables[1];
+				if($mem[0]=="relation")
+					$mt = $this->membertables[2];
+
+				$insertsql = "INSERT INTO ".$mt." (id, version, member) VALUES (?,?,?);";
+				$qry = $this->dbh->prepare($insertsql);
+				$ret = $qry->execute(array($el->attr['id'], $el->attr['version'], $mem[1]));
+				if($ret===false) {$err= $this->dbh->errorInfo();throw new Exception($insertsql.",".$err[2]);}
+			}
+		}
+
+		return $lastInsertId;
 	}
 
 	function Insert($el)
@@ -166,7 +199,7 @@ class ElementTablePostgis
 
 	public function Delete($el)
 	{
-		ElementTable::Insert($el);
+		$this->Insert($el);
 	}
 
 	function DbRowToObj($row)

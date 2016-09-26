@@ -138,7 +138,7 @@ class ElementTable
 
 	public function Delete($el)
 	{
-		ElementTable::Insert($el);
+		$this->Insert($el);
 	}
 
 	function DbRowToObj($row)
