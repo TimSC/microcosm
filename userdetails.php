@@ -327,7 +327,7 @@ class UserDbSqlite extends GenericSqliteTable
 		//echo $login." ".$password."\n";
 		$user = $this->Get("userName",$login);
 		if(is_null($user)) return -1; 
-		if(strcmp($password,$user['password'])!=0) return 0;
+		if(!password_verify($password,$user['hashed_password'])) return 0;
 		//print_r($user);
 		return array($user['displayName'], $user['uid']);
 	}
@@ -349,7 +349,7 @@ class UserDbSqlite extends GenericSqliteTable
 		if($this->IsRecordSet('userName',$email)) return "email-taken";
 
 		$f['userName'] = $email;
-		$f['password'] = $password;
+		$f['hashed_password'] = password_hash($password, PASSWORD_DEFAULT);
 		$f['displayName'] = $displayName;
 		$f['uid'] = $uid;
 		$f['accountCreated'] = date('c');

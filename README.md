@@ -8,7 +8,7 @@ The backend data base is sqlite. There is experimental support for PostGIS (post
 Install on nginx
 ----------------
 
-	sudo apt install php php-fpm 
+	sudo apt install php php-fpm php-sqlite3 php-pgsql
 	sudo apt install nginx
 
 Edit /etc/nginx/sites-available/default
@@ -20,6 +20,8 @@ Add index.php to the "index" section. It should read something like:
 Uncomment the section so the following is enabled:
 
 	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+
 		# With php7.0-fpm:
 		fastcgi_pass unix:/run/php/php7.0-fpm.sock;
 	}
