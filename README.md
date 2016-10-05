@@ -8,7 +8,7 @@ The backend data base is sqlite. There is experimental support for PostGIS (post
 Install on nginx
 ----------------
 
-	sudo apt install php php-fpm php-sqlite3 php-pgsql
+	sudo apt install php php-fpm php-sqlite3 php-pgsql php-xml php-bz2
 	sudo apt install nginx
 
 Edit /etc/nginx/sites-available/default
@@ -37,6 +37,18 @@ And add the following block for the API, with appropriate paths:
 	   fastcgi_param SCRIPT_FILENAME $document_root/microcosm.php;
 	   fastcgi_param PATH_INFO $fastcgi_path_info;
 	}
+
+Block access to sqlite and private folders:
+
+	location /microcosm/private {
+        deny all;
+        return 403;
+    }
+
+	location /microcosm/sqlite {
+        deny all;
+        return 403;
+    }
 
 Restart services:
 
